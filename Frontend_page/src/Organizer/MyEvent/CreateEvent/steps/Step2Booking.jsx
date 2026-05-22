@@ -1,10 +1,71 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Calendar } from "lucide-react";
+import { Calendar, X } from "lucide-react";
 import CustomTimePicker from "../TimePickerClock";
 
 const Step2Booking = ({ formData, setFormData }) => {
+  const [taxSearch, setTaxSearch] = useState("");
+  const [isTaxDropdownOpen, setIsTaxDropdownOpen] = useState(false);
+  const taxDropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (taxDropdownRef.current && !taxDropdownRef.current.contains(event.target)) {
+        setIsTaxDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const taxOptions = [
+    "Ticket - CGST",
+    "Ticket - SGST",
+    "Ticket - IGST",
+    "Food - GST"
+  ];
+
+  const handleTaxToggle = (tax) => {
+    const currentTaxes = formData.booking?.taxes || [];
+    let newTaxes;
+    if (currentTaxes.includes(tax)) {
+      newTaxes = currentTaxes.filter(t => t !== tax);
+    } else {
+      newTaxes = [...currentTaxes, tax];
+    }
+    setFormData({
+      ...formData,
+      booking: {
+        ...formData.booking,
+        taxes: newTaxes
+      }
+    });
+  };
+
+  const handleSelectAllTaxes = () => {
+    const currentTaxes = formData.booking?.taxes || [];
+    const filteredOptions = taxOptions.filter(t => t.toLowerCase().includes(taxSearch.toLowerCase()));
+    
+    // If all currently visible options are selected, deselect them
+    const allVisibleSelected = filteredOptions.every(t => currentTaxes.includes(t));
+    
+    let newTaxes;
+    if (allVisibleSelected) {
+      newTaxes = currentTaxes.filter(t => !filteredOptions.includes(t));
+    } else {
+      const toAdd = filteredOptions.filter(t => !currentTaxes.includes(t));
+      newTaxes = [...currentTaxes, ...toAdd];
+    }
+
+    setFormData({
+      ...formData,
+      booking: { ...formData.booking, taxes: newTaxes }
+    });
+  };
+
   const formatDate = (date) => {
     if (!date) return "";
 
@@ -44,6 +105,23 @@ const Step2Booking = ({ formData, setFormData }) => {
       }
 
       setFormData(updatedData);
+      return;
+    }
+
+    // Special handling for includeTax
+    if (name === "includeTax") {
+      if (!checked) {
+        setIsTaxDropdownOpen(false);
+        setTaxSearch("");
+      }
+      setFormData({
+        ...formData,
+        booking: {
+          ...formData.booking,
+          includeTax: checked,
+          taxes: [],
+        },
+      });
       return;
     }
 
@@ -95,21 +173,18 @@ const Step2Booking = ({ formData, setFormData }) => {
           <div className="p-2 bg-indigo-50 rounded-lg">
             <Calendar className="w-5 h-5 text-indigo-600" />
           </div>
-          <h2 className="text-xl font-bold text-gray-800">Booking Details</h2>
+          <h2 className="text-xl font-bold text-gray-800">Booking Information</h2>
         </div>
 
         {/* Booking Dates */}
         <div className="space-y-4">
           <label className="block text-sm font-semibold text-gray-700 ml-1">
-            Booking Period <span className="text-red-500">*</span>
+             When does your Booking Start for the event? <span className="text-red-500">*</span>
           </label>
 
           <div className="grid grid-cols-2 gap-4">
             {/* START DATE */}
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
-                Open
-              </label>
               <div className="relative group w-full">
                 <DatePicker
                   selected={
@@ -134,7 +209,7 @@ const Step2Booking = ({ formData, setFormData }) => {
                   openToDate={new Date()}
                   minDate={new Date()}
                   dateFormat="dd/MM/yyyy"
-                  placeholderText="DD/MM/YYYY"
+                  placeholderText=" Booking Start Date"
                   className="w-full bg-gray-50 border-0 ring-1 ring-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm cursor-pointer"
                   wrapperClassName="w-full"
                 />
@@ -144,9 +219,6 @@ const Step2Booking = ({ formData, setFormData }) => {
 
             {/* END DATE */}
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
-                Close
-              </label>
               <div className="relative group w-full">
                 <DatePicker
                   selected={
@@ -171,7 +243,7 @@ const Step2Booking = ({ formData, setFormData }) => {
                   openToDate={new Date()}
                   minDate={new Date()}
                   dateFormat="dd/MM/yyyy"
-                  placeholderText="DD/MM/YYYY"
+                  placeholderText=" Booking End Date"
                   className="w-full bg-gray-50 border-0 ring-1 ring-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm cursor-pointer"
                   wrapperClassName="w-full"
                 />
@@ -182,32 +254,36 @@ const Step2Booking = ({ formData, setFormData }) => {
         </div>
 
         {/* Capacity */}
-        <div className="group">
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">
-            Total Capacity <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="capacity"
-            placeholder="e.g. 500"
-            inputMode="numeric" // 📱 mobile numeric keyboard
-            maxLength={5}
-            value={formData.booking?.capacity || ""}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^\d*$/.test(value)) {
-                handleChange(e);
-              }
-            }}
-            onKeyDown={(e) => {
-              if (["e", "E", "+", "-", "."].includes(e.key)) {
-                e.preventDefault();
-              }
-            }}
-            className="w-full bg-gray-50 border-0 ring-1 ring-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
-          />
-        </div>
+        <div className="group mb-6">
+  <h2 className="text-xl font-bold text-gray-800 mb-4">
+    Registration Information
+  </h2>
 
+  <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
+    What's the Capacity for Your Event? <span className="text-red-500">*</span>
+  </label>
+
+  <input
+    type="text"
+    name="capacity"
+    placeholder="Max Capacity"
+    inputMode="numeric"
+    maxLength={5}
+    value={formData.booking?.capacity || ""}
+    onChange={(e) => {
+      const value = e.target.value;
+      if (/^\d*$/.test(value)) {
+        handleChange(e);
+      }
+    }}
+    onKeyDown={(e) => {
+      if (["e", "E", "+", "-", "."].includes(e.key)) {
+        e.preventDefault();
+      }
+    }}
+    className="w-full h-16 bg-gray-50 border-0 ring-1 ring-gray-200 px-4 rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-lg"
+  />
+</div>
         {/* Pass Type */}
         <div className="space-y-3">
           <label className="block text-sm font-semibold text-gray-700 ml-1">
@@ -224,7 +300,7 @@ const Step2Booking = ({ formData, setFormData }) => {
                   checked={formData.booking?.passType === opt}
                   onChange={handleChange}
                 />
-                <div className="text-center py-2.5 rounded-lg cursor-pointer transition-all peer-checked:bg-white peer-checked:text-indigo-600 peer-checked:shadow-sm text-gray-500 text-sm font-semibold">
+                <div className="text-center py-3 rounded-xl transition-all peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:shadow-lg text-gray-500 text-xs font-bold tracking-widest">
                   {opt}
                 </div>
               </label>
@@ -316,7 +392,7 @@ const Step2Booking = ({ formData, setFormData }) => {
                   checked={formData.booking?.entryType === opt}
                   onChange={handleChange}
                 />
-                <div className="text-center py-2.5 rounded-lg cursor-pointer transition-all peer-checked:bg-white peer-checked:text-indigo-600 peer-checked:shadow-sm text-gray-500 text-sm font-semibold">
+                <div className="text-center py-3 rounded-xl transition-all peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:shadow-lg text-gray-500 text-xs font-bold tracking-widest">
                   {opt}
                 </div>
               </label>
@@ -331,13 +407,13 @@ const Step2Booking = ({ formData, setFormData }) => {
           <div className="p-2 bg-amber-50 rounded-lg">
             <span className="text-xl text-amber-600 font-bold">₹</span>
           </div>
-          <h2 className="text-xl font-bold text-gray-800">Pricing Setup</h2>
+          <h2 className="text-xl font-bold text-gray-800">Price Information</h2>
         </div>
 
         {/* Charge Type */}
         <div className="space-y-3">
           <label className="block text-sm font-semibold text-gray-700 ml-1">
-            Select Fee Model <span className="text-red-500">*</span>
+           How much do You Want to Charge for Passes?  <span className="text-red-500">*</span>
           </label>
           <div className="grid grid-cols-3 gap-2 bg-gray-50 p-1.5 rounded-2xl ring-1 ring-gray-200">
             {["Paid", "Free", "Donation"].map((opt) => (
@@ -357,16 +433,28 @@ const Step2Booking = ({ formData, setFormData }) => {
             ))}
           </div>
         </div>
+         <label className="flex items-center cursor-pointer group">
+                <input
+                  type="checkbox"
+                  name="includeTax"
+                  checked={formData.booking?.includeTax || false}
+                  onChange={handleChange}
+                  className="w-5 h-5 rounded border-amber-300 text-amber-600 focus:ring-amber-500"
+                />
+                <span className="ml-3 text-sm font-bold text-amber-900">
+                  Include GST/Tax
+                </span>
+              </label>
 
         <div className="space-y-4 pt-2">
           <div className="group">
             <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">
-              Max Passes Per Person <span className="text-red-500">*</span>
+              Max Number of Passes Allowed/Person<span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               name="maxPass"
-              placeholder="Max Passes"
+              placeholder="Max Passes / Person"
               value={formData.booking?.maxPass || ""}
               inputMode="numeric"
               maxLength={5}
@@ -408,23 +496,12 @@ const Step2Booking = ({ formData, setFormData }) => {
           {/* ONLY PAID */}
           {isPaid && (
             <div className="space-y-4 p-5 bg-amber-50/30 rounded-2xl border border-amber-100 animate-slideDown">
-              <label className="flex items-center cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="includeTax"
-                  checked={formData.booking?.includeTax || false}
-                  onChange={handleChange}
-                  className="w-5 h-5 rounded border-amber-300 text-amber-600 focus:ring-amber-500"
-                />
-                <span className="ml-3 text-sm font-bold text-amber-900">
-                  Include GST/Tax
-                </span>
-              </label>
+
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
+                <div className={formData.booking?.includeTax ? "col-span-2 space-y-1.5" : "space-y-1.5"}>
                   <label className="text-xs font-bold text-amber-700 uppercase tracking-wider ml-1">
-                    Price Tier
+                    Price Type <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="priceType"
@@ -440,7 +517,7 @@ const Step2Booking = ({ formData, setFormData }) => {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-amber-700 uppercase tracking-wider ml-1">
-                    Currency
+                    Currency <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="currency"
@@ -449,10 +526,88 @@ const Step2Booking = ({ formData, setFormData }) => {
                     className="w-full bg-white border-0 ring-1 ring-amber-200 p-2.5 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm appearance-none cursor-pointer"
                   >
                     <option value="">Select Currency</option>
-                    <option>INR (₹)</option>
-                    <option>USD ($)</option>
+                    <option value="INR (₹)">Indian Rupee - INR (₹)</option>
+                    <option value="USD ($)">US Dollar - USD ($)</option>
                   </select>
                 </div>
+
+                {formData.booking?.includeTax && (
+                  <div className="space-y-1.5 relative" ref={taxDropdownRef}>
+                    <label className="text-xs font-bold text-amber-700 uppercase tracking-wider ml-1">
+                      Select Tax <span className="text-red-500">*</span>
+                    </label>
+                    <div 
+                      className="w-full bg-white border-0 ring-1 ring-amber-200 p-2.5 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm flex items-center justify-between cursor-pointer h-[42px]"
+                      onClick={() => setIsTaxDropdownOpen(!isTaxDropdownOpen)}
+                    >
+                      <span className="truncate text-gray-600 text-sm">
+                        {(formData.booking?.taxes || []).length > 0 
+                          ? (formData.booking?.taxes || []).join(", ") 
+                          : "Select Tax"}
+                      </span>
+                      <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isTaxDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                    </div>
+
+                    {isTaxDropdownOpen && (
+                      <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
+                        {/* Search header */}
+                        <div className="p-3 border-b border-gray-100 flex items-center gap-3 bg-white">
+                          <input
+                            type="checkbox"
+                            checked={
+                              taxOptions.filter(t => t.toLowerCase().includes(taxSearch.toLowerCase())).length > 0 &&
+                              taxOptions.filter(t => t.toLowerCase().includes(taxSearch.toLowerCase()))
+                                .every(t => (formData.booking?.taxes || []).includes(t))
+                            }
+                            onChange={handleSelectAllTaxes}
+                            className="w-4 h-4 rounded border-amber-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
+                          />
+                          <div className="flex-1 flex items-center px-3 py-1.5 border border-amber-200 rounded-lg focus-within:border-amber-500 focus-within:ring-1 focus-within:ring-amber-500 transition-all bg-white">
+                            <input 
+                              type="text" 
+                              value={taxSearch}
+                              onChange={(e) => setTaxSearch(e.target.value)}
+                              placeholder="Search Tax..."
+                              className="w-full text-sm outline-none bg-transparent text-gray-700"
+                            />
+                            <svg className="w-4 h-4 text-gray-400 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                          </div>
+                          <button 
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsTaxDropdownOpen(false); 
+                              setTaxSearch(''); 
+                            }} 
+                            className="text-gray-400 hover:text-gray-600 p-1"
+                          >
+                            <X size={18} />
+                          </button>
+                        </div>
+
+                        {/* Options */}
+                        <div className="max-h-60 overflow-y-auto bg-white">
+                          {taxOptions.filter(t => t.toLowerCase().includes(taxSearch.toLowerCase())).map((tax) => (
+                            <label key={tax} className="flex items-center gap-3 px-3 py-3 cursor-pointer transition-colors hover:bg-amber-50 bg-white">
+                              <input
+                                type="checkbox"
+                                checked={(formData.booking?.taxes || []).includes(tax)}
+                                onChange={() => handleTaxToggle(tax)}
+                                className="w-4 h-4 rounded border-amber-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
+                              />
+                              <span className="text-sm text-gray-700 font-medium">{tax}</span>
+                            </label>
+                          ))}
+                          {taxOptions.filter(t => t.toLowerCase().includes(taxSearch.toLowerCase())).length === 0 && (
+                            <div className="p-4 text-center text-sm text-gray-500 bg-white">No options found</div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-4">

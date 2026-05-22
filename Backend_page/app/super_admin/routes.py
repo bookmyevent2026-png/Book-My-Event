@@ -1722,12 +1722,12 @@ def format_time(time_str):
 
     for fmt in formats:
         try:
-            return dt.datetime.strptime(time_str, fmt).time()
+            return dt.datetime.strptime(time_str, fmt).strftime("%H:%M:%S")
         except:
             continue
 
     print("Time format error: Unsupported format ->", time_str)
-    return None
+    return time_str
 
 def format_datetime(dt_str):
     try:

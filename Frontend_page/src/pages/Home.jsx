@@ -24,6 +24,7 @@ import { useNavigate } from "react-router-dom";
 import MediaRenderer from "../components/MediaRenderer";
 import EventDetailModal from "../components/EventDetailModal";
 import { getHomeEventshow, getFullEventDetails } from "../Services/api";
+import { EventCard, CountdownTimer } from "../components/EventCard";
 
 const CATEGORIES = [
   { name: "All", icon: "🎯", color: "from-slate-600 to-slate-700" },
@@ -35,252 +36,29 @@ const CATEGORIES = [
 
 ];
 
-const CountdownTimer = ({ targetDate }) => {
-  const [timeLeft, setTimeLeft] = useState({});
 
-  useEffect(() => {
-    const calculateTimeLeft = () => {
-      const difference = new Date(targetDate) - new Date();
-      if (difference > 0) {
-        return {
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((difference / 1000 / 60) % 60),
-          seconds: Math.floor((difference / 1000) % 60),
-        };
-      }
-      return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-    };
-
-    setTimeLeft(calculateTimeLeft());
-    const timer = setInterval(() => setTimeLeft(calculateTimeLeft()), 1000);
-    return () => clearInterval(timer);
-  }, [targetDate]);
-
-  return (
-    <div className="flex gap-2 text-xs font-mono">
-      {timeLeft.days > 0 && (
-        <>
-          <span className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded-lg">
-            {timeLeft.days}d
-          </span>
-          <span className="text-slate-500">•</span>
-        </>
-      )}
-      <span className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded-lg">
-        {String(timeLeft.hours).padStart(2, "0")}h
-      </span>
-      <span className="text-slate-500">•</span>
-      <span className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded-lg">
-        {String(timeLeft.minutes).padStart(2, "0")}m
-      </span>
-    </div>
-  );
-};
-
-const EventCard = ({ event, isFeatured = false, isLiked, onToggleLike, onShowDetail }) => {
+const Hero = ({
+  events,
+  likedEvents,
+  toggleLike,
+  onShowDetail,
+}) => {
   const navigate = useNavigate();
 
-  const handleBookNow = (e) => {
-    e.stopPropagation();
-    console.log("Clicked Event ID:", event.id); // ✅ debug
-    navigate(`/usersbooking/${event.id}`, { state: { event } });
-  };
+  // Find the closest upcoming open event (not closed)
+  const openEvents = (events || [])
+    .filter((e) => {
+      const isClosed = new Date(e.endDate || e.date).setHours(23, 59, 59, 999) < new Date();
+      return !isClosed;
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-  const priceDisplay =
-    event.price === 0 ? "Free" : `${event.currency}${event.price}`;
-
-  if (isFeatured) {
-    return (
-      <div
-        onClick={() => onShowDetail(event.id)}
-        className="group relative overflow-hidden rounded-2xl h-full cursor-pointer"
-      >
-        {/* Featured card with image and overlay */}
-        <MediaRenderer
-          src={event.image}
-          type={event.banner_type}
-          alt={event.title}
-          className="w-full h-full group-hover:scale-105 transition-transform duration-700"
-        />
-
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-
-        {/* Trending Badge */}
-        {event.trending && (
-          <div className="absolute top-4 left-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-orange-500 to-red-500 rounded-full text-white text-xs font-bold">
-              <TrendingUp size={14} />
-              Trending Now
-            </div>
-          </div>
-        )}
-
-        {/* Like Button */}
-
-
-        {/* Content */}
-        <div className="absolute inset-0 flex flex-col justify-end p-6">
-          <div className="space-y-3">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <h3 className="text-2xl font-bold text-white mb-2 hover:text-orange-400 transition-colors">
-                  {event.title}
-                </h3>
-                <p className="text-sm text-gray-300 flex items-center gap-2">
-                  <MapPin size={14} />
-                  {event.location}
-                </p>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-orange-400">
-                  {priceDisplay}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-4 border-t border-white/10">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span className="text-sm text-white font-semibold">
-                    {event.rating}
-                  </span>
-                </div>
-                <span className="text-sm text-gray-400">
-                  ({event.reviews} reviews)
-                </span>
-              </div>
-              <button
-                onClick={handleBookNow}
-                disabled={new Date() > new Date(event.endDate || event.date)}
-                className={`px-6 py-2 rounded-full font-semibold transition-all transform hover:scale-105 ${new Date() > new Date(event.endDate || event.date)
-                    ? "bg-slate-700 text-slate-400 cursor-not-allowed"
-                    : "bg-white text-slate-900 hover:bg-gray-100"
-                  }`}
-              >
-                {new Date() > new Date(event.endDate || event.date) ? "Booking Closed" : "Book Now"}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const featuredEvent = openEvents[0] || events?.[0];
 
   return (
-    <div
-      onClick={() => onShowDetail(event.id)}
-      className="group relative bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-xl overflow-hidden hover:border-slate-600 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/10 cursor-pointer"
-    >
-      {/* Image Container */}
-      <div className="relative h-40 overflow-hidden bg-slate-900">
-        <MediaRenderer
-          src={event.image}
-          type={event.banner_type}
-          alt={event.title}
-          className="w-full h-full group-hover:scale-110 transition-transform duration-700"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent" />
-
-        {/* Category Badge */}
-        <div className="absolute top-3 left-3">
-          <span className="px-2.5 py-1 bg-slate-900/60 backdrop-blur-md rounded-lg text-xs font-bold text-slate-200 border border-slate-700/50">
-            {event.category}
-          </span>
-        </div>
-
-        {/* Like Button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleLike(event.id);
-          }}
-          className="absolute top-3 right-3 p-2 bg-slate-900/60 backdrop-blur-md rounded-full hover:bg-slate-800 transition-colors z-10"
-        >
-          <Heart
-            className={`w-4 h-4 transition-all ${isLiked ? "fill-red-500 text-red-500" : "text-white"}`}
-          />
-        </button>
-
-        {/* Price */}
-        <div className="absolute bottom-3 left-3">
-          <span className="text-lg font-bold text-orange-400">
-            {priceDisplay}
-          </span>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="p-4 space-y-3">
-        <div>
-          <h3 className="text-sm font-bold text-white line-clamp-2 hover:text-orange-400 transition-colors">
-            {event.title}
-          </h3>
-          <div className="flex items-center justify-between mt-2">
-            <div className="flex items-center gap-1">
-              <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-              <span className="text-xs font-semibold text-slate-300">
-                {event.rating}
-              </span>
-            </div>
-            <span className="text-xs text-slate-500">({event.reviews})</span>
-          </div>
-        </div>
-
-        <div className="space-y-1.5 text-slate-400 text-xs">
-          <div className="flex items-center gap-2">
-            <MapPin className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
-            <span className="truncate">{event.location}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
-            <span>
-              {new Date(event.date).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-              })}
-              {event.endDate && event.endDate !== event.date && (
-                <> - {new Date(event.endDate).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })}</>
-              )}
-            </span>
-          </div>
-        </div>
-
-        {/* Countdown */}
-        <div className="pt-3 border-t border-slate-700/50">
-          <CountdownTimer targetDate={event.bookingEnds} />
-        </div>
-
-        {/* Action Button */}
-        <button
-          onClick={handleBookNow}
-          disabled={new Date() > new Date(event.endDate || event.date)}
-          className={`w-full py-2 rounded-lg text-white text-xs font-bold transition-all transform hover:scale-105 active:scale-95 ${new Date() > new Date(event.endDate || event.date)
-              ? "bg-slate-700 text-slate-500 cursor-not-allowed"
-              : "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg shadow-orange-500/20"
-            }`}
-        >
-          {new Date() > new Date(event.endDate || event.date) ? "Booking Closed" : "Book Ticket"}
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const Hero = ({ events, searchQuery, setSearchQuery, likedEvents, toggleLike, onShowDetail }) => {
-
-  const navigate = useNavigate();
-  const featuredEvent = events?.[0]; // ✅ first event
-
-  return (
-    <div className="relative min-h-[70vh] overflow-hidden bg-slate-950">
+    <div className="relative min-h-[70vh] bg-slate-950">
       {/* Sophisticated Background */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 overflow-hidden">
         {/* Gradient mesh background */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-950" />
 
@@ -340,8 +118,8 @@ const Hero = ({ events, searchQuery, setSearchQuery, likedEvents, toggleLike, on
       </nav>
 
       {/* Hero Content */}
-      <div className="relative z-10 pt-28 pb-12 px-4">
-        <div className="max-w-6xl mx-auto">
+      <div className="relative z-10 pt-28 pb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left Column - Text */}
             <div className="space-y-8">
@@ -392,88 +170,105 @@ const Hero = ({ events, searchQuery, setSearchQuery, likedEvents, toggleLike, on
               </div>
             </div>
           </div>
-
-          {/* Search Section */}
-          <div className="mt-12">
-            <div className="bg-slate-800/30 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-6">
-              <div className="flex flex-col md:flex-row gap-3">
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center gap-3 px-4 py-3 bg-slate-900/50 rounded-xl border border-slate-700/50">
-                    <Search className="w-5 h-5 text-slate-400" />
-                    <input
-                      type="text"
-                      placeholder="Search events..."
-                      className="flex-1 bg-transparent text-white placeholder-slate-500 outline-none text-sm"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          document.getElementById("events-list")?.scrollIntoView({ behavior: "smooth" });
-                        }
-                      }}
-                    />
-                    {searchQuery && (
-                      <span className="text-xs font-medium text-slate-500 whitespace-nowrap">
-                        {events.filter(e => e.title.toLowerCase().includes(searchQuery.toLowerCase())).length} matches
-                      </span>
-                    )}
-                  </div>
-
-                  {searchQuery && events.filter(e => e.title.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
-                    <p className="text-xs text-red-400 ml-2 animate-pulse">
-                      No events found matching "{searchQuery}"
-                    </p>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => {
-                    document.getElementById("events-list")?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl text-white font-bold transition-all transform hover:scale-105"
-                >
-                  Search Results
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
   );
 };
 
-const CategorySection = ({ selectedCategory, setSelectedCategory }) => {
-  return (
-    <section className="py-8 bg-slate-950 relative">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="mb-6">
-          <h2 className="text-4xl font-bold text-white mb-2">
-            Browse by Category
-          </h2>
-          <p className="text-slate-400">Find events that match your vibe</p>
-        </div>
+const CategorySection = () => {
+  const navigate = useNavigate();
 
-        <div className="flex flex-wrap gap-3">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat.name}
-              onClick={() => setSelectedCategory(cat.name)}
-              className={`group relative px-6 py-3 rounded-full transition-all duration-300 font-semibold text-sm ${selectedCategory === cat.name
-                ? "bg-white text-slate-900 scale-105 shadow-lg shadow-orange-500/30"
-                : "bg-slate-800/60 text-slate-300 hover:bg-slate-700/80 hover:text-white"
-                }`}
+  const popularCategories = [
+    {
+      name: "CONFERENCE",
+      filterName: "Business",
+      image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=600",
+    },
+    {
+      name: "ENTERTAINMENT",
+      filterName: "Music",
+      image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=600",
+    },
+    {
+      name: "CORPORATE",
+      filterName: "Business",
+      image: "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=600",
+    },
+    {
+      name: "EXPO",
+      filterName: "Technology",
+      image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=600",
+    },
+    {
+      name: "EDUCATION",
+      filterName: "Education",
+      image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=600",
+    },
+    {
+      name: "SPORTS",
+      filterName: "Sports",
+      image: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=600",
+    },
+  ];
+
+  // Duplicate the array of categories to create a seamless infinite scrolling track
+  const doubledCategories = [...popularCategories, ...popularCategories, ...popularCategories];
+
+  return (
+    <section className="py-12 bg-slate-950 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 mb-8">
+        <div className="text-center">
+          <h2 className="text-sm font-bold tracking-widest text-orange-500 uppercase mb-2">
+            Explore Categories
+          </h2>
+          <h3 className="text-3xl font-extrabold text-white sm:text-4xl">
+            POPULAR CATEGORIES
+          </h3>
+        </div>
+      </div>
+
+      {/* Infinite Marquee Track Container */}
+      <div className="w-full overflow-hidden relative py-4">
+        {/* Soft fading edges for premium look */}
+        <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-slate-950 to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-slate-950 to-transparent z-10 pointer-events-none" />
+
+        <div className="animate-marquee hover:[animation-play-state:paused] flex gap-6 cursor-pointer">
+          {doubledCategories.map((cat, idx) => (
+            <div
+              key={`${cat.name}-${idx}`}
+              onClick={() => navigate("/all-events", { state: { category: cat.filterName } })}
+              className="group relative w-72 h-44 rounded-2xl overflow-hidden shadow-xl transform transition-all duration-500 hover:scale-105 hover:shadow-orange-500/20 flex-shrink-0"
             >
-              <div className="flex items-center gap-2">
-                <span>{cat.icon}</span>
-                <span>{cat.name}</span>
+              {/* Background Image */}
+              <img
+                src={cat.image}
+                alt={cat.name}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                loading="lazy"
+              />
+              
+              {/* Overlay Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent transition-opacity duration-300 group-hover:opacity-95" />
+
+              {/* Top-left category tag like the screenshot */}
+              <div className="absolute top-4 left-4">
+                <span className="text-[11px] font-extrabold tracking-widest text-white/95 uppercase bg-black/40 backdrop-blur-md px-3 py-1 rounded-md border border-white/10">
+                  {cat.name}
+                </span>
               </div>
-              {selectedCategory === cat.name && (
-                <div
-                  className={`absolute inset-0 bg-gradient-to-r ${cat.color} opacity-30 rounded-full blur-xl -z-10`}
-                />
-              )}
-            </button>
+
+              {/* Bottom detail row */}
+              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                <span className="text-base font-extrabold tracking-wide text-white group-hover:text-orange-400 transition-colors">
+                  {cat.filterName} Events
+                </span>
+                <span className="w-8 h-8 rounded-full bg-white/10 group-hover:bg-orange-500 flex items-center justify-center text-white transition-all duration-300 transform group-hover:translate-x-1">
+                  →
+                </span>
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -481,32 +276,130 @@ const CategorySection = ({ selectedCategory, setSelectedCategory }) => {
   );
 };
 
-const EventsSection = ({
-  selectedCategory,
-  setSelectedCategory,
-  events,
-  searchQuery,
-  likedEvents,
-  onToggleLike,
-  onShowDetail
-}) => {
+const HomeSearchWidget = ({ events }) => {
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("");
+  const [location, setLocation] = useState("");
 
-  const filteredEvents =
-    selectedCategory === "All"
-      ? events
-      : events.filter(
-        (e) =>
-          e.category?.trim().toLowerCase() ===
-          selectedCategory.trim().toLowerCase()
-      );
-
-  // 🔥 SEARCH FILTER
-  const searchedEvents = filteredEvents.filter((e) =>
-    e.title.toLowerCase().includes(searchQuery.toLowerCase())
+  const uniqueLocations = Array.from(
+    new Set(
+      events
+        .map((e) => {
+          if (!e.location) return "";
+          const parts = e.location.split(",");
+          return parts[parts.length - 1]?.trim() || e.location;
+        })
+        .filter(Boolean)
+    )
   );
 
+  const handleSearch = () => {
+    navigate("/all-events", {
+      state: {
+        title: query,
+        category: category || "All",
+        location: location,
+      },
+    });
+  };
+
+  return (
+    <div className="relative z-20 mt-4 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="bg-white rounded-2xl md:rounded-full p-2 md:p-1.5 shadow-xl border border-gray-200 flex flex-col md:flex-row items-center gap-1">
+        {/* What are you looking for */}
+        <div className="flex-1 w-full flex items-center gap-2.5 px-5 py-2 border-b md:border-b-0 md:border-r border-gray-200">
+          <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />
+          <input
+            type="text"
+            placeholder="What are you looking for?"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="w-full bg-transparent text-slate-800 placeholder-slate-400 outline-none text-sm font-medium"
+          />
+        </div>
+
+        {/* Category Selector */}
+        <div className="w-full md:w-52 flex items-center gap-2 px-5 py-2 border-b md:border-b-0 md:border-r border-gray-200 relative">
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full bg-transparent text-slate-800 placeholder-slate-400 outline-none text-sm font-medium appearance-none cursor-pointer pr-8"
+          >
+            <option value="" className="text-slate-400">Category</option>
+            <option value="Music" className="text-slate-800">Music</option>
+            <option value="Business" className="text-slate-800">Business</option>
+            <option value="Technology" className="text-slate-800">Technology</option>
+            <option value="Education" className="text-slate-800">Education</option>
+            <option value="Sports" className="text-slate-800">Sports</option>
+          </select>
+          <ChevronDown className="w-4 h-4 text-slate-400 absolute right-5 pointer-events-none" />
+        </div>
+
+        {/* Location Selector */}
+        <div className="w-full md:w-52 flex items-center gap-2 px-5 py-2 relative">
+          <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
+          <select
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            className="w-full bg-transparent text-slate-800 placeholder-slate-400 outline-none text-sm font-medium appearance-none cursor-pointer pr-8"
+          >
+            <option value="" className="text-slate-400">Location</option>
+            {uniqueLocations.map((loc) => (
+              <option key={loc} value={loc} className="text-slate-800">
+                {loc}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="w-4 h-4 text-slate-400 absolute right-5 pointer-events-none" />
+        </div>
+
+        {/* Search Button */}
+        <button
+          onClick={handleSearch}
+          className="w-full md:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-full font-bold transition-all shadow-md shadow-blue-500/10 text-xs uppercase tracking-wider cursor-pointer flex-shrink-0"
+        >
+          SEARCH
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const EventsSection = ({
+  events,
+  likedEvents,
+  onToggleLike,
+  onShowDetail,
+  onViewAllClick
+}) => {
+  const [selectedCity, setSelectedCity] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [citySearchQuery, setCitySearchQuery] = useState("");
+
+  // Helper to extract clean city name
+  const getCityFromLocation = (loc) => {
+    if (!loc) return "";
+    const cleanLoc = loc.toLowerCase();
+    if (cleanLoc.includes("chennai")) return "CHENNAI";
+    if (cleanLoc.includes("bengaluru") || cleanLoc.includes("bangalore")) return "BENGALURU";
+    if (cleanLoc.includes("mumbai")) return "MUMBAI";
+    if (cleanLoc.includes("delhi")) return "DELHI";
+    if (cleanLoc.includes("hyderabad")) return "HYDERABAD";
+    if (cleanLoc.includes("coimbatore")) return "COIMBATORE";
+    if (cleanLoc.includes("madurai")) return "MADURAI";
+    if (cleanLoc.includes("trichy")) return "TRICHY";
+    
+    const parts = loc.split(",");
+    const lastPart = parts[parts.length - 1]?.trim().toUpperCase() || "";
+    if (lastPart === "INDIA" || lastPart === "TAMIL NADU" || lastPart === "KARNATAKA") {
+      return parts[parts.length - 2]?.trim().toUpperCase() || lastPart;
+    }
+    return lastPart;
+  };
+
   // 🔥 SORTING: Open events first (by date), Closed events last
-  const finalEvents = [...searchedEvents].sort((a, b) => {
+  const finalEvents = [...events].sort((a, b) => {
     const aClosed = new Date(a.endDate || a.date).setHours(23, 59, 59, 999) < new Date();
     const bClosed = new Date(b.endDate || b.date).setHours(23, 59, 59, 999) < new Date();
 
@@ -518,48 +411,119 @@ const EventsSection = ({
     return new Date(a.date) - new Date(b.date);
   });
 
-  const trendingEvents = finalEvents.filter((e) => e.trending).slice(0, 2);
-  const otherEvents = finalEvents;
-  return (
-    <section id="events-list" className="py-12 bg-slate-950 relative">
-      <div className="max-w-7xl mx-auto px-4">
-        {/* Featured Grid */}
-        {trendingEvents.length > 0 && selectedCategory === "All" && (
-          <div className="mb-12">
-            <h2 className="text-3xl font-bold text-white mb-8">
-              Featured Events
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-              {trendingEvents.map((event) => (
-                <div key={event.id} className="h-80 rounded-xl overflow-hidden">
-                  <EventCard event={event} isFeatured={true} onShowDetail={onShowDetail} />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+  // Extract cities dynamically from current events list
+  const citiesList = Array.from(
+    new Set(
+      events
+        .map((e) => getCityFromLocation(e.location))
+        .filter(Boolean)
+    )
+  ).sort();
 
+  // Apply City Filter
+  const cityFilteredEvents = finalEvents.filter((event) => {
+    if (!selectedCity) return true;
+    return getCityFromLocation(event.location) === selectedCity;
+  });
+
+  const otherEvents = cityFilteredEvents.slice(0, 4);
+
+  return (
+    <section 
+      id="events-list" 
+      className="py-12 bg-slate-950 relative bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: "url('/event_bg.png')" }}
+    >
+      <div className="max-w-7xl mx-auto px-4">
         {/* All Events */}
         <div>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-bold text-white">
-              {selectedCategory === "All"
-                ? "All Events"
-                : `${selectedCategory} Events`}
-            </h2>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <h2 className="text-3xl font-extrabold text-white tracking-wide">
+                EVENTS
+              </h2>
+              
+              {/* City Filter Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex items-center gap-1.5 px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-full text-xs transition-all cursor-pointer shadow-md select-none border border-yellow-500/20"
+                >
+                  <span className="tracking-wider uppercase">{selectedCity || "City"}</span>
+                  {selectedCity && (
+                    <span
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedCity("");
+                      }}
+                      className="hover:text-red-200 transition-colors ml-0.5 p-0.5"
+                    >
+                      <X className="w-3.5 h-3.5 stroke-[3]" />
+                    </span>
+                  )}
+                  <ChevronDown className="w-3.5 h-3.5 stroke-[3]" />
+                </button>
+
+                {/* Dropdown Box */}
+                {isDropdownOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
+                    <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-2xl border border-gray-100 z-50 p-2.5 animate-fadeIn">
+                      {/* Search box inside dropdown */}
+                      <div className="relative flex items-center mb-2 border border-gray-300 rounded-md px-2.5 py-1 bg-white">
+                        <input
+                          type="text"
+                          placeholder="Search City..."
+                          value={citySearchQuery}
+                          onChange={(e) => setCitySearchQuery(e.target.value)}
+                          className="w-full bg-transparent text-slate-800 placeholder-slate-400 outline-none text-xs font-semibold pr-6"
+                          autoFocus
+                        />
+                        <Search className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 pointer-events-none" />
+                      </div>
+
+                      {/* Cities list */}
+                      <div className="max-h-40 overflow-y-auto no-scrollbar">
+                        {citiesList
+                          .filter(city => city.toLowerCase().includes(citySearchQuery.toLowerCase()))
+                          .map(city => (
+                            <div
+                              key={city}
+                              onClick={() => {
+                                setSelectedCity(city);
+                                setIsDropdownOpen(false);
+                                setCitySearchQuery("");
+                              }}
+                              className={`px-3 py-2 text-xs font-bold rounded-md cursor-pointer transition-all ${
+                                selectedCity === city
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "text-slate-700 hover:bg-slate-100"
+                              }`}
+                            >
+                              {city}
+                            </div>
+                          ))}
+                        {citiesList.filter(city => city.toLowerCase().includes(citySearchQuery.toLowerCase())).length === 0 && (
+                          <div className="px-3 py-2 text-xs text-slate-400 font-semibold text-center">
+                            No cities found
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
             <button
-              onClick={() => {
-                setSelectedCategory("All");
-                document.getElementById("events-list")?.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="group flex items-center gap-2 px-6 py-3 border border-slate-700 hover:border-slate-600 rounded-full text-white hover:bg-slate-800/30 transition-all font-bold"
+              onClick={onViewAllClick}
+              className="px-6 py-2 bg-white hover:bg-gray-100 text-slate-950 rounded-full font-bold transition-all text-xs uppercase cursor-pointer shadow-md transform hover:scale-105 active:scale-95"
             >
               View All
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {otherEvents.map((event) => (
               <EventCard
                 key={event.id}
@@ -578,9 +542,7 @@ const EventsSection = ({
               </div>
               <h3 className="text-xl font-bold text-white mb-2">No Results Found</h3>
               <p className="text-slate-500 text-sm max-w-sm text-center">
-                {searchQuery
-                  ? `We couldn't find any events matching "${searchQuery}". Try adjusting your search keywords.`
-                  : `There are no events available ${selectedCategory !== 'All' ? `in the ${selectedCategory} category` : ''} right now. Check back soon!`}
+                There are no events available right now. Check back soon!
               </p>
             </div>
           )}
@@ -711,10 +673,21 @@ const Footer = () => {
   );
 };
 
+const PricingSection = () => {
+  return (
+    <section className="bg-slate-950 text-white py-16 text-center border-t border-slate-800/50">
+      <h2 className="text-2xl font-black mb-4 tracking-wider uppercase text-white">PRICING PLANS</h2>
+      <p className="mb-2 text-[15px] font-medium text-slate-400">Explore Our Budget-Friendly Rates</p>
+      <p className="text-orange-400 font-bold text-lg  cursor-pointer">
+               Kindly Contact us at (+91) 9444221003
+              </p>
+    </section>
+  );
+};
+
 const App = () => {
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [likedEvents, setLikedEvents] = useState(() => {
     const saved = localStorage.getItem("wishlist");
     return saved ? JSON.parse(saved) : [];
@@ -822,27 +795,23 @@ const App = () => {
       {/* ✅ FIX: pass events */}
       <Hero
         events={events}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
         likedEvents={likedEvents}
         toggleLike={toggleLike}
         onShowDetail={onShowDetail}
       />
+      <HomeSearchWidget events={events} />
 
-      <CategorySection
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-      />
+      <CategorySection />
 
       <EventsSection
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
         events={events}
-        searchQuery={searchQuery}
         likedEvents={likedEvents}
         onToggleLike={toggleLike}
         onShowDetail={onShowDetail}
+        onViewAllClick={() => navigate("/all-events")}
       />
+
+      <PricingSection />
 
       <Footer />
 

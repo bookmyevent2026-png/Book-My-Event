@@ -165,6 +165,12 @@ const EventsPage = () => {
     setCurrentPage(1);
   }, [searchTerm, viewMode]);
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
 
   if (showCreate) {
     return (
@@ -359,11 +365,12 @@ const EventsPage = () => {
                 {!(viewMode === "list" || viewMode === "details") && (
                   <div className="relative">
                     <MoreVertical
+                      size={35}
                       onClick={() => {
                         setOpenMenuId(openMenuId === e.id ? null : e.id);
                         setShowViewMenu(false);
                       }}
-                      className={`cursor-pointer transition-all duration-300 p-1.5 rounded-xl ${openMenuId === e.id
+                      className={`cursor-pointer transition-all duration-300 p-2 rounded-xl ${openMenuId === e.id
                         ? "bg-indigo-600 text-white shadow-md rotate-90"
                         : "text-gray-400 hover:bg-indigo-50 hover:text-indigo-600"
                         }`}
@@ -472,10 +479,24 @@ const EventsPage = () => {
                       </div>
                       <div className="min-w-0">
                         <p className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold whitespace-nowrap">
-                          Starts On
+                          Start Date On
                         </p>
                         <p className="font-medium text-gray-900 text-xs">
-                          {e.start_date}
+                          {formatDate(e.start_date)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="group/item flex gap-3 items-center min-w-[120px]">
+                      <div className="p-1.5 bg-rose-50 rounded-lg group-hover/item:bg-rose-100 transition text-rose-600">
+                        <Calendar size={14} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold whitespace-nowrap">
+                          End Date On
+                        </p>
+                        <p className="font-medium text-gray-900 text-xs">
+                          {formatDate(e.end_date)}
                         </p>
                       </div>
                     </div>

@@ -72,19 +72,62 @@ const Step5Terms = ({ formData, setFormData }) => {
     }, 3000);
   };
 
+  const getAvailableTypes = () => {
+    if (policyGroup === "All") {
+      const types = new Set();
+      Object.values(policyData).forEach(groupObj => {
+        Object.keys(groupObj).forEach(type => types.add(type));
+      });
+      return Array.from(types);
+    }
+    return Object.keys(policyData[policyGroup] || {});
+  };
+
+  const getAvailableNames = () => {
+    const names = new Set();
+    if (policyGroup === "All") {
+      Object.values(policyData).forEach(groupObj => {
+        if (groupObj[policyType]) {
+          Object.keys(groupObj[policyType]).forEach(name => names.add(name));
+        }
+      });
+    } else {
+      if (policyData[policyGroup] && policyData[policyGroup][policyType]) {
+        Object.keys(policyData[policyGroup][policyType]).forEach(name => names.add(name));
+      }
+    }
+    return Array.from(names);
+  };
+
   const addPolicy = () => {
     if (!policyGroup || !policyType || !policyName) {
       showNotification("Please select all fields", "error");
       return;
     }
 
-    const description = policyData[policyGroup][policyType][policyName] || "";
-    const newPolicyItem = { policyGroup, policyType, policyName, description, isDefault };
+    let exactGroup = policyGroup;
+    let description = "";
+
+    if (policyGroup === "All") {
+      let found = false;
+      for (const g of Object.keys(policyData)) {
+        if (policyData[g][policyType] && policyData[g][policyType][policyName]) {
+          exactGroup = g;
+          description = policyData[g][policyType][policyName];
+          found = true;
+          break;
+        }
+      }
+    } else {
+      description = policyData[policyGroup][policyType][policyName] || "";
+    }
+
+    const newPolicyItem = { policyGroup: exactGroup, policyType, policyName, description, isDefault };
     const existing = formData.terms || [];
 
     const isDuplicate = existing.some(
       (p) =>
-        p.policyGroup === policyGroup &&
+        p.policyGroup === exactGroup &&
         p.policyType === policyType &&
         p.policyName === policyName
     );
@@ -239,7 +282,7 @@ const Step5Terms = ({ formData, setFormData }) => {
                   disabled={!policyGroup}
                 >
                   <option value="">Select Type</option>
-                  {policyGroup && Object.keys(policyData[policyGroup] || {}).map((type) => (
+                  {getAvailableTypes().map((type) => (
                     <option key={type} value={type}>{type}</option>
                   ))}
                 </select>
@@ -259,7 +302,7 @@ const Step5Terms = ({ formData, setFormData }) => {
                   disabled={!policyType}
                 >
                   <option value="">Select Policy</option>
-                  {policyGroup && policyType && Object.keys(policyData[policyGroup][policyType] || {}).map((name) => (
+                  {getAvailableNames().map((name) => (
                     <option key={name} value={name}>{name}</option>
                   ))}
                 </select>

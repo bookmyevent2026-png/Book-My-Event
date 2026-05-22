@@ -162,9 +162,9 @@ const Step1EventDetails = ({ formData, setFormData }) => {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-6 bg-gray-50/50 rounded-2xl">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-3 pt-2 bg-gray-50/50 rounded-2xl">
       {/* ---------------- LEFT SECTION ---------------- */}
-      <div className="space-y-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300 md:h-[calc(100vh-290px)] md:overflow-y-auto custom-scrollbar pr-2">
+      <div className="space-y-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300 md:h-[calc(110vh-290px)] md:overflow-y-auto custom-scrollbar pr-2">
         <div className="flex items-center gap-2 mb-2">
           <div className="p-2 bg-indigo-50 rounded-lg">
             <Calendar className="w-5 h-5 text-indigo-600" />

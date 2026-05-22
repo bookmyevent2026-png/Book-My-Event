@@ -382,9 +382,9 @@ export const Sidebar = () => {
 
               <SubMenuItem
                 label="Create Event"
-                isActive={location.pathname === "/OrganizerHome/CrenteEvent"}
+                isActive={location.pathname === "/OrganizerHome/CreateEvent"}
                 onClick={() => {
-                  navigate("/OrganizerHome/CrenteEvent");
+                  navigate("/OrganizerHome/CreateEvent");
                   setActivePanel(null);
                 }}
               />

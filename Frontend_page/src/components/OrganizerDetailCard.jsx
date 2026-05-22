@@ -7,7 +7,6 @@ const OrganizerDetailCard = ({ organizerData }) => {
   const address = organizerData?.address || "None";
   const email = organizerData?.email || "None";
   const phone = organizerData?.phone || "None";
-  const website = organizerData?.website || "None";
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
@@ -36,17 +35,7 @@ const OrganizerDetailCard = ({ organizerData }) => {
           <p className="text-[10px] font-bold text-slate-900 w-20 flex-shrink-0">Phone</p>
           <p className="text-[10px] text-slate-500 font-medium">: {phone}</p>
         </div>
-        <div className="flex items-start gap-4">
-          <p className="text-[10px] font-bold text-slate-900 w-20 flex-shrink-0">Website</p>
-          <a 
-            href={website} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-[10px] text-blue-600 font-medium hover:underline flex items-center gap-1"
-          >
-            : {website} <ExternalLink size={10} />
-          </a>
-        </div>
+       
       </div>
     </div>
   );

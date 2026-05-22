@@ -674,10 +674,10 @@ const Step4Documents = ({ formData, setFormData }) => {
                                   <Eye size={10} />
                                 </button>
                                 {(() => {
-                                  const isPdf = doc.file 
-                                    ? doc.file.type === "application/pdf" 
+                                  const isPdf = doc.file
+                                    ? doc.file.type === "application/pdf"
                                     : (doc.preview || "").toLowerCase().endsWith(".pdf") || (doc.name || "").toLowerCase().endsWith(".pdf");
-                                  
+
                                   if (isPdf) {
                                     return (
                                       <div className="flex items-center justify-center h-10 w-10 bg-red-50 rounded-xl border border-red-100">
@@ -740,7 +740,7 @@ const Step4Documents = ({ formData, setFormData }) => {
 
             {(() => {
               const urlLower = (previewModal.url || "").toLowerCase();
-              const isPdf = previewModal.file 
+              const isPdf = previewModal.file
                 ? previewModal.file.type === "application/pdf"
                 : urlLower.endsWith(".pdf");
               const isVideo = previewModal.file

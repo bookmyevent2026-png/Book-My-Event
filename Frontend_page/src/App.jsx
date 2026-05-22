@@ -2,6 +2,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import Home from "./pages/Home";
+import AllEvents from "./pages/AllEvents";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import { Sidebar } from "./Organizer/Homepage"
@@ -72,6 +73,7 @@ export default function App() {
       <Routes>
         {/* Layout wrapper */}
         <Route path="/" element={<Home />} />
+        <Route path="/all-events" element={<AllEvents />} />
         <Route path="/Login" element={<Login />} />
         <Route path="/Register" element={<Register />} />
         <Route path="/reset-password" element={<ForgotPassword />} />
@@ -99,7 +101,7 @@ export default function App() {
           <Route path="BulkPassPage" element={<ProtectedRoute allowedRoles={["organizer"]}><BulkPassPage /></ProtectedRoute>} />
           <Route path="Venu" element={<ProtectedRoute allowedRoles={["organizer"]}><Venuepage /></ProtectedRoute>} />
           <Route path="Vendor" element={<ProtectedRoute allowedRoles={["organizer"]}><VendorPage /></ProtectedRoute>} />
-          <Route path="CrenteEvent" element={<ProtectedRoute allowedRoles={["organizer"]}><Createvent /></ProtectedRoute>} />
+          <Route path="CreateEvent" element={<ProtectedRoute allowedRoles={["organizer"]}><Createvent /></ProtectedRoute>} />
           <Route path="PolicyPage" element={<ProtectedRoute allowedRoles={["organizer"]}><PolicyPage /></ProtectedRoute>} />
           <Route path="Coupon" element={<ProtectedRoute allowedRoles={["organizer"]}><Coupon /></ProtectedRoute>} />
           <Route path="EventCheckIn" element={<ProtectedRoute allowedRoles={["organizer"]}><EventCheckIn /></ProtectedRoute>} />

@@ -483,7 +483,7 @@ const MyProfile = () => {
                     </div>
                   </div>
                   {showCountryDropdown && (
-                    <div className="absolute z-50 w-full bg-white border border-slate-200 rounded-2xl mt-2 max-h-48 overflow-y-auto shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-200 custom-scrollbar">
+                    <div className="absolute z-50 w-full bg-white border border-slate-200 rounded-2xl bottom-full mb-2 max-h-48 overflow-y-auto shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-200 custom-scrollbar">
                       {filteredCountries.length === 0 ? (
                         <div className="p-4 text-center text-slate-400 font-bold text-sm">
                           No countries found
@@ -558,7 +558,7 @@ const MyProfile = () => {
                     </div>
                   </div>
                   {showStateDropdown && (
-                    <div className="absolute z-50 w-full bg-white border border-slate-200 rounded-2xl mt-2 max-h-48 overflow-y-auto shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-200 custom-scrollbar">
+                    <div className="absolute z-50 w-full bg-white border border-slate-200 rounded-2xl bottom-full mb-2 max-h-48 overflow-y-auto shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-200 custom-scrollbar">
                       {loadingStates ? (
                         <div className="p-4 text-center text-slate-400 font-bold text-sm flex items-center justify-center gap-2">
                           <FaSpinner className="animate-spin text-blue-600 w-4 h-4" />
@@ -637,7 +637,7 @@ const MyProfile = () => {
                     </div>
                   </div>
                   {showCityDropdown && (
-                    <div className="absolute z-50 w-full bg-white border border-slate-200 rounded-2xl mt-2 max-h-48 overflow-y-auto shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-200 custom-scrollbar">
+                    <div className="absolute z-50 w-full bg-white border border-slate-200 rounded-2xl bottom-full mb-2 max-h-48 overflow-y-auto shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-200 custom-scrollbar">
                       {loadingCities ? (
                         <div className="p-4 text-center text-slate-400 font-bold text-sm flex items-center justify-center gap-2">
                           <FaSpinner className="animate-spin text-blue-600 w-4 h-4" />

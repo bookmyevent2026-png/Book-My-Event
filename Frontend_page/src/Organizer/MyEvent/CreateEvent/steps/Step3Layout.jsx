@@ -1,6 +1,41 @@
 import React, { useState } from "react";
 import { Trash2, AlertCircle, X, Edit } from "lucide-react";
 
+const formatSizeRange = (val, unit, isDeleting) => {
+  // Strip any character that is not a digit or slash
+  const clean = val.replace(/[^0-9/]/g, "");
+  const parts = clean.split("/");
+  const limit = unit === "Inches" ? 4 : 2;
+
+  let length = parts[0] || "";
+  let width = parts[1] || "";
+
+  // Enforce limit on length
+  if (length.length > limit) {
+    if (parts.length === 1) {
+      width = length.slice(limit) + width;
+    }
+    length = length.slice(0, limit);
+  }
+
+  // Enforce limit on width
+  if (width.length > limit) {
+    width = width.slice(0, limit);
+  }
+
+  // Construct display value
+  let displayVal = length;
+  if (parts.length > 1 || (length.length === limit && !isDeleting)) {
+    displayVal = `${length}/${width}`;
+  }
+
+  return {
+    length,
+    width,
+    sizeRange: displayVal
+  };
+};
+
 const Step3LayoutStall = ({ formData, setFormData }) => {
   // ✅ ALWAYS take from formData (NO local state)
   const stallList = formData.layout?.stalls || [];
@@ -38,6 +73,25 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    if (name === "stallSize") {
+      const limit = value === "Inches" ? 4 : 2;
+      const currentLength = formData.layout?.length || "";
+      const currentWidth = formData.layout?.width || "";
+      const newLength = currentLength.slice(0, limit);
+      const newWidth = currentWidth.slice(0, limit);
+      setFormData({
+        ...formData,
+        layout: {
+          ...formData.layout,
+          stallSize: value,
+          length: newLength,
+          width: newWidth,
+          sizeRange: `${newLength}/${newWidth}`,
+        },
+      });
+      return;
+    }
 
     setFormData({
       ...formData,
@@ -93,6 +147,10 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
     // Validation: Empty not allowed
     if (!layout.stallName?.trim()) return showModal("Stall Name is required");
     if (!layout.sizeRange?.trim()) return showModal("Size Range is required");
+    const parts = layout.sizeRange.split("/");
+    if (parts.length < 2 || !parts[0] || !parts[1]) {
+      return showModal("Please enter both Length and Width dimensions (e.g. 10/10)");
+    }
     if (!layout.visibility) return showModal("Stall Visibility is required");
     if (!layout.stallType) return showModal("Stall Type is required");
 
@@ -218,6 +276,10 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
   const handleUpdateStall = () => {
     const { data, index } = editModal;
     if (!data.stallName?.trim()) return showModal("Stall Name is required");
+    const parts = (data.sizeRange || "").split("/");
+    if (parts.length < 2 || !parts[0] || !parts[1]) {
+      return showModal("Please enter both Length and Width dimensions (e.g. 10/10)");
+    }
 
     const oldStallName = stallList[index].stallName;
     const newStallName = data.stallName;
@@ -226,6 +288,7 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
       ...stallList[index],
       stallName: newStallName,
       size: `${data.length || ""}/${data.width || ""} ${data.stallSize || "Feet"}`,
+      sizeRange: `${data.length || ""}/${data.width || ""}`,
       visibility: data.visibility,
       type: data.stallType,
       priceINR: data.priceINR || "Free",
@@ -304,78 +367,85 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
   const inputClasses =
     "w-full h-[45px] px-6 py-2 rounded-full bg-white border border-gray-200 text-gray-800 transition-all duration-200 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 placeholder:text-gray-400 text-sm";
   const selectClasses = `${inputClasses} appearance-none bg-[url('data:image/svg+xml;utf8,<svg fill="%236b7280" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>')] bg-no-repeat bg-[right_1rem_center] cursor-pointer`;
-  const labelClasses = "block text-sm font-semibold text-gray-700 mb-2 ml-4";
+  const labelClasses = "block text-sm font-semibold text-gray-700 mb-1.5 ml-4";
   const cardClasses =
-    "bg-white p-6 rounded-3xl shadow-sm border border-gray-100";
+    "bg-white p-5 rounded-3xl shadow-sm border border-gray-100";
   const sectionTitleClasses =
-    "text-xl font-bold text-gray-800 mb-6 border-l-4 border-purple-500 pl-4";
+    "text-xl font-bold text-gray-800 mb-4 border-l-4 border-purple-500 pl-4";
   const tableHeaderClasses =
     "bg-gray-50 text-gray-600 text-[12px] font-bold  tracking-wider p-4 text-left border-b border-gray-100";
   const tableCellClasses = "p-4 text-sm text-gray-700 border-b border-gray-50";
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="space-y-4 animate-in fade-in duration-500">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* LEFT SIDE: FORM */}
-        <div className={`${cardClasses} space-y-8 md:h-[calc(100vh-290px)] md:overflow-y-auto custom-scrollbar pr-1`}>
+        <div className={`${cardClasses} space-y-4 md:h-[calc(100vh-290px)] md:overflow-y-auto custom-scrollbar pr-1`}>
           <h2 className={sectionTitleClasses}>Layout Information</h2>
 
-          {/* Flooring & Booking Options Combined */}
-          <div className="space-y-4">
-            <label className={labelClasses}>Flooring Type <span className="text-red-500">*</span></label>
-            <div className="flex flex-wrap items-center gap-8 px-4">
-              {/* Stall Option */}
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input
-                  type="radio"
-                  name="floorType"
-                  value="Stall"
-                  checked={formData.layout?.floorType === "Stall"}
-                  onChange={handleChange}
-                  className="w-5 h-5 text-purple-600 border-gray-300 focus:ring-purple-500 cursor-pointer"
-                />
-                <span className="text-sm font-medium text-gray-700 group-hover:text-purple-600 transition-colors">
-                  Stall
-                </span>
-              </label>
+          {/* Flooring & Booking Options Side-by-Side */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Flooring Type */}
+            <div className="space-y-2">
+              <label className={labelClasses}>Flooring Type <span className="text-red-500">*</span></label>
+              <div className="px-4">
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <input
+                    type="radio"
+                    name="floorType"
+                    value="Stall"
+                    checked={formData.layout?.floorType === "Stall"}
+                    onChange={handleChange}
+                    className="w-5 h-5 text-blue-600 border-2 border-blue-400 focus:ring-blue-500 cursor-pointer"
+                  />
+                  <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
+                    Stall
+                  </span>
+                </label>
+              </div>
+            </div>
 
-              {/* Vertical Divider */}
-              <div className="hidden sm:block h-6 w-px bg-gray-200"></div>
-
-              {/* Day Based Booking Option (Reduced Size) */}
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="dayBased"
-                  checked={formData.layout?.dayBased || false}
-                  onChange={handleChange}
-                  className="w-4 h-4 rounded text-purple-600 border-gray-300 focus:ring-purple-500 cursor-pointer"
-                />
-                <span className="text-[12px] font-semibold text-purple-800 flex items-center gap-2">
-                  Is Day Based Booking Required?
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setShowTips(true);
-                    }}
-                    className="text-purple-600 hover:text-purple-800 transition-colors focus:outline-none"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </button>
-                </span>
+            {/* Stall Booking */}
+            <div className="space-y-2">
+              <label className={`${labelClasses} flex items-center gap-1.5`}>
+                Stall Booking
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowTips(true);
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
+                  title="Info"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </button>
               </label>
+              <div className="px-4">
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    name="dayBased"
+                    checked={formData.layout?.dayBased || false}
+                    onChange={handleChange}
+                    className="w-5 h-5 rounded border-2 border-blue-400 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
+                  <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
+                    Is Day Based
+                  </span>
+                </label>
+              </div>
             </div>
           </div>
 
           {/* Stall Size & Pricing */}
-          <div className="space-y-6">
+          <div className="space-y-3">
             <label className={labelClasses}>
               How much do you want to charge for Stall? <span className="text-red-500">*</span>
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 px-2">
               <input
                 maxLength={20}
                 name="stallName"
@@ -387,60 +457,43 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
               <div className="flex gap-2">
                 <select
                   name="stallSize"
+                  value={formData.layout?.stallSize || "Feet"}
                   onChange={handleChange}
                   className={`${selectClasses} flex-1`}
                 >
                   <option>Feet</option>
-                  <option>Meter</option>
+                  <option>Inches</option>
                 </select>
 
-                {/* Length Width Input */}
-                <div className="flex items-center flex-1 h-[45px] px-4 rounded-full bg-white border border-gray-200 focus-within:border-purple-500 focus-within:ring-4 focus-within:ring-purple-500/10 transition-all duration-200">
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="Length"
-                    value={formData.layout?.length || ""}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/[^0-9.]/g, "");
-                      setFormData({
-                        ...formData,
-                        layout: {
-                          ...formData.layout,
-                          length: value,
-                          sizeRange: `${value}/${formData.layout?.width || ""}`,
-                        },
-                      });
-                    }}
-                    className="w-full bg-transparent outline-none text-sm text-center placeholder:text-gray-400"
-                  />
-                  <span className="px-2 text-gray-400 font-semibold select-none">/</span>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="Width"
-                    value={formData.layout?.width || ""}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/[^0-9.]/g, "");
-                      setFormData({
-                        ...formData,
-                        layout: {
-                          ...formData.layout,
-                          width: value,
-                          sizeRange: `${formData.layout?.length || ""}/${value}`,
-                        },
-                      });
-                    }}
-                    className="w-full bg-transparent outline-none text-sm text-center placeholder:text-gray-400"
-                  />
-                </div>
+                {/* Automated Length/Width Input */}
+                <input
+                  type="text"
+                  placeholder={formData.layout?.stallSize === "Inches" ? "Length / Width (e.g. 1200/1200)" : "Length / Width (e.g. 10/10)"}
+                  value={formData.layout?.sizeRange || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const isDeleting = val.length < (formData.layout?.sizeRange || "").length;
+                    const unit = formData.layout?.stallSize || "Feet";
+                    const formatted = formatSizeRange(val, unit, isDeleting);
+                    setFormData({
+                      ...formData,
+                      layout: {
+                        ...formData.layout,
+                        length: formatted.length,
+                        width: formatted.width,
+                        sizeRange: formatted.sizeRange
+                      }
+                    });
+                  }}
+                  className={`${inputClasses} flex-1 text-center font-semibold`}
+                />
               </div>
 
               {/* Stall Visibility & Type */}
-              <div className="sm:col-span-2 pt-6 border-t border-gray-100 mt-2 grid grid-cols-1 sm:grid-cols-2 gap-8">
-                <div className="space-y-4">
+              <div className="sm:col-span-2 pt-4 border-t border-gray-100 mt-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
                   <label className={labelClasses}>Stall Visibility <span className="text-red-500">*</span></label>
-                  <div className="flex gap-6 px-2">
+                  <div className="flex gap-4 px-2">
                     {["Public", "Private"].map((option) => (
                       <label key={option} className="flex items-center gap-3 cursor-pointer group">
                         <input
@@ -459,9 +512,9 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <label className={labelClasses}>Stall Type <span className="text-red-500">*</span></label>
-                  <div className="flex gap-6 px-2">
+                  <div className="flex gap-4 px-2">
                     {["Paid", "Free"].map((option) => (
                       <label key={option} className="flex items-center gap-3 cursor-pointer group">
                         <input
@@ -483,8 +536,8 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
 
               {/* PRICE FIELDS FOR PAID STALLS */}
               {stallType === "Paid" && (
-                <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100 space-y-6 animate-in slide-in-from-top-4 duration-300 sm:col-span-2">
-                  <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-50 p-4 rounded-3xl border border-gray-100 space-y-4 animate-in slide-in-from-top-4 duration-300 sm:col-span-2">
+                  <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
                       <label className="text-[12px] font-bold text-gray-500 ml-4">PRICE IN INR</label>
                       <input
@@ -521,7 +574,7 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
                     </div>
                   </div>
 
-                  <div className="space-y-4 border-t border-gray-200 pt-4">
+                  <div className="space-y-3 border-t border-gray-200 pt-3">
                     <label className="flex items-center gap-3 cursor-pointer group px-2">
                       <input
                         type="checkbox"
@@ -533,7 +586,7 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
                       <span className="text-sm font-semibold text-gray-700">Mark as Prime Stall</span>
                     </label>
                     {formData.layout?.primeSeat && (
-                      <div className="grid grid-cols-2 gap-4 animate-in zoom-in-95 duration-200">
+                      <div className="grid grid-cols-2 gap-3 animate-in zoom-in-95 duration-200">
                         <input
                           name="primePriceINR"
                           placeholder="+ ₹ Prime Add-on"
@@ -555,7 +608,7 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
               )}
 
               {/* Person Pass */}
-              <div className="sm:col-span-2 pt-6 border-t border-gray-100 mt-2">
+              <div className="sm:col-span-2 pt-4 border-t border-gray-100 mt-1">
                 <label className={labelClasses}>No. of Person Passes Allowed <span className="text-red-500">*</span></label>
                 <input
                   name="personPass"
@@ -571,12 +624,12 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
                 />
               </div>
 
-              <div className="space-y-6 pt-4 border-t border-gray-100 sm:col-span-2">
+              <div className="space-y-3 pt-3 border-t border-gray-100 sm:col-span-2">
                 <h3 className="text-lg font-bold text-gray-800 ml-2 flex items-center gap-2">
                   <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
                   Add Amenities
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <input
                     placeholder="Amenity Name (e.g. Chair, Table)"
                     value={amenity}
@@ -609,7 +662,7 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
                 </div>
               </div>
 
-              <div className="pt-8 border-t border-gray-100 space-y-6 sm:col-span-2">
+              <div className="pt-4 border-t border-gray-100 space-y-4 sm:col-span-2">
                 <label className="flex items-center gap-3 cursor-pointer group px-2">
                   <input
                     type="checkbox"
@@ -699,7 +752,7 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
                 )}
                 <button
                   onClick={addStall}
-                  className="w-full py-4 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-bold rounded-full shadow-lg shadow-blue-200 hover:shadow-xl hover:scale-[1.01] transition-all duration-300 active:scale-95 flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-bold rounded-full shadow-lg shadow-blue-200 hover:shadow-xl hover:scale-[1.01] transition-all duration-300 active:scale-95 flex items-center justify-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -712,7 +765,7 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
         </div>
 
         {/* RIGHT SIDE: SUMMARY TABLES */}
-        <div className="space-y-8 md:h-[calc(100vh-290px)] md:overflow-y-auto custom-scrollbar pr-2">
+        <div className="space-y-4 md:h-[calc(100vh-290px)] md:overflow-y-auto custom-scrollbar pr-2">
           {/* Layout Summary */}
           <div className={cardClasses}>
             <h2 className={sectionTitleClasses}>Layout Summary</h2>
@@ -968,30 +1021,51 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
                     <select
                       className={selectClasses}
                       value={editModal.data.stallSize}
-                      onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, stallSize: e.target.value } })}
+                      onChange={(e) => {
+                        const newUnit = e.target.value;
+                        const limit = newUnit === "Inches" ? 4 : 2;
+                        const newLength = (editModal.data.length || "").slice(0, limit);
+                        const newWidth = (editModal.data.width || "").slice(0, limit);
+                        setEditModal({
+                          ...editModal,
+                          data: {
+                            ...editModal.data,
+                            stallSize: newUnit,
+                            length: newLength,
+                            width: newWidth,
+                            sizeRange: `${newLength}/${newWidth}`
+                          }
+                        });
+                      }}
                     >
                       <option>Feet</option>
-                      <option>Meter</option>
+                      <option>Inches</option>
                     </select>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-black text-sky-600 uppercase ml-2">Dimensions (L/W)</label>
-                    <div className="flex items-center h-[45px] px-4 rounded-full bg-gray-50 border border-gray-100">
-                      <input
-                        placeholder="L"
-                        className="w-full bg-transparent outline-none text-center font-bold text-gray-700"
-                        value={editModal.data.length}
-                        onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, length: e.target.value.replace(/\D/g, "") } })}
-                      />
-                      <span className="text-gray-300 mx-2">/</span>
-                      <input
-                        placeholder="W"
-                        className="w-full bg-transparent outline-none text-center font-bold text-gray-700"
-                        value={editModal.data.width}
-                        onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, width: e.target.value.replace(/\D/g, "") } })}
-                      />
-                    </div>
+                    <label className="text-xs font-black text-sky-600 uppercase ml-2">Dimensions (Length / Width)</label>
+                    <input
+                      type="text"
+                      placeholder={editModal.data.stallSize === "Inches" ? "L/W (e.g. 1200/1200)" : "L/W (e.g. 10/10)"}
+                      value={editModal.data.sizeRange || ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const isDeleting = val.length < (editModal.data.sizeRange || "").length;
+                        const unit = editModal.data.stallSize || "Feet";
+                        const formatted = formatSizeRange(val, unit, isDeleting);
+                        setEditModal({
+                          ...editModal,
+                          data: {
+                            ...editModal.data,
+                            length: formatted.length,
+                            width: formatted.width,
+                            sizeRange: formatted.sizeRange
+                          }
+                        });
+                      }}
+                      className={`${inputClasses} w-full text-center font-semibold bg-gray-50`}
+                    />
                   </div>
 
                   <div className="space-y-2">

@@ -404,43 +404,50 @@ const CreateEvent = ({ onBack, editData }) => {
   const CurrentStepComponent = allSteps[step - 1].Component;
 
   return (
-    <div className="p-2 bg-white rounded shadow">
-      <h1 className="text-2xl font-bold mb-6">Create Event</h1>
+    <div className="flex flex-col min-h-screen bg-white rounded shadow">
+      {/* STICKY TOP HEADER */}
+      <div className="sticky top-0 z-[100] bg-white border-b border-gray-100 shadow-sm px-4 pt-2 pb-0">
+        <h1 className="text-xl font-bold mb-2">Create Event</h1>
 
-      <div className="flex flex-wrap gap-4 md:gap-6 border-b pb-2 mb-6 text-sm">
-        {allSteps.map((s, idx) => (
-          <span
-            key={idx}
-            className={`transition-all duration-300 ${step === idx + 1 ? "font-bold text-indigo-600 border-b-2 border-indigo-600 pb-2" : "text-gray-400"
-              }`}
-          >
-            {s.label}
-          </span>
-        ))}
+        <div className="flex flex-wrap gap-4 md:gap-6 pb-0 mb-0 text-sm">
+          {allSteps.map((s, idx) => (
+            <span
+              key={idx}
+              className={`transition-all duration-300 pb-2 ${step === idx + 1 ? "font-bold text-indigo-600 border-b-2 border-indigo-600" : "text-gray-400"
+                }`}
+            >
+              {s.label}
+            </span>
+          ))}
+        </div>
       </div>
 
-      <CurrentStepComponent formData={formData} setFormData={setFormData} />
+      {/* SCROLLABLE CONTENT */}
+      <div className="pt-3 pb-20 px-2">
+        <CurrentStepComponent formData={formData} setFormData={setFormData} />
+      </div>
 
-      <div className="flex justify-between mt-10">
+      {/* FIXED BOTTOM NAVIGATION */}
+      <div className="fixed bottom-0 left-12 right-0 z-40 bg-white border-t border-gray-100 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] px-8 py-4 flex justify-between items-center">
         <button
           onClick={() => (step === 1 ? onBack() : setStep(step - 1))}
-          className="border px-4 py-2 rounded hover:bg-gray-50 transition-all"
+          className="border border-gray-300 text-gray-600 px-6 py-2.5 rounded-xl hover:bg-gray-50 font-semibold transition-all"
         >
-          Back
+          ← Back
         </button>
 
         {step < allSteps.length ? (
           <button
             onClick={() => setStep(step + 1)}
-            className="bg-sky-700 text-white px-6 py-2 rounded hover:bg-sky-800 transition-all shadow-md"
+            className="bg-sky-700 text-white px-8 py-2.5 rounded-xl hover:bg-sky-800 transition-all shadow-md font-semibold"
           >
-            Next
+            Next →
           </button>
         ) : (
           <button
             onClick={handleSubmit}
             disabled={isSubmitting || !isFormValid()}
-            className={`px-6 py-2 rounded text-white transition-all shadow-md
+            className={`px-8 py-2.5 rounded-xl text-white font-semibold transition-all shadow-md
     ${isSubmitting || !isFormValid()
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-green-600 hover:bg-green-700"
@@ -450,6 +457,7 @@ const CreateEvent = ({ onBack, editData }) => {
           </button>
         )}
       </div>
+
       {popup.show && (
         <div className="fixed top-16 right-6 z-50">
           <div

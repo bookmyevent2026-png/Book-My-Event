@@ -23,6 +23,8 @@ export const SponsorshipPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [excelLoading, setExcelLoading] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
   const [fullPreview, setFullPreview] = useState(null);
@@ -83,27 +85,27 @@ export const SponsorshipPage = () => {
 
   const handleExportExcel = async () => {
     try {
-      setLoading(true);
+      setExcelLoading(true);
       const res = await exportSponsorsExcel();
       saveAs(res.data, `Sponsors_List_${new Date().toISOString().split('T')[0]}.xlsx`);
       showNotification("Excel Exported Successfully!");
     } catch (error) {
       showNotification("Failed to export Excel", "error");
     } finally {
-      setLoading(false);
+      setExcelLoading(false);
     }
   };
 
   const handleExportPdf = async () => {
     try {
-      setLoading(true);
+      setPdfLoading(true);
       const res = await exportSponsorsPdf();
       saveAs(res.data, `Sponsors_List_${new Date().toISOString().split('T')[0]}.pdf`);
       showNotification("PDF Exported Successfully!");
     } catch (error) {
       showNotification("Failed to export PDF", "error");
     } finally {
-      setLoading(false);
+      setPdfLoading(false);
     }
   };
 
@@ -475,10 +477,10 @@ export const SponsorshipPage = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={handleExportExcel}
-            disabled={loading}
+            disabled={excelLoading}
             className="bg-emerald-600 px-4 py-2 rounded-lg text-white flex gap-2 items-center hover:bg-emerald-700 transition shadow-md disabled:opacity-50 text-xs font-semibold h-11"
           >
-            {loading ? (
+            {excelLoading ? (
               <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
             ) : (
               <FileSpreadsheet size={18} />
@@ -488,10 +490,10 @@ export const SponsorshipPage = () => {
 
           <button
             onClick={handleExportPdf}
-            disabled={loading}
+            disabled={pdfLoading}
             className="bg-rose-600 px-4 py-2 rounded-lg text-white flex gap-2 items-center hover:bg-rose-700 transition shadow-md disabled:opacity-50 text-xs font-semibold h-11"
           >
-            {loading ? (
+            {pdfLoading ? (
               <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
             ) : (
               <FileText size={18} />
