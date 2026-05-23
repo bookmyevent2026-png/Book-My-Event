@@ -259,7 +259,17 @@ const Step5Terms = ({ formData, setFormData }) => {
                   className={selectClasses}
                 >
                   <option value="">Select Group</option>
-                  {Object.keys(policyData).map((group) => (
+                  <option value="All">All Groups</option>
+                  {Array.from(new Set([
+                    "Cancellation Policy",
+                    "Refund Policy",
+                    "Safety Policy",
+                    "Privacy Policy",
+                    "Payment Policy",
+                    "Paper Submission Guidelines",
+                    "Registration Policy",
+                    ...Object.keys(policyData)
+                  ])).map((group) => (
                     <option key={group} value={group}>{group}</option>
                   ))}
                 </select>
@@ -447,7 +457,7 @@ const Step5Terms = ({ formData, setFormData }) => {
               </table>
             </div>
 
-            
+
           </div>
         </div>
       </div>

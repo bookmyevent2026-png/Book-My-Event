@@ -461,12 +461,7 @@ export const PolicyPage = () => {
                 <th className="px-6 py-4 text-left text-md font-bold text-white tracking-wider">
                   Policy Name
                 </th>
-                <th className="px-6 py-4 text-left text-md font-bold text-white tracking-wider">
-                  Type
-                </th>
-                <th className="px-6 py-4 text-left text-md font-bold text-white tracking-wider">
-                  Group
-                </th>
+
                 <th className="px-8 py-4 text-left text-md font-bold text-white tracking-wider">
                   Status
                 </th>
@@ -521,15 +516,6 @@ export const PolicyPage = () => {
                         {p.policy_name}
                       </p>
                     </td>
-
-                    <td className="px-6 py-4 text-sm text-slate-500 font-medium">
-                      {p.policy_type}
-                    </td>
-
-                    <td className="px-6 py-4 text-sm text-slate-500 font-medium">
-                      {p.policy_group}
-                    </td>
-
                     <td className="px-6 py-4">
                       <span
                         className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${p.status === "Active"
@@ -541,10 +527,10 @@ export const PolicyPage = () => {
                       </span>
                     </td>
 
-                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap">{p.created_by || "System"}</td>
-                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap">{formatDate(p.created_on)}</td>
-                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap">{p.modified_by || "System"}</td>
-                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap">{formatDate(p.modified_on)}</td>
+                    <td className="px-6 py-4 text-center text-slate-600 whitespace-nowrap">{p.created_by || "-"}</td>
+                    <td className="px-6 py-4 text-center text-slate-600 whitespace-nowrap">{formatDate(p.created_on)}</td>
+                    <td className="px-6 py-4 text-center text-slate-600 whitespace-nowrap">{p.modified_by || "-"}</td>
+                    <td className="px-6 py-4 text-center text-slate-600 whitespace-nowrap">{formatDate(p.modified_on)}</td>
 
                   </tr>
                 ))
@@ -622,9 +608,9 @@ export const PolicyPage = () => {
 
       {showForm && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center z-[100] px-6 py-4">
-          <div className="w-full max-w-4xl bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+          <div className="w-full max-w-4xl bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[95vh]">
             {/* HEADER */}
-            <div className="flex justify-between items-center px-8 py-6 bg-slate-50 border-b border-slate-100">
+            <div className="flex justify-between items-center px-8 py-6 bg-slate-50 border-b border-slate-100 shrink-0">
               <div>
                 <h2 className="text-2xl font-black text-slate-800 tracking-tight">
                   {editId ? "Edit Policy Details" : "New Policy Details"}
@@ -642,8 +628,9 @@ export const PolicyPage = () => {
             </div>
 
             {/* BODY */}
-            <form onSubmit={handleSubmit} noValidate className="p-8 space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <form onSubmit={handleSubmit} noValidate className="flex flex-col flex-1 overflow-hidden">
+              <div className="p-8 space-y-8 overflow-y-auto custom-scrollbar flex-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* POLICY NAME */}
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 ml-1">
@@ -905,9 +892,10 @@ export const PolicyPage = () => {
                   />
                 </div>
               </div>
+            </div>
 
-              {/* FOOTER */}
-              <div className="flex justify-end gap-4 pt-6 border-t border-slate-100">
+            {/* FOOTER */}
+              <div className="flex justify-end gap-4 px-8 py-6 bg-slate-50 border-t border-slate-100 shrink-0">
                 <button
                   type="button"
                   onClick={() => {
@@ -936,84 +924,138 @@ export const PolicyPage = () => {
       {/* ================= VIEW MODAL ================= */}
 
       {viewData && (
-        <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md flex justify-center items-center z-[100] px-6 py-4">
-          <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
-            {/* Header */}
-            <div className="p-8 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center z-[100] px-6 py-4">
+          <div className="w-full max-w-4xl bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[95vh]">
+            {/* HEADER */}
+            <div className="flex justify-between items-center px-8 py-6 bg-slate-50 border-b border-slate-100 shrink-0">
               <div>
-                <span className="text-[10px] font-black  tracking-[0.2em] text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-                  Policy Details
-                </span>
-                <h2 className="text-3xl font-black text-slate-800 mt-2 tracking-tight">
-                  {viewData.policy_name}
+                <h2 className="text-2xl font-black text-slate-800 tracking-tight">
+                  View Policy Details
                 </h2>
+                <p className="text-slate-500 text-sm mt-1">
+                  Define terms and conditions for your events
+                </p>
               </div>
               <button
                 onClick={() => setViewData(null)}
-                className="bg-white p-3 rounded-full shadow-sm hover:bg-red-50 hover:text-red-500 transition-all border border-slate-100 text-slate-400"
+                className="bg-white hover:bg-red-50 text-slate-400 hover:text-red-500 p-2.5 rounded-full shadow-sm transition-all border border-slate-100"
               >
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
 
-            {/* Content */}
-            <div className="p-10 space-y-10">
-              <div className="grid grid-cols-2 gap-10">
-                <div className="space-y-1">
-                  <p className="text-[10px] font-black text-slate-400  tracking-widest">
-                    Type
-                  </p>
-                  <p className="text-lg font-bold text-slate-700">
-                    {viewData.policy_type}
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] font-black text-slate-400  tracking-widest">
-                    Group
-                  </p>
-                  <p className="text-lg font-bold text-slate-700">
-                    {viewData.policy_group}
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] font-black text-slate-400  tracking-widest">
-                    Status
-                  </p>
-                  <span className={`inline-block px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider ${viewData.status === "Active"
-                    ? "bg-emerald-100 text-emerald-700"
-                    : "bg-rose-100 text-rose-700"
-                    }`}>
-                    {viewData.status}
-                  </span>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] font-black text-slate-400  tracking-widest">
-                    Code
-                  </p>
-                  <p className="text-lg font-black text-blue-600 tracking-wider">
-                    #{viewData.policy_code}
-                  </p>
-                </div>
-              </div>
+            {/* BODY */}
+            <div className="flex flex-col flex-1 overflow-hidden">
+              <div className="p-8 space-y-8 overflow-y-auto custom-scrollbar flex-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* POLICY NAME */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Policy Name <span className="text-red-500">*</span>
+                    </label>
+                    <div className="w-full p-4 border-2 rounded-2xl border-slate-100 bg-slate-50 text-slate-700 outline-none">
+                      {viewData.policy_name}
+                    </div>
+                  </div>
 
-              <div className="space-y-3 pt-6 border-t border-slate-50">
-                <p className="text-[10px] font-black text-slate-400  tracking-widest">
-                  Description
-                </p>
-                <div
-                  className="bg-slate-50 p-6 rounded-3xl text-slate-600 leading-relaxed font-medium italic border border-slate-100 prose max-w-none policy-desc-view"
-                  dangerouslySetInnerHTML={{ __html: viewData.description || "No description provided." }}
-                />
+                  {/* POLICY TYPE */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Policy Type <span className="text-red-500">*</span>
+                    </label>
+                    <div className="w-full p-4 border-2 rounded-2xl border-slate-100 bg-slate-50 text-slate-700 outline-none">
+                      {viewData.policy_type}
+                    </div>
+                  </div>
+
+                  {/* POLICY GROUP */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Policy Group <span className="text-red-500">*</span>
+                    </label>
+                    <div className="w-full p-4 border-2 rounded-2xl border-slate-100 bg-slate-50 text-slate-700 outline-none">
+                      {viewData.policy_group}
+                    </div>
+                  </div>
+
+                  {/* STATUS */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Status
+                    </label>
+                    <div className="w-full p-4 border-2 rounded-2xl border-slate-100 bg-slate-50 text-slate-700 outline-none">
+                      {viewData.status}
+                    </div>
+                  </div>
+                </div>
+
+                {/* DESCRIPTION */}
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 ml-1">
+                    Policy Description
+                  </label>
+
+                  <div className="border-2 border-slate-100 rounded-2xl overflow-hidden bg-slate-50 transition-all shadow-sm">
+                    {/* Fake Toolbar to look exactly like Edit */}
+                    <div className="flex flex-wrap items-center gap-1 px-4 py-2.5 border-b border-slate-100 bg-white select-none opacity-60 pointer-events-none">
+                      {/* Bold */}
+                      <button className="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-slate-700 transition" title="Bold">B</button>
+                      {/* Italic */}
+                      <button className="w-8 h-8 rounded-lg flex items-center justify-center italic font-serif text-slate-700 font-bold transition" title="Italic">I</button>
+                      {/* Underline */}
+                      <button className="w-8 h-8 rounded-lg flex items-center justify-center underline text-slate-700 font-bold transition" title="Underline">U</button>
+                      {/* Strikethrough */}
+                      <button className="w-8 h-8 rounded-lg flex items-center justify-center line-through text-slate-700 font-bold transition" title="Strikethrough">S</button>
+                      <span className="w-px h-6 bg-slate-200 mx-1" />
+                      {/* Blockquote */}
+                      <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-700 text-lg transition" title="Blockquote">❝</button>
+                      {/* Code Block */}
+                      <button className="w-8 h-8 rounded-lg flex items-center justify-center font-mono text-slate-700 transition text-sm font-bold" title="Code Block">{"</>"}</button>
+                      <span className="w-px h-6 bg-slate-200 mx-1" />
+                      {/* Ordered List */}
+                      <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-700 transition" title="Numbered List"><span className="text-xs font-bold font-sans">1.三</span></button>
+                      {/* Unordered List */}
+                      <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-700 transition" title="Bulleted List"><span className="text-xs font-bold font-sans">•三</span></button>
+                      <span className="w-px h-6 bg-slate-200 mx-1" />
+                      {/* Format Block Dropdown */}
+                      <div className="relative flex items-center">
+                        <select className="text-xs border border-slate-200 rounded-lg pl-2 pr-6 py-1 bg-white h-8 text-slate-700 font-semibold appearance-none pointer-events-none">
+                          <option>Normal</option>
+                        </select>
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500">
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </div>
+                      <span className="w-px h-6 bg-slate-200 mx-1" />
+                      {/* Text Color */}
+                      <div className="relative w-8 h-8 flex items-center justify-center rounded-lg transition"><span className="text-md font-bold text-slate-700 border-b-2 border-slate-400 pb-0.5 leading-none">A</span></div>
+                      {/* Background Color */}
+                      <div className="relative w-8 h-8 flex items-center justify-center rounded-lg transition"><span className="text-md font-bold text-slate-700 bg-slate-200 px-1 py-0.5 rounded leading-none">A</span></div>
+                      {/* Clear Formatting */}
+                      <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-700 transition" title="Clear Formatting"><span className="font-semibold text-slate-700 italic">T</span><span className="text-[10px] text-slate-500 font-bold ml-0.5 -mt-1">x</span></button>
+                    </div>
+
+                    {/* Content Area */}
+                    <div
+                      className="rich-editor relative min-h-[160px] max-h-[240px] overflow-y-auto p-5 text-sm text-slate-700 focus:outline-none bg-slate-50/50"
+                      style={{ lineHeight: 1.6 }}
+                      dangerouslySetInnerHTML={{ __html: viewData.description || "No description provided." }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="p-8 bg-slate-50 border-t border-slate-100 text-center">
+            {/* FOOTER */}
+            <div className="flex justify-end gap-4 px-8 py-6 bg-slate-50 border-t border-slate-100 shrink-0">
               <button
+                type="button"
                 onClick={() => setViewData(null)}
-                className="px-12 py-3 bg-slate-800 text-white font-black rounded-2xl hover:bg-slate-900 transition-all active:scale-95 shadow-lg shadow-slate-200"
+                className="px-8 py-3 rounded-2xl font-bold text-slate-500 hover:bg-slate-100 transition-all active:scale-95"
               >
-                CLOSE
+                Close
               </button>
             </div>
           </div>

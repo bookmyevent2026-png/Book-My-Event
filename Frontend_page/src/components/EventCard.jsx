@@ -129,13 +129,13 @@ export const EventCard = ({ event, isFeatured = false, isLiked, onToggleLike, on
               </div>
               <button
                 onClick={handleBookNow}
-                disabled={new Date() > new Date(event.endDate || event.date)}
-                className={`px-6 py-2 rounded-full font-semibold transition-all transform hover:scale-105 ${new Date() > new Date(event.endDate || event.date)
+                disabled={new Date() > new Date(event.bookingEnds)}
+                className={`px-6 py-2 rounded-full font-semibold transition-all transform hover:scale-105 ${new Date() > new Date(event.bookingEnds)
                   ? "bg-slate-700 text-slate-400 cursor-not-allowed"
                   : "bg-white text-slate-900 hover:bg-gray-100"
                   }`}
               >
-                {new Date() > new Date(event.endDate || event.date) ? "Booking Closed" : "Book Now"}
+                {new Date() > new Date(event.bookingEnds) ? "Booking Closed" : "Book Now"}
               </button>
             </div>
           </div>
@@ -226,23 +226,35 @@ export const EventCard = ({ event, isFeatured = false, isLiked, onToggleLike, on
           </div>
         </div>
 
-        {/* Countdown */}
-        {new Date() <= new Date(event.endDate || event.date) && (
+        {/* Countdown or Closed Time */}
+        {new Date() <= new Date(event.bookingEnds) ? (
           <div className="pt-3 border-t border-slate-700/50">
             <CountdownTimer targetDate={event.bookingEnds} />
+          </div>
+        ) : (
+          <div className="pt-3 border-t border-slate-700/50">
+            <div className="text-xs font-bold text-red-400 bg-red-500/10 px-3 py-1.5 rounded-lg w-full text-center">
+              Closed on {new Date(event.bookingEnds).toLocaleString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit"
+              })}
+            </div>
           </div>
         )}
 
         {/* Action Button */}
         <button
           onClick={handleBookNow}
-          disabled={new Date() > new Date(event.endDate || event.date)}
-          className={`w-full py-2 rounded-lg text-white text-xs font-bold transition-all transform hover:scale-105 active:scale-95 ${new Date() > new Date(event.endDate || event.date)
+          disabled={new Date() > new Date(event.bookingEnds)}
+          className={`w-full py-2 rounded-lg text-white text-xs font-bold transition-all transform hover:scale-105 active:scale-95 ${new Date() > new Date(event.bookingEnds)
             ? "bg-slate-700 text-slate-500 cursor-not-allowed"
             : "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg shadow-orange-500/20"
             }`}
         >
-          {new Date() > new Date(event.endDate || event.date) ? "Booking Closed" : "Book Ticket"}
+          {new Date() > new Date(event.bookingEnds) ? "Booking Closed" : "Book Ticket"}
         </button>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Trash2, AlertCircle, X, Edit } from "lucide-react";
 
 const formatSizeRange = (val, unit, isDeleting) => {
@@ -40,6 +40,31 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
   // ✅ ALWAYS take from formData (NO local state)
   const stallList = formData.layout?.stalls || [];
   const amenitiesList = formData.layout?.amenities || [];
+
+  useEffect(() => {
+    setFormData((prev) => {
+      const updated = { ...(prev.layout || {}) };
+      let changed = false;
+
+      if (updated.visibility === undefined) {
+        updated.visibility = "Public";
+        changed = true;
+      }
+      if (updated.stallType === undefined) {
+        updated.stallType = "Paid";
+        changed = true;
+      }
+      if (updated.floorType === undefined) {
+        updated.floorType = "Stall";
+        changed = true;
+      }
+
+      if (changed) {
+        return { ...prev, layout: updated };
+      }
+      return prev;
+    });
+  }, [setFormData]);
 
   const [amenity, setAmenity] = useState("");
   const [qty, setQty] = useState("");

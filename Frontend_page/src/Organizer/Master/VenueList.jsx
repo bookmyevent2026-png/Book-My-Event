@@ -708,9 +708,9 @@ export const Venuepage = () => {
                       </span>
                     </td>
 
-                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap">{v.created_by || "System"}</td>
+                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap">{v.created_by || "-"}</td>
                     <td className="px-6 py-4 text-slate-600 whitespace-nowrap">{formatDate(v.created_on)}</td>
-                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap">{v.modified_by || "System"}</td>
+                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap">{v.modified_by || "-"}</td>
                     <td className="px-6 py-4 text-slate-600 whitespace-nowrap">{formatDate(v.modified_on)}</td>
 
                   </tr>

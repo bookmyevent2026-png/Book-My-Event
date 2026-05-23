@@ -317,9 +317,8 @@ const Step1EventDetails = ({ formData, setFormData }) => {
               placeholder="Event Description"
               value={formData.eventDetails?.description || ""}
               onChange={handleChange}
-              maxLength={200}
               rows="3"
-              className="w-full bg-gray-50 border-0 ring-1 ring-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none resize-none"
+              className="w-full bg-gray-50 border-0 ring-1 ring-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none resize-y"
             />
           </div>
 
@@ -334,7 +333,7 @@ const Step1EventDetails = ({ formData, setFormData }) => {
               onChange={handleChange}
               maxLength={100}
               rows="2"
-              className="w-full bg-gray-50 border-0 ring-1 ring-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none resize-none"
+              className="w-full bg-gray-50 border-0 ring-1 ring-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none resize-y"
             />
           </div>
 
@@ -354,7 +353,7 @@ const Step1EventDetails = ({ formData, setFormData }) => {
       </div>
 
       {/* ---------------- MIDDLE SECTION ---------------- */}
-      <div className="space-y-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300 md:h-[calc(100vh-290px)] md:overflow-y-auto custom-scrollbar pr-2 ">
+      <div className="space-y-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300 md:h-[calc(110vh-290px)] md:overflow-y-auto custom-scrollbar pr-2 ">
         <div className="flex items-center gap-2 mb-2">
           <div className="p-2 bg-purple-50 rounded-lg">
             <Clock className="w-5 h-5 text-purple-600" />

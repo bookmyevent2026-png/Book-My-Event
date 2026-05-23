@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { clearUser } from "../Redux/userSlice";
 import { useTranslation } from "react-i18next";
+import { createPortal } from "react-dom";
 
 export const Header = () => {
   const { t, i18n } = useTranslation();
@@ -12,6 +13,7 @@ export const Header = () => {
 
   const [searchFocus, setSearchFocus] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [searchText, setSearchText] = useState("");
@@ -145,7 +147,7 @@ export const Header = () => {
             </div>
           </div>
 
-          {/* RIGHT SECTION */}
+      {/* RIGHT SECTION */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 bg-white shadow-sm">
               <Globe size={15} className="text-indigo-500" />
@@ -185,7 +187,7 @@ export const Header = () => {
 
               {/* Logout Button */}
               <button
-                onClick={handleLogout}
+                onClick={() => setShowLogoutModal(true)}
                 className="ml-2 flex items-center gap-2 px-3 py-2 
              text-red-600 bg-red-50 
              hover:bg-red-100 hover:text-red-700
@@ -204,6 +206,39 @@ export const Header = () => {
       </div>
 
       <div className="h-0.5 bg-gradient-to-r from-blue-500 via-green-500 to-orange-500 opacity-30"></div>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 relative flex flex-col items-center text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <LogOut className="w-8 h-8 text-red-600 ml-1" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Logout</h2>
+            <p className="text-sm text-gray-500 mb-6">
+              Are you sure you want to log out?
+            </p>
+            <div className="flex gap-3 w-full">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 hover:bg-gray-200 font-semibold rounded-xl transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowLogoutModal(false);
+                  handleLogout();
+                }}
+                className="flex-1 px-4 py-2.5 bg-red-600 text-white hover:bg-red-700 font-semibold rounded-xl shadow-md transition"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </header>
   );
 };

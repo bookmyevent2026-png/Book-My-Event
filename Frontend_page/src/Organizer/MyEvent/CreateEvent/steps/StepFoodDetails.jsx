@@ -109,7 +109,7 @@ const Step7FoodProvision = ({ formData, setFormData }) => {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* LEFT SIDE: FORM */}
-        <div className={`${cardClasses} space-y-8`}>
+        <div className={`${cardClasses} space-y-4 md:h-[calc(100vh-290px)] md:overflow-y-auto custom-scrollbar pr-1`}>
           <h2 className={sectionTitleClasses}>Food Provision Details</h2>
 
           <div className="space-y-6">

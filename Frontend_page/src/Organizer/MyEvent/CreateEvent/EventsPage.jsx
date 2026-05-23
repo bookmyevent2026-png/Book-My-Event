@@ -62,6 +62,7 @@ const ImageSlider = ({ images = [], className = "w-28 h-20" }) => {
 const EventsPage = () => {
   const [showCreate, setShowCreate] = useState(false);
   const [editEvent, setEditEvent] = useState(null);
+  const [isView, setIsView] = useState(false);
   const [events, setEvents] = useState([]);
   const [viewMode, setViewMode] = useState("medium"); // large, medium, small, compact, list, details
   const [showViewMenu, setShowViewMenu] = useState(false);
@@ -136,6 +137,24 @@ const EventsPage = () => {
       console.log("fullData Time", fullData);
       if (fullData) {
         setEditEvent(fullData);
+        setIsView(false);
+        setShowCreate(true);
+      }
+    } catch (err) {
+      console.error("Failed to fetch full event details", err);
+      alert("Error loading event data.");
+    } finally {
+      setIsLoadingFullData(false);
+    }
+  };
+
+  const handleView = async (event) => {
+    setIsLoadingFullData(true);
+    try {
+      const fullData = await getEventFullDetails(event.id);
+      if (fullData) {
+        setEditEvent(fullData);
+        setIsView(true);
         setShowCreate(true);
       }
     } catch (err) {
@@ -176,9 +195,11 @@ const EventsPage = () => {
     return (
       <CreateEvent
         editData={editEvent}
+        isView={isView}
         onBack={() => {
           setShowCreate(false);
           setEditEvent(null);
+          setIsView(false);
           fetchEvents();
         }}
       />
@@ -378,7 +399,7 @@ const EventsPage = () => {
                     {openMenuId === e.id && (
                       <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-2xl shadow-2xl z-30 py-2 animate-fade-in">
                         <button
-                          onClick={() => { setSelectedEvent(e); setOpenMenuId(null); }}
+                          onClick={() => { handleView(e); setOpenMenuId(null); }}
                           className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200"
                         >
                           <div className="p-1.5 bg-indigo-50 rounded-lg group-hover:bg-indigo-100">
@@ -570,7 +591,7 @@ const EventsPage = () => {
               {(viewMode === "list" || viewMode === "details") && (
                 <div className="flex items-center gap-2 ml-auto pr-4 border-l border-gray-100 pl-4 h-full">
                   <button
-                    onClick={() => setSelectedEvent(e)}
+                    onClick={() => handleView(e)}
                     className="p-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition"
                     title="View Details"
                   >

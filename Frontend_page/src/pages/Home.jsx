@@ -48,7 +48,7 @@ const Hero = ({
   // Find the closest upcoming open event (not closed)
   const openEvents = (events || [])
     .filter((e) => {
-      const isClosed = new Date(e.endDate || e.date).setHours(23, 59, 59, 999) < new Date();
+      const isClosed = new Date() > new Date(e.bookingEnds);
       return !isClosed;
     })
     .sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -326,12 +326,12 @@ const HomeSearchWidget = ({ events }) => {
             onChange={(e) => setCategory(e.target.value)}
             className="w-full bg-transparent text-slate-800 placeholder-slate-400 outline-none text-sm font-medium appearance-none cursor-pointer pr-8"
           >
-            <option value="" className="text-slate-400">Category</option>
-            <option value="Music" className="text-slate-800">Music</option>
-            <option value="Business" className="text-slate-800">Business</option>
-            <option value="Technology" className="text-slate-800">Technology</option>
-            <option value="Education" className="text-slate-800">Education</option>
-            <option value="Sports" className="text-slate-800">Sports</option>
+            <option value="" className="text-slate-400 text-center">Category</option>
+            <option value="Music" className="text-slate-800 text-center">Music</option>
+            <option value="Business" className="text-slate-800 text-center">Business</option>
+            <option value="Technology" className="text-slate-800 text-center">Technology</option>
+            <option value="Education" className="text-slate-800 text-center">Education</option>
+            <option value="Sports" className="text-slate-800 text-center">Sports</option>
           </select>
           <ChevronDown className="w-4 h-4 text-slate-400 absolute right-5 pointer-events-none" />
         </div>
@@ -346,7 +346,7 @@ const HomeSearchWidget = ({ events }) => {
           >
             <option value="" className="text-slate-400">Location</option>
             {uniqueLocations.map((loc) => (
-              <option key={loc} value={loc} className="text-slate-800">
+              <option key={loc} value={loc} className="text-slate-800 text-center">
                 {loc}
               </option>
             ))}
@@ -400,8 +400,8 @@ const EventsSection = ({
 
   // 🔥 SORTING: Open events first (by date), Closed events last
   const finalEvents = [...events].sort((a, b) => {
-    const aClosed = new Date(a.endDate || a.date).setHours(23, 59, 59, 999) < new Date();
-    const bClosed = new Date(b.endDate || b.date).setHours(23, 59, 59, 999) < new Date();
+    const aClosed = new Date() > new Date(a.bookingEnds);
+    const bClosed = new Date() > new Date(b.bookingEnds);
 
     if (aClosed !== bClosed) {
       return aClosed ? 1 : -1; // Open first, closed last

@@ -534,16 +534,16 @@ export const SponsorshipPage = () => {
           <table className="w-full">
             <thead>
               <tr className="bg-sky-600 text-white">
-                <th className="w-[10%] px-3 py-3 text-left text-[10px] font-bold text-white  tracking-wider">Action</th>
-                <th className="w-[10%] px-3 py-3 text-left text-[10px] font-bold text-white  tracking-wider">Code</th>
-                <th className="w-[15%] px-3 py-3 text-left text-[10px] font-bold text-white  tracking-wider">Sponsor Name</th>
-                <th className="w-[10%] px-3 py-3 text-left text-[10px] font-bold text-white  tracking-wider">Contact</th>
-                <th className="w-[10%] px-3 py-3 text-left text-[10px] font-bold text-white  tracking-wider">Mail ID</th>
-                <th className="w-[8%] px-3 py-3 text-left text-[10px] font-bold text-white  tracking-wider">Status</th>
-                <th className="w-[10%] px-3 py-3 text-left text-[10px] font-bold text-white  tracking-wider">Created By</th>
-                <th className="w-[9%] px-3 py-3 text-left text-[10px] font-bold text-white  tracking-wider">Created On</th>
-                <th className="w-[10%] px-3 py-3 text-left text-[10px] font-bold text-white  tracking-wider">Modified By</th>
-                <th className="w-[9%] px-3 py-3 text-left text-[10px] font-bold text-white  tracking-wider">Modified On</th>
+                <th className="px-6 py-4 text-center text-md font-bold text-white tracking-wider">Action</th>
+                <th className="px-6 py-4 text-left text-md font-bold text-white tracking-wider">Code</th>
+                <th className="px-6 py-4 text-left text-md font-bold text-white tracking-wider">Sponsor Name</th>
+                <th className="px-6 py-4 text-left text-md font-bold text-white tracking-wider">Contact</th>
+                <th className="px-6 py-4 text-left text-md font-bold text-white tracking-wider">Mail ID</th>
+                <th className="px-8 py-4 text-left text-md font-bold text-white tracking-wider">Status</th>
+                <th className="px-6 py-4 text-left text-md font-bold text-white tracking-wider">Created By</th>
+                <th className="px-6 py-4 text-center text-md font-bold text-white tracking-wider">Created On</th>
+                <th className="px-6 py-4 text-left text-md font-bold text-white tracking-wider">Modified By</th>
+                <th className="px-6 py-4 text-center text-md font-bold text-white tracking-wider">Modified On</th>
               </tr>
             </thead>
 
@@ -565,8 +565,8 @@ export const SponsorshipPage = () => {
                     key={idx}
                     className="hover:bg-sky-50/30 transition-all group"
                   >
-                    <td className="px-3 py-4">
-                      <div className="flex items-center gap-1">
+                    <td className="px-2 py-2 text-center">
+                      <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => viewSponsor(s.id)}
                           className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
@@ -591,49 +591,47 @@ export const SponsorshipPage = () => {
                       </div>
                     </td>
 
-                    <td className="px-3 py-4">
-                      <span className="font-mono text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded border border-slate-200">
+                    <td className="px-6 py-4">
+                      <span className="font-mono text-sm font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded border border-slate-200">
                         {s.sponsor_code}
                       </span>
                     </td>
 
-                    <td className="px-3 py-4">
+                    <td className="px-6 py-4">
                       <div className="flex flex-col">
-                        <span className="text-xs font-bold text-slate-800 truncate max-w-[120px]">{s.sponsor_name}</span>
-                        <span className="text-[10px] text-slate-400 truncate max-w-[120px]">{s.address}</span>
+                        <span className="text-sm font-bold text-slate-800 truncate max-w-[150px]">{s.sponsor_name}</span>
+                        <span className="text-[10px] text-slate-400 truncate max-w-[150px]">{s.address}</span>
                       </div>
                     </td>
 
-                    <td className="px-3 py-4">
-                      <span className="text-xs font-medium text-slate-600">{s.primary_contact}</span>
+                    <td className="px-6 py-4 text-sm font-medium text-slate-600">
+                      {s.primary_contact}
                     </td>
 
-                    <td className="px-3 py-4">
-                      <span className="text-xs font-medium text-sky-600 truncate max-w-[120px] block">{s.mail_id}</span>
+                    <td className="px-6 py-4 text-sm font-medium text-sky-600 truncate max-w-[150px] block">
+                      {s.mail_id}
                     </td>
 
-                    <td className="px-3 py-4">
-                      <span className={`px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider ${s.status === "Active"
-                        ? "bg-emerald-100 text-emerald-600"
-                        : "bg-amber-100 text-amber-600"
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${s.status === "Active"
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-rose-100 text-rose-700"
                         }`}>
                         {s.status}
                       </span>
                     </td>
 
-                    <td className="px-3 py-4">
-                      <span className="text-xs font-medium text-slate-600">{s.created_by || "System"}</span>
-                    </td>
+                    <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">{s.created_by || "System"}</td>
 
-                    <td className="px-3 py-4 text-xs text-slate-500">
+                    <td className="px-6 py-4 text-center text-sm text-slate-600 whitespace-nowrap">
                       {s.created_on ? new Date(s.created_on).toLocaleDateString('en-GB') : '-'}
                     </td>
 
-                    <td className="px-3 py-4 text-xs text-slate-600">
+                    <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">
                       {s.modified_by || '-'}
                     </td>
 
-                    <td className="px-3 py-4 text-xs text-slate-500">
+                    <td className="px-6 py-4 text-center text-sm text-slate-600 whitespace-nowrap">
                       {s.modified_on ? new Date(s.modified_on).toLocaleDateString('en-GB') : '-'}
                     </td>
                   </tr>
@@ -702,150 +700,173 @@ export const SponsorshipPage = () => {
       {/* ================= CREATE MODAL ================= */}
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50">
-          <div className="bg-sky-50 border border-blue-200 shadow-2xl rounded-3xl w-[900px] max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center z-[100] px-6 py-4">
+          <div className="w-full max-w-4xl bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[95vh]">
             {/* HEADER */}
-
-            <div className="flex justify-between items-center px-8 py-5 border-b border-blue-100 bg-gradient-to-r from-sky-500 to-blue-600 rounded-t-3xl">
-              <h2 className="text-2xl font-bold text-white tracking-tight">
-                New Sponsor Details
-              </h2>
-
+            <div className="flex justify-between items-center px-8 py-6 bg-slate-50 border-b border-slate-100 shrink-0">
+              <div>
+                <h2 className="text-2xl font-black text-slate-800 tracking-tight">
+                  {editId ? "Edit Sponsor Details" : "New Sponsor Details"}
+                </h2>
+                <p className="text-slate-500 text-sm mt-1">
+                  Manage sponsor information and documents
+                </p>
+              </div>
               <button
                 onClick={() => {
                   setShowForm(false);
                   handleReset();
                 }}
-                className="bg-white/20 p-2 rounded-full text-white hover:bg-red-500 transition-all duration-300 hover:scale-110"
+                className="bg-white hover:bg-red-50 text-slate-400 hover:text-red-500 p-2.5 rounded-full shadow-sm transition-all border border-slate-100"
               >
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-8 space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            <form onSubmit={handleSubmit} noValidate className="flex flex-col flex-1 overflow-hidden">
+              <div className="p-8 space-y-8 overflow-y-auto custom-scrollbar flex-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* SPONSOR NAME */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Sponsor Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      name="sponsor_name"
+                      placeholder="Enter Name"
+                      value={form.sponsor_name}
+                      onChange={handleChange}
+                      className={`w-full p-4 border-2 rounded-2xl focus:ring-4 transition-all outline-none ${errors.sponsor_name
+                        ? "border-red-200 bg-red-50 focus:ring-red-100 focus:border-red-400"
+                        : "border-slate-100 bg-slate-50 focus:ring-blue-50 focus:border-blue-500"
+                        }`}
+                    />
+                    {errors.sponsor_name && <p className="text-red-500 text-xs font-bold ml-1">{errors.sponsor_name}</p>}
+                  </div>
 
-                {/* LEFT SIDE: SPONSOR INFORMATION */}
-                <div className="space-y-6">
-                  <div className="bg-white p-6 rounded-2xl border border-blue-100 shadow-sm h-full">
-                    <h3 className="text-lg font-bold text-blue-700 mb-5 flex items-center gap-2">
-                      <span className="w-1 h-6 bg-blue-500 rounded-full"></span>
-                      Sponsor Information
+                  {/* MAIL ID */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Mail ID <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      name="mail_id"
+                      placeholder="Email ID"
+                      value={form.mail_id}
+                      onChange={handleChange}
+                      className={`w-full p-4 border-2 rounded-2xl focus:ring-4 transition-all outline-none ${errors.mail_id
+                        ? "border-red-200 bg-red-50 focus:ring-red-100 focus:border-red-400"
+                        : "border-slate-100 bg-slate-50 focus:ring-blue-50 focus:border-blue-500"
+                        }`}
+                    />
+                    {errors.mail_id && <p className="text-red-500 text-xs font-bold ml-1">{errors.mail_id}</p>}
+                  </div>
+
+                  {/* PRIMARY CONTACT */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Primary Contact <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      name="primary_contact"
+                      placeholder="Primary No"
+                      value={form.primary_contact}
+                      onChange={handleChange}
+                      className={`w-full p-4 border-2 rounded-2xl focus:ring-4 transition-all outline-none ${errors.primary_contact
+                        ? "border-red-200 bg-red-50 focus:ring-red-100 focus:border-red-400"
+                        : "border-slate-100 bg-slate-50 focus:ring-blue-50 focus:border-blue-500"
+                        }`}
+                    />
+                    {errors.primary_contact && <p className="text-red-500 text-xs font-bold ml-1">{errors.primary_contact}</p>}
+                  </div>
+
+                  {/* SECONDARY CONTACT */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Secondary Contact
+                    </label>
+                    <input
+                      name="secondary_contact"
+                      placeholder="Secondary No"
+                      value={form.secondary_contact}
+                      onChange={handleChange}
+                      className={`w-full p-4 border-2 rounded-2xl focus:ring-4 transition-all outline-none border-slate-100 bg-slate-50 focus:ring-blue-50 focus:border-blue-500`}
+                    />
+                  </div>
+
+                  {/* STATUS */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Status
+                    </label>
+                    <select
+                      name="status"
+                      value={form.status}
+                      onChange={handleChange}
+                      className="w-full p-4 border-2 border-slate-100 bg-slate-50 rounded-2xl focus:ring-4 focus:ring-blue-50 focus:border-blue-500 outline-none appearance-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                      disabled={!editId}
+                    >
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
+                    </select>
+                  </div>
+                  
+                  {/* ADDRESS */}
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Address <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      name="address"
+                      placeholder="Complete Address"
+                      value={form.address}
+                      onChange={handleChange}
+                      className={`w-full p-4 border-2 rounded-2xl focus:ring-4 transition-all outline-none min-h-[100px] resize-none ${errors.address
+                        ? "border-red-200 bg-red-50 focus:ring-red-100 focus:border-red-400"
+                        : "border-slate-100 bg-slate-50 focus:ring-blue-50 focus:border-blue-500"
+                        }`}
+                    />
+                    {errors.address && <p className="text-red-500 text-xs font-bold ml-1">{errors.address}</p>}
+                  </div>
+
+                  {/* DOCUMENTS SECTION */}
+                  <div className="md:col-span-2 border-t border-slate-100 pt-6">
+                    <h3 className="text-lg font-bold text-slate-700 mb-4 flex items-center justify-between">
+                      Sponsor Documents (Optional)
+                      <button
+                        type="button"
+                        onClick={addDocument}
+                        className="text-blue-600 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl text-sm transition-all font-bold"
+                      >
+                        + Add Document
+                      </button>
                     </h3>
 
                     <div className="space-y-4">
-                      {/* Name & Primary Contact */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <label className="text-xs font-bold text-blue-500 tracking-tight ml-1">
-                            Sponsor Name <span className="text-red-500 font-bold lowercase tracking-normal ml-1">*</span>
-                          </label>
-                          <input
-                            name="sponsor_name"
-                            placeholder="Enter Name"
-                            value={form.sponsor_name}
-                            onChange={handleChange}
-                            className={`w-full p-3 rounded-xl bg-blue-50/50 border ${errors.sponsor_name ? 'border-red-400' : 'border-blue-100'} focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none text-blue-900 text-sm font-semibold placeholder:text-blue-200`}
-                          />
-                          {errors.sponsor_name && <p className="text-red-400 text-[10px] mt-1 ml-1">{errors.sponsor_name}</p>}
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="text-xs font-bold text-blue-500 tracking-tight ml-1">
-                            Primary Contact <span className="text-red-500 font-bold lowercase tracking-normal ml-1">*</span>
-                          </label>
-                          <input
-                            name="primary_contact"
-                            placeholder="Primary No"
-                            value={form.primary_contact}
-                            onChange={handleChange}
-                            className={`w-full p-3 rounded-xl bg-blue-50/50 border ${errors.primary_contact ? 'border-red-400' : 'border-blue-100'} focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none text-blue-900 text-sm font-semibold placeholder:text-blue-200`}
-                          />
-                          {errors.primary_contact && <p className="text-red-400 text-[10px] mt-1 ml-1">{errors.primary_contact}</p>}
-                        </div>
-                      </div>
-
-                      {/* Secondary & Mail */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <label className="text-xs font-bold text-blue-500 tracking-tight ml-1">
-                            Secondary Contact
-                          </label>
-                          <input
-                            name="secondary_contact"
-                            placeholder="Secondary No"
-                            value={form.secondary_contact}
-                            onChange={handleChange}
-                            className="w-full p-3 rounded-xl bg-blue-50/50 border border-blue-100 focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none text-blue-900 text-sm font-semibold placeholder:text-blue-200"
-                          />
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="text-xs font-bold text-blue-500 tracking-tight ml-1">
-                            Mail ID <span className="text-red-500 font-bold lowercase tracking-normal ml-1">*</span>
-                          </label>
-                          <input
-                            name="mail_id"
-                            placeholder="Email ID"
-                            value={form.mail_id}
-                            onChange={handleChange}
-                            className={`w-full p-3 rounded-xl bg-blue-50/50 border ${errors.mail_id ? 'border-red-400' : 'border-blue-100'} focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none text-blue-900 text-sm font-semibold placeholder:text-blue-200`}
-                          />
-                          {errors.mail_id && <p className="text-red-400 text-[10px] mt-1 ml-1">{errors.mail_id}</p>}
-                        </div>
-                      </div>
-
-                      {/* Address */}
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-blue-500 tracking-tight ml-1">
-                          Address <span className="text-red-500 font-bold lowercase tracking-normal ml-1">*</span>
-                        </label>
-                        <textarea
-                          name="address"
-                          placeholder="Complete Address"
-                          value={form.address}
-                          onChange={handleChange}
-                          className={`w-full p-3 rounded-xl bg-blue-50/50 border ${errors.address ? 'border-red-400' : 'border-blue-100'} focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none text-blue-900 text-sm font-semibold placeholder:text-blue-200 min-h-[80px] resize-none`}
-                        />
-                        {errors.address && <p className="text-red-400 text-[10px] mt-1 ml-1">{errors.address}</p>}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* RIGHT SIDE: DOCUMENTS & ACTION */}
-                <div className="space-y-6">
-                  <div className="bg-white p-6 rounded-2xl border border-blue-100 shadow-sm h-full flex flex-col">
-                    <h3 className="text-lg font-bold text-blue-700 mb-5 flex items-center gap-2">
-                      <span className="w-1 h-6 bg-blue-500 rounded-full"></span>
-                      Sponsor Documents (Optional)
-                    </h3>
-
-                    <div className="flex-1 space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                       {documents.map((doc, index) => (
                         <div
                           key={index}
-                          className="relative bg-blue-50/30 p-4 rounded-xl border border-blue-50 animate-in slide-in-from-right duration-300"
+                          className="relative bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-col md:flex-row gap-4 items-center"
                         >
-                          <div className="grid grid-cols-2 gap-3 mb-3">
-                            <select
-                              name="document_type"
-                              value={doc.document_type}
-                              onChange={(e) => handleDocChange(e, index)}
-                              className="p-2.5 rounded-lg bg-white border border-blue-100 focus:ring-2 focus:ring-blue-500 outline-none text-blue-900 text-xs font-semibold"
-                            >
-                              <option>Document Type</option>
-                              <option>Aadhar</option>
-                              <option>PAN</option>
-                            </select>
-                            <input
-                              name="document_number"
-                              placeholder="Number"
-                              value={doc.document_number}
-                              onChange={(e) => handleDocChange(e, index)}
-                              className="p-2.5 rounded-lg bg-white border border-blue-100 focus:ring-2 focus:ring-blue-500 outline-none text-blue-900 text-xs font-semibold placeholder:text-blue-200"
-                            />
-                          </div>
+                          <select
+                            name="document_type"
+                            value={doc.document_type}
+                            onChange={(e) => handleDocChange(e, index)}
+                            className="p-3 w-full md:w-1/3 rounded-xl border border-slate-200 focus:border-blue-500 outline-none text-slate-700 font-medium"
+                          >
+                            <option value="">Document Type</option>
+                            <option value="Aadhar">Aadhar</option>
+                            <option value="PAN">PAN</option>
+                          </select>
+                          
+                          <input
+                            name="document_number"
+                            placeholder="Number"
+                            value={doc.document_number}
+                            onChange={(e) => handleDocChange(e, index)}
+                            className="p-3 w-full md:w-1/3 rounded-xl border border-slate-200 focus:border-blue-500 outline-none text-slate-700 font-medium"
+                          />
+
                           <input
                             type="file"
                             id={`doc-file-${index}`}
@@ -854,52 +875,49 @@ export const SponsorshipPage = () => {
                           />
                           <label
                             htmlFor={`doc-file-${index}`}
-                            className="w-full text-[10px] text-blue-600 font-bold cursor-pointer bg-white/50 p-2 rounded-lg border border-blue-50 flex items-center justify-between hover:bg-blue-100 transition-all duration-200"
+                            className="w-full md:w-1/3 p-3 rounded-xl border border-slate-200 bg-white text-blue-600 font-bold cursor-pointer text-center hover:bg-blue-50 transition-all flex justify-between items-center"
                           >
-                            <span>{documents[index].document_file ? "File Uploaded" : "Choose File"}</span>
+                            <span className="text-sm truncate mr-2">{documents[index].document_file ? "File Uploaded" : "Choose File"}</span>
                             <span className="bg-blue-100 px-3 py-1 rounded-full text-[10px] font-black uppercase text-blue-700">Browse</span>
                           </label>
+
                           {documents.length > 1 && (
                             <button
                               type="button"
                               onClick={() => removeDocument(index)}
-                              className="absolute -top-2 -right-2 bg-white text-red-500 p-1.5 rounded-full shadow-md border border-red-100 hover:bg-red-500 hover:text-white transition-all duration-300"
+                              className="absolute -top-3 -right-3 bg-white text-red-500 p-2 rounded-full shadow-md hover:bg-red-500 hover:text-white transition-all"
                             >
-                              <Trash2 size={14} />
+                              <Trash2 size={16} />
                             </button>
                           )}
                         </div>
                       ))}
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={addDocument}
-                      className="mt-4 w-full bg-blue-100 hover:bg-blue-200 text-blue-700 transition py-3 rounded-xl font-black text-[11px] uppercase tracking-widest shadow-sm"
-                    >
-                      + Add Document
-                    </button>
-                  </div>
-
-                  {/* SAVE BUTTON */}
-                  <div className="flex items-center justify-end gap-3">
-                    <button
-                      type="button"
-                      onClick={handleReset}
-                      className="px-6 py-4 border border-gray-300 text-gray-700 rounded-2xl font-bold hover:bg-gray-50 transition-all"
-                    >
-                      Clear
-                    </button>
-
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="px-8 py-4 bg-gradient-to-r from-blue-500 to-sky-600 hover:scale-[1.01] transition-all rounded-2xl font-black text-white shadow-xl shadow-blue-100 tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {loading ? "Saving..." : "Save Sponsor"}
-                    </button>
                   </div>
                 </div>
+              </div>
+
+              {/* FOOTER */}
+              <div className="flex justify-end gap-4 px-8 py-6 bg-slate-50 border-t border-slate-100 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleReset();
+                    setShowForm(false);
+                  }}
+                  className="px-8 py-3 rounded-2xl font-bold text-slate-500 hover:bg-slate-100 transition-all active:scale-95"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-10 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black shadow-xl shadow-blue-200 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2"
+                >
+                  {loading ? "Saving..." : (editId ? "Update Sponsor" : "Save Sponsor")}
+                  <CheckCircle size={20} />
+                </button>
               </div>
             </form>
           </div>
@@ -909,144 +927,140 @@ export const SponsorshipPage = () => {
       {/* ================= VIEW MODAL ================= */}
 
       {viewData && (
-        <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 backdrop-blur-sm">
-          <div className="bg-sky-50 w-[700px] rounded-3xl border border-blue-200 shadow-2xl overflow-hidden">
-            <div className="flex justify-between items-center px-8 py-5 bg-gradient-to-r from-blue-600 to-sky-500 text-white">
-              <h2 className="text-xl font-bold tracking-tight">
-                Sponsor Details View
-              </h2>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center z-[100] px-6 py-4">
+          <div className="w-full max-w-4xl bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[95vh]">
+            {/* HEADER */}
+            <div className="flex justify-between items-center px-8 py-6 bg-slate-50 border-b border-slate-100 shrink-0">
+              <div>
+                <h2 className="text-2xl font-black text-slate-800 tracking-tight">
+                  View Sponsor Details
+                </h2>
+                <p className="text-slate-500 text-sm mt-1">
+                  Manage sponsor information and documents
+                </p>
+              </div>
               <button
-                onClick={closeModal}
-                className="bg-white/20 p-2 rounded-full hover:bg-red-500 transition-all duration-300"
+                onClick={() => setViewData(null)}
+                className="bg-white hover:bg-red-50 text-slate-400 hover:text-red-500 p-2.5 rounded-full shadow-sm transition-all border border-slate-100"
               >
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
 
-            <div className="p-8 space-y-6 max-h-[70vh] overflow-y-auto">
-              <div className="grid grid-cols-2 gap-6">
-                {/* Sponsor Code */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-blue-500 tracking-tight ml-1">
-                    Sponsor Code
-                  </label>
-                  <div className="px-4 py-3 bg-white border border-blue-100 rounded-xl text-blue-900 font-bold shadow-sm">
-                    {viewData.sponsor_code}
+            <div className="flex flex-col flex-1 overflow-hidden">
+              <div className="p-8 space-y-8 overflow-y-auto custom-scrollbar flex-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* SPONSOR CODE */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Sponsor Code
+                    </label>
+                    <div className="w-full p-4 border-2 rounded-2xl border-slate-100 bg-slate-50 text-slate-700 outline-none">
+                      {viewData.sponsor_code}
+                    </div>
                   </div>
-                </div>
 
-                {/* Sponsor Name */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-blue-500 tracking-tight ml-1">
-                    Sponsor Name
-                  </label>
-                  <div className="px-4 py-3 bg-white border border-blue-100 rounded-xl text-blue-900 font-bold shadow-sm">
-                    {viewData.sponsor_name}
+                  {/* SPONSOR NAME */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Sponsor Name
+                    </label>
+                    <div className="w-full p-4 border-2 rounded-2xl border-slate-100 bg-slate-50 text-slate-700 outline-none">
+                      {viewData.sponsor_name}
+                    </div>
                   </div>
-                </div>
 
-                {/* Primary Contact */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-blue-500 tracking-tight ml-1">
-                    Primary Contact
-                  </label>
-                  <div className="px-4 py-3 bg-white border border-blue-100 rounded-xl text-blue-900 font-bold shadow-sm">
-                    {viewData.primary_contact}
+                  {/* MAIL ID */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Mail ID
+                    </label>
+                    <div className="w-full p-4 border-2 rounded-2xl border-slate-100 bg-slate-50 text-slate-700 outline-none truncate">
+                      {viewData.mail_id}
+                    </div>
                   </div>
-                </div>
 
-                {/* Mail ID */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-blue-500 tracking-tight ml-1">
-                    Mail ID
-                  </label>
-                  <div className="px-4 py-3 bg-white border border-blue-100 rounded-xl text-blue-900 font-bold shadow-sm truncate">
-                    {viewData.mail_id}
+                  {/* PRIMARY CONTACT */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Primary Contact
+                    </label>
+                    <div className="w-full p-4 border-2 rounded-2xl border-slate-100 bg-slate-50 text-slate-700 outline-none">
+                      {viewData.primary_contact}
+                    </div>
                   </div>
-                </div>
 
-                {/* Status */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-blue-500 tracking-tight ml-1">
-                    Status
-                  </label>
-                  <div className="mt-1">
-                    <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${viewData.status === "Active"
-                      ? "bg-emerald-100 text-emerald-600 border border-emerald-200"
-                      : "bg-amber-100 text-amber-600 border border-amber-200"
-                      }`}>
+                  {/* STATUS */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Status
+                    </label>
+                    <div className="w-full p-4 border-2 rounded-2xl border-slate-100 bg-slate-50 text-slate-700 outline-none">
                       {viewData.status}
-                    </span>
+                    </div>
                   </div>
-                </div>
-
-                {/* Address */}
-                <div className="col-span-2 space-y-1">
-                  <label className="text-xs font-bold text-blue-500 tracking-tight ml-1">
-                    Address
-                  </label>
-                  <div className="px-4 py-3 bg-white border border-blue-100 rounded-xl text-blue-900 font-semibold shadow-sm min-h-[60px]">
-                    {viewData.address}
+                  
+                  {/* ADDRESS */}
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Address
+                    </label>
+                    <div className="w-full p-4 border-2 rounded-2xl border-slate-100 bg-slate-50 text-slate-700 outline-none min-h-[100px]">
+                      {viewData.address}
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              {/* AUDIT INFO */}
-              <div className="grid grid-cols-2 gap-4 bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-black text-blue-400  tracking-widest">Created By</label>
-                  <p className="text-sm font-bold text-blue-900">{viewData.created_by || "System"}</p>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-black text-blue-400  tracking-widest">Created On</label>
-                  <p className="text-sm font-bold text-blue-900">{viewData.created_at ? new Date(viewData.created_at).toLocaleDateString('en-GB') : "N/A"}</p>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-black text-blue-400  tracking-widest">Modified By</label>
-                  <p className="text-sm font-bold text-blue-900">{viewData.modified_by || "N/A"}</p>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-black text-blue-400  tracking-widest">Modified On</label>
-                  <p className="text-sm font-bold text-blue-900">{viewData.modified_on ? new Date(viewData.modified_on).toLocaleDateString('en-GB') : "N/A"}</p>
-                </div>
-              </div>
+                  {/* DOCUMENTS SECTION */}
+                  {viewData.documents && viewData.documents.length > 0 && (
+                    <div className="md:col-span-2 border-t border-slate-100 pt-6">
+                      <h3 className="text-lg font-bold text-slate-700 mb-4 flex items-center justify-between">
+                        Sponsor Documents
+                      </h3>
 
-              {/* DOCUMENTS */}
-              {viewData.documents && viewData.documents.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="text-sm font-black text-blue-700 uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-1 h-4 bg-blue-500 rounded-full"></span>
-                    Attachments
-                  </h3>
-                  <div className="grid grid-cols-1 gap-3">
-                    {viewData.documents.map((doc, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3 bg-white border border-blue-100 rounded-xl shadow-sm">
-                        <div>
-                          <p className="text-[10px] font-black text-blue-400 uppercase">{doc.document_type}</p>
-                          <p className="text-sm font-bold text-blue-900">{doc.document_number}</p>
-                        </div>
-                        {doc.document_file && (
+                      <div className="space-y-4">
+                        {viewData.documents.map((doc, index) => (
                           <div
-                            onClick={() => setFullPreview(doc.document_file)}
-                            className="w-12 h-12 rounded-lg border border-blue-50 overflow-hidden cursor-zoom-in hover:ring-2 hover:ring-blue-400 transition-all shadow-sm"
+                            key={index}
+                            className="relative bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-col md:flex-row gap-4 items-center"
                           >
-                            <img src={doc.document_file} className="w-full h-full object-cover" alt="Doc" />
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+                            <div className="p-3 w-full md:w-1/3 rounded-xl border border-slate-200 bg-white text-slate-700 font-medium text-center">
+                              {doc.document_type}
+                            </div>
+                            
+                            <div className="p-3 w-full md:w-1/3 rounded-xl border border-slate-200 bg-white text-slate-700 font-medium text-center">
+                              {doc.document_number}
+                            </div>
 
-            <div className="p-6 border-t border-blue-100 bg-white">
-              <button
-                onClick={closeModal}
-                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-lg transition-all active:scale-[0.98]"
-              >
-                Close View
-              </button>
+                            <div 
+                              className="w-full md:w-1/3 p-3 rounded-xl border border-slate-200 bg-white text-blue-600 font-bold text-center flex justify-center items-center gap-3"
+                            >
+                               {doc.document_file && (
+                                 <button
+                                   onClick={() => setFullPreview(doc.document_file)}
+                                   className="flex items-center gap-2 hover:text-blue-700 transition-colors"
+                                 >
+                                   <Eye size={18} /> View Document
+                                 </button>
+                               )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* FOOTER */}
+              <div className="flex justify-end gap-4 px-8 py-6 bg-slate-50 border-t border-slate-100 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setViewData(null)}
+                  className="px-8 py-3 rounded-2xl font-bold text-slate-500 hover:bg-slate-100 transition-all active:scale-95"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { clearUser } from "../Redux/userSlice";
@@ -9,6 +10,7 @@ const ExhibitorNavbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
    const handleLogout = () => {
     // Clear Session Storage
@@ -55,7 +57,7 @@ const ExhibitorNavbar = () => {
         </div>
 
         <button
-   onClick={handleLogout}
+   onClick={() => setShowLogoutModal(true)}
   className="ml-2 flex items-center gap-2 px-3 py-2 
              text-red-600 bg-red-50 
              hover:bg-red-100 hover:text-red-700
@@ -69,6 +71,39 @@ const ExhibitorNavbar = () => {
   </span>
 </button>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 relative flex flex-col items-center text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <LogOut className="w-8 h-8 text-red-600 ml-1" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Logout</h2>
+            <p className="text-sm text-gray-500 mb-6">
+              Are you sure you want to log out?
+            </p>
+            <div className="flex gap-3 w-full">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 hover:bg-gray-200 font-semibold rounded-xl transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowLogoutModal(false);
+                  handleLogout();
+                }}
+                className="flex-1 px-4 py-2.5 bg-red-600 text-white hover:bg-red-700 font-semibold rounded-xl shadow-md transition"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };

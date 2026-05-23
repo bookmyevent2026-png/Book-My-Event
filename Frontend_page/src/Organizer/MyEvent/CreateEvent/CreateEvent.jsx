@@ -11,7 +11,7 @@ import Step4Documents from "./steps/Step4Documents";
 import Step5Terms from "./steps/Step5Terms";
 import Step6VendorSponsor from "./steps/Step6VendorSponsor";
 
-const CreateEvent = ({ onBack, editData }) => {
+const CreateEvent = ({ onBack, editData, isView }) => {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const Redexorganizer = useSelector((state) => state.user);
@@ -405,8 +405,8 @@ const CreateEvent = ({ onBack, editData }) => {
 
   return (
     <div className="flex flex-col min-h-screen bg-white rounded shadow">
-      {/* STICKY TOP HEADER */}
-      <div className="sticky top-0 z-[100] bg-white border-b border-gray-100 shadow-sm px-4 pt-2 pb-0">
+      {/* HEADER */}
+      <div className="bg-white border-b border-gray-100 shadow-sm px-4 pt-2 pb-0">
         <h1 className="text-xl font-bold mb-2">Create Event</h1>
 
         <div className="flex flex-wrap gap-4 md:gap-6 pb-0 mb-0 text-sm">
@@ -424,7 +424,15 @@ const CreateEvent = ({ onBack, editData }) => {
 
       {/* SCROLLABLE CONTENT */}
       <div className="pt-3 pb-20 px-2">
-        <CurrentStepComponent formData={formData} setFormData={setFormData} />
+        <fieldset disabled={isView} className={isView ? "opacity-90" : ""}>
+          <CurrentStepComponent
+            formData={formData}
+            setFormData={(val) => {
+              if (isView) return;
+              setFormData(val);
+            }}
+          />
+        </fieldset>
       </div>
 
       {/* FIXED BOTTOM NAVIGATION */}
@@ -444,17 +452,19 @@ const CreateEvent = ({ onBack, editData }) => {
             Next →
           </button>
         ) : (
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitting || !isFormValid()}
-            className={`px-8 py-2.5 rounded-xl text-white font-semibold transition-all shadow-md
-    ${isSubmitting || !isFormValid()
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-green-600 hover:bg-green-700"
-              }`}
-          >
-            {isSubmitting ? "Submitting..." : "Submit"}
-          </button>
+          !isView && (
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting || !isFormValid()}
+              className={`px-8 py-2.5 rounded-xl text-white font-semibold transition-all shadow-md
+      ${isSubmitting || !isFormValid()
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700"
+                }`}
+            >
+              {isSubmitting ? "Submitting..." : "Submit"}
+            </button>
+          )
         )}
       </div>
 
