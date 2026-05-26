@@ -11,6 +11,44 @@ import Step4Documents from "./steps/Step4Documents";
 import Step5Terms from "./steps/Step5Terms";
 import Step6VendorSponsor from "./steps/Step6VendorSponsor";
 
+const convert24to12 = (time24h) => {
+  if (!time24h) return "";
+  if (time24h.includes("AM") || time24h.includes("PM") || time24h.includes("am") || time24h.includes("pm")) {
+    return time24h;
+  }
+  let [hours, minutes] = time24h.split(":");
+  if (!hours || !minutes) return time24h;
+  
+  let period = "AM";
+  let h = parseInt(hours, 10);
+  if (h >= 12) {
+    period = "PM";
+    if (h > 12) h -= 12;
+  } else if (h === 0) {
+    h = 12;
+  }
+  return `${String(h).padStart(2, "0")}:${minutes.slice(0, 2)} ${period}`;
+};
+
+const convert12to24 = (time12h) => {
+  if (!time12h) return "";
+  if (!time12h.includes("AM") && !time12h.includes("PM") && !time12h.includes("am") && !time12h.includes("pm")) {
+    return time12h;
+  }
+  const [time, modifier] = time12h.split(" ");
+  let [hours, minutes] = time.split(":");
+  if (!hours || !minutes) return time12h;
+
+  let h = parseInt(hours, 10);
+  if (h === 12) {
+    h = 0;
+  }
+  if (modifier?.toUpperCase() === "PM") {
+    h += 12;
+  }
+  return `${String(h).padStart(2, "0")}:${minutes.slice(0, 2)}:00`;
+};
+
 const CreateEvent = ({ onBack, editData, isView }) => {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,9 +102,9 @@ const CreateEvent = ({ onBack, editData, isView }) => {
         eventType: editData.details.event_type || "OneTime",
         occurrence: editData.details.occurrence || "",
         startDate: editData.details.start_date,
-        startTime: editData.details.start_time,
+        startTime: convert24to12(editData.details.start_time),
         endDate: editData.details.end_date,
-        endTime: editData.details.end_time,
+        endTime: convert24to12(editData.details.end_time),
         venue: editData.details.venue,
         address: editData.details.address,
       }
@@ -296,27 +334,36 @@ const CreateEvent = ({ onBack, editData, isView }) => {
   }, [organizer?.name]);
 
 
-  const isFormValid = () => {
+  const getFormValidationErrors = () => {
     const event = formData.eventDetails || {};
     const booking = formData.booking || {};
+    const errors = [];
 
-    return (
-      event.eventName &&
-      event.category &&
-      event.description &&
-      event.startDate &&
-      event.startTime &&
-      event.endDate &&
-      event.endTime &&
-      event.venue &&
-      event.address &&
-      booking.bookingStartDate &&
-      booking.bookingEndDate &&
-      booking.capacity &&
-      booking.passType &&
-      booking.entryType &&
-      booking.chargeType
-    );
+    if (!event.eventName) errors.push("Event Name");
+    if (!event.category) errors.push("Event Category");
+    if (!event.description) errors.push("Event Description");
+    if (!event.startDate) errors.push("Event Start Date");
+    if (!event.startTime) errors.push("Event Start Time");
+    if (!event.endDate) errors.push("Event End Date");
+    if (!event.endTime) errors.push("Event End Time");
+    if (!event.venue) errors.push("Event Venue");
+    if (!event.address) errors.push("Event Address");
+    if (!booking.bookingStartDate) errors.push("Booking Start Date");
+    if (!booking.bookingEndDate) errors.push("Booking End Date");
+    if (!booking.capacity) errors.push("Event Capacity");
+    if (!booking.passType) errors.push("Pass Type");
+    if (!booking.entryType) errors.push("Entry Permissions");
+    if (!booking.chargeType) errors.push("Pass Charge Type");
+    if (!booking.maxPass) errors.push("Max Passes/Person");
+    if (booking.chargeType === "Paid" && !booking.earlyBirdExpire) {
+      errors.push("Early Bird Expiry");
+    }
+
+    return errors;
+  };
+
+  const isFormValid = () => {
+    return getFormValidationErrors().length === 0;
   };
 
   const handleSubmit = async () => {
@@ -327,12 +374,17 @@ const CreateEvent = ({ onBack, editData, isView }) => {
     try {
       const fd = new FormData();
 
-      // JSON fields
-      fd.append("eventDetails", JSON.stringify({
+      // Convert times from 12-hour AM/PM to 24-hour format
+      const eventDetailsToSend = {
         ...formData.eventDetails,
+        startTime: convert12to24(formData.eventDetails?.startTime),
+        endTime: convert12to24(formData.eventDetails?.endTime),
         created_by: organizer.name,
         user_id: organizer.id,
-      }));
+      };
+
+      // JSON fields
+      fd.append("eventDetails", JSON.stringify(eventDetailsToSend));
       fd.append("booking", JSON.stringify(formData.booking));
       fd.append("layout", JSON.stringify(formData.layout));
       fd.append("terms", JSON.stringify(formData.terms));
@@ -431,6 +483,7 @@ const CreateEvent = ({ onBack, editData, isView }) => {
               if (isView) return;
               setFormData(val);
             }}
+            organizerId={organizer?.id}
           />
         </fieldset>
       </div>
@@ -453,17 +506,24 @@ const CreateEvent = ({ onBack, editData, isView }) => {
           </button>
         ) : (
           !isView && (
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmitting || !isFormValid()}
-              className={`px-8 py-2.5 rounded-xl text-white font-semibold transition-all shadow-md
+            <div className="flex flex-col items-end gap-1">
+              <button
+                onClick={handleSubmit}
+                disabled={isSubmitting || !isFormValid()}
+                className={`px-8 py-2.5 rounded-xl text-white font-semibold transition-all shadow-md
       ${isSubmitting || !isFormValid()
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-green-600 hover:bg-green-700"
                 }`}
-            >
-              {isSubmitting ? "Submitting..." : "Submit"}
-            </button>
+              >
+                {isSubmitting ? "Submitting..." : "Submit"}
+              </button>
+              {!isFormValid() && (
+                <span className="text-[11px] text-red-500 font-bold max-w-xs text-right mt-1">
+                  Required: {getFormValidationErrors().join(", ")}
+                </span>
+              )}
+            </div>
           )
         )}
       </div>

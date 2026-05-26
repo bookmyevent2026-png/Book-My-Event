@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import CustomTimePicker from "../TimePickerClock";
-import { get_Venues_details } from "../../../../Services/api";
+import { get_Venues_details, getVenueDetails } from "../../../../Services/api";
 // import { Calendar, Clock } from "lucide-react";
 import { Calendar, Clock, Search } from "lucide-react";
-const Step1EventDetails = ({ formData, setFormData }) => {
+const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
   const [venues, setVenues] = useState([]);
   /* inside component */
   const startDateRef = useRef(null);
@@ -88,11 +88,11 @@ const Step1EventDetails = ({ formData, setFormData }) => {
       }
       return prev;
     });
-  }, [setFormData]);
+  }, [setFormData, organizerId]);
 
   const fetchVenues = async () => {
     try {
-      const res = await get_Venues_details();
+      const res = await get_Venues_details(organizerId);
       setVenues(res);
     } catch (error) {
       console.error("Error fetching venues", error);
@@ -148,6 +148,24 @@ const Step1EventDetails = ({ formData, setFormData }) => {
           ...prev.eventDetails,
           isInternationalInclude: false,
           passport: false,
+        },
+        booking: {
+          ...(prev.booking || {}),
+          priceType: "National",
+        },
+      }));
+      return;
+    }
+    if (name === "visitorName" && !checked) {
+      return;
+    }
+    if (name === "mail") {
+      setFormData((prev) => ({
+        ...prev,
+        eventDetails: {
+          ...prev.eventDetails,
+          mail: checked,
+          visitorMail: checked,
         },
       }));
       return;
@@ -283,7 +301,7 @@ const Step1EventDetails = ({ formData, setFormData }) => {
 
           <div className="group">
             <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">
-              Event Name <span className="text-red-500">*</span>
+              What’s the Name of Your Event? <span className="text-red-500">*</span>
             </label>
             <input
               name="eventName"
@@ -363,7 +381,7 @@ const Step1EventDetails = ({ formData, setFormData }) => {
 
         <div className="space-y-5">
           <div className="grid grid-cols-2 gap-4">
-            
+
 
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-gray-700">
@@ -454,9 +472,14 @@ const Step1EventDetails = ({ formData, setFormData }) => {
                     <input
                       type="checkbox"
                       name={item.id}
-                      checked={formData.eventDetails?.[item.id] || false}
+                      checked={item.id === "visitorName" ? true : (formData.eventDetails?.[item.id] || false)}
                       className="w-4 h-4 rounded text-indigo-600 border-gray-300 focus:ring-indigo-500"
                       onChange={handleChange}
+                      onClick={(e) => {
+                        if (item.id === "visitorName") {
+                          e.preventDefault();
+                        }
+                      }}
                     />
                     <span className="ml-2.5 text-xs font-medium text-gray-600">
                       {item.label}
@@ -525,7 +548,7 @@ const Step1EventDetails = ({ formData, setFormData }) => {
                       onChange={handleChange}
                       className="w-4 h-4 rounded text-indigo-600"
                     />
-                    <span className="ml-3 text-sm text-gray-600">Passport</span>
+                    <span className="ml-3 text-sm font-semibold text-gray-600">Passport</span>
                   </label>
                 )}
                 {formData.eventDetails?.vehiclePass && (
@@ -537,7 +560,7 @@ const Step1EventDetails = ({ formData, setFormData }) => {
                       onChange={handleChange}
                       className="w-4 h-4 rounded text-indigo-600"
                     />
-                    <span className="ml-3 text-sm text-gray-600">Vehicle Number</span>
+                    <span className="ml-3 text-sm font-semibold text-gray-600">Vehicle Number</span>
                   </label>
                 )}
               </div>
@@ -614,7 +637,7 @@ const Step1EventDetails = ({ formData, setFormData }) => {
       </div>
 
       {/* ---------------- RIGHT SECTION ---------------- */}
-      <div className="space-y-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300 md:h-[calc(100vh-290px)] md:overflow-y-auto custom-scrollbar pr-2">
+      <div className="space-y-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300 md:h-[calc(110vh-290px)] md:overflow-y-auto custom-scrollbar pr-2">
         <div className="flex items-center gap-2 mb-2">
           <div className="p-2 bg-emerald-50 rounded-lg">
             <Calendar className="w-5 h-5 text-emerald-600" />
@@ -809,10 +832,44 @@ const Step1EventDetails = ({ formData, setFormData }) => {
                       .map((venue) => (
                         <div
                           key={venue.id}
-                          onClick={() => {
-                            const fullAddress = [venue.address, venue.city_name, venue.state_name, venue.country_name, venue.pin_code]
-                              .filter(Boolean)
-                              .join(", ");
+                          onClick={async () => {
+                            let fullAddress = "";
+                            try {
+                              const fullVenue = await getVenueDetails(venue.id);
+                              const v = fullVenue?.venue || fullVenue;
+                              const parts = [];
+                              if (v.address) parts.push(v.address);
+                              if (v.city_name && (!v.address || !v.address.toLowerCase().includes(v.city_name.toLowerCase()))) {
+                                parts.push(v.city_name);
+                              }
+                              if (v.state_name && (!v.address || !v.address.toLowerCase().includes(v.state_name.toLowerCase()))) {
+                                parts.push(v.state_name);
+                              }
+                              if (v.country_name && (!v.address || !v.address.toLowerCase().includes(v.country_name.toLowerCase()))) {
+                                parts.push(v.country_name);
+                              }
+                              if (v.pin_code && (!v.address || !v.address.toLowerCase().includes(v.pin_code.toLowerCase()))) {
+                                parts.push(v.pin_code);
+                              }
+                              fullAddress = parts.filter(Boolean).join(", ");
+                            } catch (error) {
+                              console.error("Error fetching detailed venue address:", error);
+                              const parts = [];
+                              if (venue.address) parts.push(venue.address);
+                              if (venue.city_name && (!venue.address || !venue.address.toLowerCase().includes(venue.city_name.toLowerCase()))) {
+                                parts.push(venue.city_name);
+                              }
+                              if (venue.state_name && (!venue.address || !venue.address.toLowerCase().includes(venue.state_name.toLowerCase()))) {
+                                parts.push(venue.state_name);
+                              }
+                              if (venue.country_name && (!venue.address || !venue.address.toLowerCase().includes(venue.country_name.toLowerCase()))) {
+                                parts.push(venue.country_name);
+                              }
+                              if (venue.pin_code && (!venue.address || !venue.address.toLowerCase().includes(venue.pin_code.toLowerCase()))) {
+                                parts.push(venue.pin_code);
+                              }
+                              fullAddress = parts.filter(Boolean).join(", ");
+                            }
                             setFormData((prev) => ({
                               ...prev,
                               eventDetails: {
@@ -847,6 +904,9 @@ const Step1EventDetails = ({ formData, setFormData }) => {
                 </div>
               )}
             </div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1 ml-1 mt-4">
+              Detailed Address
+            </label>
 
             <textarea
               name="address"
@@ -860,6 +920,7 @@ const Step1EventDetails = ({ formData, setFormData }) => {
             {formData.eventDetails?.address && (
               <div className="mt-4 rounded-xl overflow-hidden ring-1 ring-gray-200 h-48 w-full relative">
                 <iframe
+                  key={formData.eventDetails.address}
                   width="100%"
                   height="100%"
                   frameBorder="0"

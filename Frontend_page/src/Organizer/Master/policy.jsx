@@ -527,9 +527,9 @@ export const PolicyPage = () => {
                       </span>
                     </td>
 
-                    <td className="px-6 py-4 text-center text-slate-600 whitespace-nowrap">{p.created_by || "-"}</td>
+                    <td className="px-6 py-4 text-center text-slate-600 whitespace-nowrap">{p.created_by || "N/A"}</td>
                     <td className="px-6 py-4 text-center text-slate-600 whitespace-nowrap">{formatDate(p.created_on)}</td>
-                    <td className="px-6 py-4 text-center text-slate-600 whitespace-nowrap">{p.modified_by || "-"}</td>
+                    <td className="px-6 py-4 text-center text-slate-600 whitespace-nowrap">{p.modified_by || "N/A"}</td>
                     <td className="px-6 py-4 text-center text-slate-600 whitespace-nowrap">{formatDate(p.modified_on)}</td>
 
                   </tr>

@@ -493,7 +493,7 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
                 {/* Automated Length/Width Input */}
                 <input
                   type="text"
-                  placeholder={formData.layout?.stallSize === "Inches" ? "Length / Width (e.g. 1200/1200)" : "Length / Width (e.g. 10/10)"}
+                  placeholder={formData.layout?.stallSize === "Inches" ? "Length/Width" : "Length/Width"}
                   value={formData.layout?.sizeRange || ""}
                   onChange={(e) => {
                     const val = e.target.value;

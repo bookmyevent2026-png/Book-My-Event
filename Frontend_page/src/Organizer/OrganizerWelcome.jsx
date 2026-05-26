@@ -68,7 +68,7 @@ export const OrganizerWelcome = () => {
   ];
 
   const quickActions = [
-    { name: "Create New Event", icon: <PlusCircle size={20} />, path: "/OrganizerHome/CrenteEvent" },
+    { name: "Create New Event", icon: <PlusCircle size={20} />, path: "/OrganizerHome/CreateEvent" },
     { name: "Manage Venues", icon: <Settings size={20} />, path: "/OrganizerHome/Venu" },
     { name: "Ticketing & Passes", icon: <Ticket size={20} />, path: "/OrganizerHome/BulkPassPage" },
   ];

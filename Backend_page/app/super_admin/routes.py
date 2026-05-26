@@ -1483,10 +1483,14 @@ def get_venues_detail():
     conn = None
     cursor = None
     try:
+        organizer_id = request.args.get("organizer_id")
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         # Use 'Active' to match the database default
-        cursor.execute("SELECT id, venue_name, city_name, address, state_name, country_name, pin_code FROM venues WHERE status='Active'")
+        if organizer_id and organizer_id not in ("undefined", "null", ""):
+            cursor.execute("SELECT id, venue_name, city_name, address, state_name, country_name, pin_code FROM venues WHERE status='Active' AND organizer_id = %s", (organizer_id,))
+        else:
+            cursor.execute("SELECT id, venue_name, city_name, address, state_name, country_name, pin_code FROM venues WHERE status='Active'")
         venues = cursor.fetchall()
         return jsonify(venues)
     except Exception as e:
@@ -1497,6 +1501,8 @@ def get_venues_detail():
             cursor.close()
         if conn:
             conn.close()
+
+        
 @super_admin_bp.route("/api/create_policy", methods=["POST"])
 def create_policy():
     try:

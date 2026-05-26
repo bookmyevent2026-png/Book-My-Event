@@ -2,8 +2,8 @@
 import axios from "axios";
 import { Country, State, City } from "country-state-city";
 
-//const BASE_URL = "https://eventsapi.sportalytics.in/";
-const BASE_URL = "http://127.0.0.1:5000";
+const BASE_URL = "https://eventsapi.sportalytics.in/";
+//const BASE_URL = "http://127.0.0.1:5000";
 
 // AXIOS INSTANCE
 const api = axios.create({
@@ -125,8 +125,9 @@ export const getevent = async () => {
 };
 
 /* EVENT APIs */
-export const get_Venues_details = async () => {
-  const res = await api.get("/superadmin/api/venues_details");
+export const get_Venues_details = async (organizerId) => {
+  const url = organizerId ? `/superadmin/api/venues_details?organizer_id=${organizerId}` : "/superadmin/api/venues_details";
+  const res = await api.get(url);
   return res.data;
 };
 

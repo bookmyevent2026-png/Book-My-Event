@@ -711,7 +711,7 @@ export const VendorPage = () => {
                       </span>
                     </td>
                     <td className="px-3 py-2 text-slate-500 truncate" title={v.created_by}>
-                      {v.created_by || "System"}
+                      {v.created_by || "N/A"}
                     </td>
                     <td className="px-3 py-2 text-slate-500 truncate" title={formatDate(v.created_on)}>
                       {formatDate(v.created_on)}

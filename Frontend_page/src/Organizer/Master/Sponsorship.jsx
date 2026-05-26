@@ -624,15 +624,15 @@ export const SponsorshipPage = () => {
                     <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">{s.created_by || "System"}</td>
 
                     <td className="px-6 py-4 text-center text-sm text-slate-600 whitespace-nowrap">
-                      {s.created_on ? new Date(s.created_on).toLocaleDateString('en-GB') : '-'}
+                      {s.created_on ? new Date(s.created_on).toLocaleDateString('en-GB') : 'N/A'}
                     </td>
 
                     <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">
-                      {s.modified_by || '-'}
+                      {s.modified_by || 'N/A'}
                     </td>
 
                     <td className="px-6 py-4 text-center text-sm text-slate-600 whitespace-nowrap">
-                      {s.modified_on ? new Date(s.modified_on).toLocaleDateString('en-GB') : '-'}
+                      {s.modified_on ? new Date(s.modified_on).toLocaleDateString('en-GB') : 'N/A'}
                     </td>
                   </tr>
                 ))
