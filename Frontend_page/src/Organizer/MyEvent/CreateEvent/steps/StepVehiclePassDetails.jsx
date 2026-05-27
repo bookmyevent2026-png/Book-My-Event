@@ -1,14 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Trash2, Edit, X, Plus } from "lucide-react";
 
 const StepVehiclePassDetails = ({ formData, setFormData }) => {
   const vehicleDetails = formData.vehicleProvision?.details || [];
   const addOnDetails = formData.vehicleProvision?.addons || [];
-
-  // Vehicle Details State
-  const [vehicleType, setVehicleType] = useState("");
-  const [vPriceINR, setVPriceINR] = useState("");
-  const [vPriceUSD, setVPriceUSD] = useState("0");
 
   // Add-On Details State
   const [isParent, setIsParent] = useState(false);
@@ -17,19 +12,32 @@ const StepVehiclePassDetails = ({ formData, setFormData }) => {
 
   const [warning, setWarning] = useState({ show: false, message: "" });
 
+  useEffect(() => {
+    if (!formData.vehicleProvision?.details || formData.vehicleProvision.details.length === 0) {
+      setFormData(prev => ({
+        ...prev,
+        vehicleProvision: {
+          ...(prev?.vehicleProvision || {}),
+          details: [
+            { vehicleType: "Two Wheeler", priceINR: "0", priceUSD: "0" },
+            { vehicleType: "Four Wheeler", priceINR: "0", priceUSD: "0" },
+            { vehicleType: "Heavy Vehicle", priceINR: "0", priceUSD: "0" }
+          ]
+        }
+      }));
+    }
+  }, []);
+
   const showModal = (msg) => {
     setWarning({ show: true, message: msg });
     setTimeout(() => setWarning({ show: false, message: "" }), 5000);
   };
 
   const addVehicleDetail = () => {
-    if (!vehicleType.trim()) return showModal("Vehicle Type is required");
-    if (!vPriceINR || vPriceINR === "0") return showModal("Entry Price in INR is required");
-
     const newItem = {
-      vehicleType,
-      priceINR: vPriceINR,
-      priceUSD: vPriceUSD || "0",
+      vehicleType: "",
+      priceINR: "0",
+      priceUSD: "0",
     };
 
     setFormData({
@@ -39,10 +47,21 @@ const StepVehiclePassDetails = ({ formData, setFormData }) => {
         details: [...vehicleDetails, newItem],
       },
     });
+  };
 
-    setVehicleType("");
-    setVPriceINR("");
-    setVPriceUSD("0");
+  const updateVehicleDetail = (index, field, value) => {
+    const updated = [...vehicleDetails];
+    updated[index] = {
+      ...updated[index],
+      [field]: value
+    };
+    setFormData({
+      ...formData,
+      vehicleProvision: {
+        ...formData.vehicleProvision,
+        details: updated
+      }
+    });
   };
 
   const addAddOn = () => {
@@ -105,59 +124,64 @@ const StepVehiclePassDetails = ({ formData, setFormData }) => {
                 </tr>
               </thead>
               <tbody>
-                <tr className="bg-white">
-                  <td className="p-3 border-b border-gray-100">
-                    <div className="flex gap-2">
-                      <button onClick={addVehicleDetail} className="p-1.5 rounded border border-gray-200 text-gray-400 hover:text-blue-600 hover:border-blue-600 transition-all">
-                        <Plus size={16} />
-                      </button>
-                      <button className="p-1.5 rounded border border-gray-200 text-gray-400">
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                  <td className="p-3 border-b border-gray-100">
-                    <input
-                      placeholder="Two Wheeler"
-                      value={vehicleType}
-                      onChange={(e) => setVehicleType(e.target.value)}
-                      className={inputClasses}
-                    />
-                  </td>
-                  <td className="p-3 border-b border-gray-100">
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg px-3 h-[40px] w-full">
-                        <span className="text-gray-500 mr-2">₹</span>
-                        <input
-                          placeholder="Price in"
-                          value={vPriceINR}
-                          onChange={(e) => setVPriceINR(e.target.value.replace(/[^0-9.]/g, ""))}
-                          className="bg-transparent outline-none w-full text-sm"
-                        />
-                      </div>
-                      <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg px-3 h-[40px] w-32">
-                        <span className="text-gray-500 mr-2">$</span>
-                        <input
-                          placeholder="0"
-                          value={vPriceUSD}
-                          onChange={(e) => setVPriceUSD(e.target.value.replace(/[^0-9.]/g, ""))}
-                          className="bg-transparent outline-none w-full text-sm"
-                        />
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-                {vehicleDetails.map((item, index) => (
-                  <tr key={index}>
-                    <td className={tableCellClasses}>
-                      <button onClick={() => removeVehicle(index)} className="p-1.5 rounded border border-gray-200 text-red-400 hover:bg-red-50 transition-all">
-                        <Trash2 size={16} />
-                      </button>
+                {vehicleDetails.length === 0 ? (
+                  <tr>
+                    <td colSpan="3" className="p-8 text-center text-gray-400 text-sm italic">
+                      No Vehicle Details Found.
                     </td>
-                    <td className={tableCellClasses}>{item.vehicleType}</td>
-                    <td className={tableCellClasses}>₹ {item.priceINR} / $ {item.priceUSD}</td>
                   </tr>
-                ))}
+                ) : (
+                  vehicleDetails.map((item, index) => (
+                    <tr key={index} className="bg-white">
+                      <td className="p-3 border-b border-gray-100">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={addVehicleDetail}
+                            className="p-1.5 rounded border border-gray-200 text-gray-400 hover:text-blue-600 hover:border-blue-600 transition-all"
+                          >
+                            <Plus size={16} />
+                          </button>
+                          <button
+                            onClick={() => removeVehicle(index)}
+                            className="p-1.5 rounded border border-gray-200 text-red-400 hover:bg-red-50 transition-all"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                      <td className="p-3 border-b border-gray-100">
+                        <input
+                          placeholder="Vehicle Type"
+                          value={item.vehicleType}
+                          onChange={(e) => updateVehicleDetail(index, "vehicleType", e.target.value)}
+                          className={inputClasses}
+                        />
+                      </td>
+                      <td className="p-3 border-b border-gray-100">
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg px-3 h-[40px] w-full">
+                            <span className="text-gray-500 mr-2">₹</span>
+                            <input
+                              placeholder="Price in"
+                              value={item.priceINR}
+                              onChange={(e) => updateVehicleDetail(index, "priceINR", e.target.value.replace(/[^0-9.]/g, ""))}
+                              className="bg-transparent outline-none w-full text-sm"
+                            />
+                          </div>
+                          <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg px-3 h-[40px] w-32">
+                            <span className="text-gray-500 mr-2">$</span>
+                            <input
+                              placeholder="0"
+                              value={item.priceUSD}
+                              onChange={(e) => updateVehicleDetail(index, "priceUSD", e.target.value.replace(/[^0-9.]/g, ""))}
+                              className="bg-transparent outline-none w-full text-sm"
+                            />
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

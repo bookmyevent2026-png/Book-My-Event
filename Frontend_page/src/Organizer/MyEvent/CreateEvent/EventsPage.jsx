@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import {
   Plus,
   User,
@@ -60,6 +61,7 @@ const ImageSlider = ({ images = [], className = "w-28 h-20" }) => {
 };
 
 const EventsPage = () => {
+  const location = useLocation();
   const [showCreate, setShowCreate] = useState(false);
   const [editEvent, setEditEvent] = useState(null);
   const [isView, setIsView] = useState(false);
@@ -82,6 +84,15 @@ const EventsPage = () => {
   };
   const organizer = Redexorganizer?.id ? Redexorganizer : storedUser;
   console.log("organizer", organizer);
+
+  useEffect(() => {
+    if (location.state?.reset) {
+      setShowCreate(false);
+      setEditEvent(null);
+      setIsView(false);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   useEffect(() => {
     if (organizer?.id) {
@@ -166,7 +177,9 @@ const EventsPage = () => {
   };
 
   const filteredEvents = (events || []).filter((e) =>
-    (e.event_name || "").toLowerCase().includes(searchTerm.toLowerCase()),
+    (e.event_name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (e.venue || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (e.address || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // ================= PAGINATION LOGIC =================
@@ -545,7 +558,7 @@ const EventsPage = () => {
                           Pass Fee
                         </p>
                         <p className="font-bold text-gray-900 text-xs">
-                          {e.pass_fee || "Free"}
+                          {e.charge_type || "Free"}
                         </p>
                       </div>
                     </div>

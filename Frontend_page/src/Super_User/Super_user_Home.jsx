@@ -93,13 +93,9 @@ const formatTime = (time) => {
 
 const formatDate = (dateString) => {
   if (!dateString) return "-";
-  // If it's a full GMT string like "Wed, 06 May 2026 00:00:00 GMT"
-  // we take only "Wed, 06 May 2026"
-  const parts = dateString.split(" ");
-  if (parts.length >= 4) {
-    return parts.slice(0, 4).join(" ");
-  }
-  return dateString;
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return dateString;
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
 const SuperUserEvents = () => {

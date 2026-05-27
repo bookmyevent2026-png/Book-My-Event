@@ -1227,17 +1227,30 @@ export const VendorPage = () => {
 
                     <div>
                       <label className="block text-sm font-semibold text-sky-800 mb-1">
-                        IFSC / SWIFT Code{" "}
-                        <span className="text-red-500">*</span>
+                        IFSC / SWIFT Code <span className="text-red-500">*</span>
                       </label>
+
                       <input
                         name="ifsc_code"
                         value={form.ifsc_code}
                         maxLength={11}
                         placeholder="Enter IFSC Code"
-                        onChange={handleChange}
-                        className={`w-full border p-2 rounded bg-white focus:ring-2 focus:ring-sky-500 outline-none ${fieldErrors.ifsc_code ? "border-red-500" : "border-sky-200"}`}
+                        onChange={(e) => {
+                          const value = e.target.value
+                            .replace(/[^a-zA-Z0-9]/g, "") // remove special characters
+                            .toUpperCase(); // optional: convert to uppercase
+
+                          handleChange({
+                            target: {
+                              name: "ifsc_code",
+                              value,
+                            },
+                          });
+                        }}
+                        className={`w-full border p-2 rounded bg-white focus:ring-2 focus:ring-sky-500 outline-none ${fieldErrors.ifsc_code ? "border-red-500" : "border-sky-200"
+                          }`}
                       />
+
                       {fieldErrors.ifsc_code && (
                         <p className="text-red-500 text-[10px] mt-0.5">
                           {fieldErrors.ifsc_code}

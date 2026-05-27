@@ -599,16 +599,15 @@ export const SponsorshipPage = () => {
 
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
-                        <span className="text-sm font-bold text-slate-800 truncate max-w-[150px]">{s.sponsor_name}</span>
-                        <span className="text-[10px] text-slate-400 truncate max-w-[150px]">{s.address}</span>
+                        <span className="text-sm font-bold text-slate-800 truncate max-w-[150px]" title={s.sponsor_name}>{s.sponsor_name}</span>
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 text-sm font-medium text-slate-600">
+                    <td className="px-6 py-4 text-sm font-medium text-slate-600" title={s.primary_contact}>
                       {s.primary_contact}
                     </td>
 
-                    <td className="px-6 py-4 text-sm font-medium text-sky-600 truncate max-w-[150px] block">
+                    <td className="px-6 py-4 text-sm font-medium text-sky-600 truncate max-w-[150px] block" title={s.mail_id}>
                       {s.mail_id}
                     </td>
 

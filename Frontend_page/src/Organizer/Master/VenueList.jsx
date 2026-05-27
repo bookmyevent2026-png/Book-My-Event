@@ -14,6 +14,8 @@ import {
   Edit,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  Loader2,
   FileSpreadsheet,
   FileText
 } from "lucide-react";
@@ -75,6 +77,8 @@ export const Venuepage = () => {
   const [loading, setLoading] = useState(false);
   const [isExcelLoading, setIsExcelLoading] = useState(false);
   const [isPdfLoading, setIsPdfLoading] = useState(false);
+  const [loadingStates, setLoadingStates] = useState(false);
+  const [loadingCities, setLoadingCities] = useState(false);
 
   const Redexorganizer = useSelector((state) => state.user);
 
@@ -129,17 +133,20 @@ export const Venuepage = () => {
     const handleClickOutside = (event) => {
       if (countryRef.current && !countryRef.current.contains(event.target)) {
         setShowCountryDropdown(false);
+        setCountrySearch(form.country || "");
       }
       if (stateRef.current && !stateRef.current.contains(event.target)) {
         setShowStateDropdown(false);
+        setStateSearch(form.state || "");
       }
       if (cityRef.current && !cityRef.current.contains(event.target)) {
         setShowCityDropdown(false);
+        setCitySearch(form.city || "");
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [form.country, form.state, form.city]);
 
 
 
@@ -166,22 +173,54 @@ export const Venuepage = () => {
   };
 
   const loadStates = async (countryCode) => {
+    setLoadingStates(true);
     try {
       const res = await getStates(countryCode);
       setStates(res);
     } catch (error) {
       console.error("Error loading states:", error);
+    } finally {
+      setLoadingStates(false);
     }
   };
 
   const loadCities = async (countryCode, stateCode) => {
+    setLoadingCities(true);
     try {
       const res = await getCities(countryCode, stateCode);
       setCities(res);
     } catch (error) {
       console.error("Error loading cities:", error);
+    } finally {
+      setLoadingCities(false);
     }
   };
+
+  // Fetch states when country changes
+  useEffect(() => {
+    if (form.country) {
+      const selectedCountry = countries.find(c => c.country_name === form.country);
+      if (selectedCountry) {
+        loadStates(selectedCountry.id);
+      }
+    } else {
+      setStates([]);
+      setCities([]);
+    }
+  }, [form.country, countries]);
+
+  // Fetch cities when state changes
+  useEffect(() => {
+    if (form.state && form.country) {
+      const selectedCountry = countries.find(c => c.country_name === form.country);
+      const selectedState = states.find(s => s.state_name === form.state);
+      if (selectedCountry && selectedState) {
+        loadCities(selectedCountry.id, selectedState.id);
+      }
+    } else {
+      setCities([]);
+    }
+  }, [form.state, states, form.country, countries]);
 
   const fetchPincodeByCity = async (cityName) => {
     if (!cityName) return;
@@ -559,6 +598,18 @@ export const Venuepage = () => {
     }
   };
 
+  const filteredCountries = countrySearch && countrySearch !== form.country
+    ? countries.filter((c) => c.country_name.toLowerCase().includes(countrySearch.toLowerCase()))
+    : countries;
+
+  const filteredStates = stateSearch && stateSearch !== form.state
+    ? states.filter((s) => s.state_name.toLowerCase().includes(stateSearch.toLowerCase()))
+    : states;
+
+  const filteredCities = citySearch && citySearch !== form.city
+    ? cities.filter((c) => c.city_name.toLowerCase().includes(citySearch.toLowerCase()))
+    : cities;
+
   // ================= SEARCH =================
 
   const filteredVenues = venues.filter(
@@ -926,66 +977,90 @@ export const Venuepage = () => {
                       Country <span className="text-red-500">*</span>
                     </label>
 
-                    {/* INPUT */}
-                    <input
-                      type="text"
-                      placeholder="Search Country"
-                      value={countrySearch}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setCountrySearch(val);
-                        setShowCountryDropdown(true);
-                        // If user clears or changes text, clear dependent IDs
-                        setForm({ ...form, country: "", state: "", city: "" });
-                        setStateSearch("");
-                        setCitySearch("");
-                        setStates([]);
-                        setCities([]);
-                      }}
-
-                      onFocus={() => setShowCountryDropdown(true)}
-                      className={`w-full mt-1 p-2 rounded-lg bg-white border focus:ring-2 focus:ring-sky-500 text-sm ${fieldErrors.country ? "border-red-500" : "border-sky-200"
+                    <div className="relative flex items-center mt-1">
+                      <Search className="absolute left-3 text-slate-400 w-4 h-4 pointer-events-none" />
+                      <input
+                        type="text"
+                        placeholder="Search Country"
+                        value={countrySearch}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setCountrySearch(val);
+                          setShowCountryDropdown(true);
+                          // If user clears or changes text, clear dependent IDs
+                          if (val === "") {
+                            setForm({ ...form, country: "", state: "", city: "" });
+                            setStateSearch("");
+                            setCitySearch("");
+                          }
+                        }}
+                        onFocus={() => setShowCountryDropdown(true)}
+                        className={`w-full p-2 pl-9 pr-14 rounded-lg bg-white border focus:ring-2 focus:ring-sky-500 text-sm outline-none transition-all ${
+                          fieldErrors.country ? "border-red-500" : "border-sky-200"
                         }`}
-                    />
+                      />
+                      <div className="absolute right-3 flex items-center gap-1.5">
+                        {countrySearch && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setForm({ ...form, country: "", state: "", city: "" });
+                              setCountrySearch("");
+                              setStateSearch("");
+                              setCitySearch("");
+                              setShowCountryDropdown(true);
+                            }}
+                            className="text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-100 transition-colors"
+                          >
+                            <X size={14} />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowCountryDropdown(!showCountryDropdown);
+                          }}
+                          className="text-slate-400 hover:text-slate-600 p-0.5 transition-transform"
+                        >
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform duration-200 ${
+                              showCountryDropdown ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
 
                     {/* DROPDOWN */}
                     {showCountryDropdown && (
                       <div className="absolute z-50 w-full bg-white border border-sky-200 rounded-lg mt-1 max-h-40 overflow-y-auto shadow-lg">
+                        {filteredCountries.map((c) => (
+                          <div
+                            key={c.id}
+                            onClick={() => {
+                              setForm({ ...form, country: c.country_name, state: "", city: "" });
+                              setCountrySearch(c.country_name);
+                              setStateSearch("");
+                              setCitySearch("");
+                              setShowCountryDropdown(false);
+                            }}
+                            className={`p-2 cursor-pointer transition-colors text-sm ${
+                              form.country === c.country_name
+                                ? "bg-sky-600 text-white"
+                                : "hover:bg-sky-100 text-slate-700"
+                            }`}
+                          >
+                            {c.country_name}
+                          </div>
+                        ))}
 
-                        {countries
-                          .filter((c) =>
-                            c.country_name
-                              .toLowerCase()
-                              .includes(countrySearch.toLowerCase())
-                          )
-                          .map((c) => (
-                            <div
-                              key={c.id}
-                              onClick={() => {
-                                setForm({ ...form, country: c.country_name, state: "", city: "" });
-                                setCountrySearch(c.country_name);
-                                setStateSearch("");
-                                setCitySearch("");
-                                setStates([]);
-                                setCities([]);
-                                setShowCountryDropdown(false);
-                                loadStates(c.id);
-                              }}
-                              className="p-2 cursor-pointer hover:bg-sky-100 text-sm"
-                            >
-                              {c.country_name}
-                            </div>
-                          ))}
-
-                        {countries.filter((c) =>
-                          c.country_name
-                            .toLowerCase()
-                            .includes(countrySearch.toLowerCase())
-                        ).length === 0 && (
-                            <div className="p-2 text-gray-400 text-sm">
-                              No results found
-                            </div>
-                          )}
+                        {filteredCountries.length === 0 && (
+                          <div className="p-2 text-gray-400 text-sm">
+                            No results found
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -995,33 +1070,82 @@ export const Venuepage = () => {
                       State <span className="text-red-500">*</span>
                     </label>
 
-                    <input
-                      type="text"
-                      placeholder="Search State"
-                      value={stateSearch}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setStateSearch(val);
-                        setShowStateDropdown(true);
-                        // Clear dependent city when state is cleared or changed
-                        setForm({ ...form, state: "", city: "" });
-                        setCitySearch("");
-                        setCities([]);
-                      }}
-
-                      onFocus={() => setShowStateDropdown(true)}
-                      className={`w-full mt-1 p-2 rounded-lg bg-white border focus:ring-2 focus:ring-sky-500 text-sm ${fieldErrors.state ? "border-red-500" : "border-sky-200"
+                    <div className="relative flex items-center mt-1">
+                      <Search className="absolute left-3 text-slate-400 w-4 h-4 pointer-events-none" />
+                      <input
+                        type="text"
+                        placeholder={form.country ? "Search State" : "Select Country first"}
+                        value={stateSearch}
+                        disabled={!form.country}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setStateSearch(val);
+                          setShowStateDropdown(true);
+                          if (val === "") {
+                            setForm({ ...form, state: "", city: "" });
+                            setCitySearch("");
+                          }
+                        }}
+                        onFocus={() => setShowStateDropdown(true)}
+                        className={`w-full p-2 pl-9 pr-14 rounded-lg outline-none transition-all text-sm ${
+                          !form.country
+                            ? "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
+                            : `bg-white border focus:ring-2 focus:ring-sky-500 ${
+                                fieldErrors.state ? "border-red-500" : "border-sky-200"
+                              }`
                         }`}
-                    />
+                      />
+                      <div className="absolute right-3 flex items-center gap-1.5">
+                        {stateSearch && form.country && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setForm({ ...form, state: "", city: "" });
+                              setStateSearch("");
+                              setCitySearch("");
+                              setShowStateDropdown(true);
+                            }}
+                            className="text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-100 transition-colors"
+                          >
+                            <X size={14} />
+                          </button>
+                        )}
+                        {loadingStates ? (
+                          <Loader2 className="w-4 h-4 animate-spin text-sky-600 mr-0.5" />
+                        ) : (
+                          <button
+                            type="button"
+                            disabled={!form.country}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowStateDropdown(!showStateDropdown);
+                            }}
+                            className="text-slate-400 hover:text-slate-600 p-0.5 transition-transform disabled:opacity-50"
+                          >
+                            <ChevronDown
+                              className={`w-4 h-4 transition-transform duration-200 ${
+                                showStateDropdown ? "rotate-180" : ""
+                              }`}
+                            />
+                          </button>
+                        )}
+                      </div>
+                    </div>
 
                     {showStateDropdown && (
                       <div className="absolute z-50 w-full bg-white border border-sky-200 rounded-lg mt-1 max-h-40 overflow-y-auto shadow-lg">
-
-                        {states
-                          .filter((s) =>
-                            s.state_name.toLowerCase().includes(stateSearch.toLowerCase())
-                          )
-                          .map((s) => (
+                        {loadingStates ? (
+                          <div className="p-2 text-center text-gray-400 text-sm flex items-center justify-center gap-2">
+                            <Loader2 className="animate-spin text-sky-600 w-4 h-4" />
+                            Loading states...
+                          </div>
+                        ) : filteredStates.length === 0 ? (
+                          <div className="p-2 text-gray-400 text-sm italic">
+                            {!form.country ? "Please select a country first" : "No results found"}
+                          </div>
+                        ) : (
+                          filteredStates.map((s) => (
                             <div
                               key={s.id}
                               onClick={() => {
@@ -1029,25 +1153,17 @@ export const Venuepage = () => {
                                 setStateSearch(s.state_name);
                                 setCitySearch("");
                                 setShowStateDropdown(false);
-                                // Find current country code
-                                const country = countries.find(c => c.country_name === form.country);
-                                if (country) {
-                                  loadCities(country.id, s.id);
-                                }
                               }}
-                              className="p-2 cursor-pointer hover:bg-sky-100 text-sm"
+                              className={`p-2 cursor-pointer transition-colors text-sm ${
+                                form.state === s.state_name
+                                  ? "bg-sky-600 text-white"
+                                  : "hover:bg-sky-100 text-slate-700"
+                              }`}
                             >
                               {s.state_name}
                             </div>
-                          ))}
-
-                        {states.filter((s) =>
-                          s.state_name.toLowerCase().includes(stateSearch.toLowerCase())
-                        ).length === 0 && (
-                            <div className="p-2 text-gray-400 text-sm italic">
-                              {!form.country ? "Please select a country first" : "No results found"}
-                            </div>
-                          )}
+                          ))
+                        )}
                       </div>
                     )}
                   </div>
@@ -1059,27 +1175,80 @@ export const Venuepage = () => {
                     City <span className="text-red-500">*</span>
                   </label>
 
-                  <input
-                    type="text"
-                    placeholder="Search City"
-                    value={citySearch}
-                    onChange={(e) => {
-                      setCitySearch(e.target.value);
-                      setShowCityDropdown(true);
-                    }}
-                    onFocus={() => setShowCityDropdown(true)}
-                    className={`w-full mt-1 p-2 rounded-lg bg-white border focus:ring-2 focus:ring-sky-500 text-sm ${fieldErrors.city ? "border-red-500" : "border-sky-200"
+                  <div className="relative flex items-center mt-1">
+                    <Search className="absolute left-3 text-slate-400 w-4 h-4 pointer-events-none" />
+                    <input
+                      type="text"
+                      placeholder={form.state ? "Search City" : "Select State first"}
+                      value={citySearch}
+                      disabled={!form.state}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setCitySearch(val);
+                        setShowCityDropdown(true);
+                        if (val === "") {
+                          setForm({ ...form, city: "" });
+                        }
+                      }}
+                      onFocus={() => setShowCityDropdown(true)}
+                      className={`w-full p-2 pl-9 pr-14 rounded-lg outline-none transition-all text-sm ${
+                        !form.state
+                          ? "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
+                          : `bg-white border focus:ring-2 focus:ring-sky-500 ${
+                              fieldErrors.city ? "border-red-500" : "border-sky-200"
+                            }`
                       }`}
-                  />
+                    />
+                    <div className="absolute right-3 flex items-center gap-1.5">
+                      {citySearch && form.state && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setForm({ ...form, city: "" });
+                            setCitySearch("");
+                            setShowCityDropdown(true);
+                          }}
+                          className="text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-100 transition-colors"
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
+                      {loadingCities ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-sky-600 mr-0.5" />
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={!form.state}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowCityDropdown(!showCityDropdown);
+                          }}
+                          className="text-slate-400 hover:text-slate-600 p-0.5 transition-transform disabled:opacity-50"
+                        >
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform duration-200 ${
+                              showCityDropdown ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+                      )}
+                    </div>
+                  </div>
 
                   {showCityDropdown && (
                     <div className="absolute z-50 w-full bg-white border border-sky-200 rounded-lg mt-1 max-h-40 overflow-y-auto shadow-lg">
-
-                      {cities
-                        .filter((c) =>
-                          c.city_name.toLowerCase().includes(citySearch.toLowerCase())
-                        )
-                        .map((c) => (
+                      {loadingCities ? (
+                        <div className="p-2 text-center text-gray-400 text-sm flex items-center justify-center gap-2">
+                          <Loader2 className="animate-spin text-sky-600 w-4 h-4" />
+                          Loading cities...
+                        </div>
+                      ) : filteredCities.length === 0 ? (
+                        <div className="p-2 text-gray-400 text-sm italic">
+                          {!form.state ? "Please select a state first" : "No results found"}
+                        </div>
+                      ) : (
+                        filteredCities.map((c) => (
                           <div
                             key={c.id}
                             onClick={() => {
@@ -1091,19 +1260,16 @@ export const Venuepage = () => {
                                 fetchPincodeByCity(c.city_name);
                               }
                             }}
-                            className="p-2 cursor-pointer hover:bg-sky-100 text-sm"
+                            className={`p-2 cursor-pointer transition-colors text-sm ${
+                              form.city === c.city_name
+                                ? "bg-sky-600 text-white"
+                                : "hover:bg-sky-100 text-slate-700"
+                            }`}
                           >
                             {c.city_name}
                           </div>
-                        ))}
-
-                      {cities.filter((c) =>
-                        c.city_name.toLowerCase().includes(citySearch.toLowerCase())
-                      ).length === 0 && (
-                          <div className="p-2 text-gray-400 text-sm italic">
-                            {!form.state ? "Please select a state first" : "No results found"}
-                          </div>
-                        )}
+                        ))
+                      )}
                     </div>
                   )}
                 </div>

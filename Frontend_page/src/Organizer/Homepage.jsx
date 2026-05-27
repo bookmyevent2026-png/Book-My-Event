@@ -384,7 +384,7 @@ export const Sidebar = () => {
                 label="Create Event"
                 isActive={location.pathname === "/OrganizerHome/CreateEvent"}
                 onClick={() => {
-                  navigate("/OrganizerHome/CreateEvent");
+                  navigate("/OrganizerHome/CreateEvent", { state: { reset: true } });
                   setActivePanel(null);
                 }}
               />

@@ -63,7 +63,7 @@ export const Header = () => {
     { name: "Add-On Check-In / Check-Out", path: "/OrganizerHome/AddonCheckIn" },
     { name: "Add-On Spot Booking", path: "/OrganizerHome/SportBooking" },
     { name: "Coupon", path: "/OrganizerHome/Coupon" },
-    { name: "Create Event", path: "/OrganizerHome/CrenteEvent" },
+    { name: "Create Event", path: "/OrganizerHome/CreateEvent" },
     { name: "Event Check-In / Check-Out", path: "/OrganizerHome/EventCheckIn" },
     { name: "Food Check-In / Check-Out", path: "/OrganizerHome/FoodCheckIn" },
     { name: "Messages & Greeting", path: "/OrganizerHome/messages" },
@@ -133,7 +133,11 @@ export const Header = () => {
                     <div
                       key={i}
                       onClick={() => {
-                        navigate(item.path);
+                        if (item.path === "/OrganizerHome/CreateEvent") {
+                          navigate(item.path, { state: { reset: true } });
+                        } else {
+                          navigate(item.path);
+                        }
                         setSearchText("");
                         setResults([]);
                       }}

@@ -3,7 +3,7 @@ import CustomTimePicker from "../TimePickerClock";
 import { get_Venues_details, getVenueDetails } from "../../../../Services/api";
 // import { Calendar, Clock } from "lucide-react";
 import { Calendar, Clock, Search } from "lucide-react";
-const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
+const Step1EventDetails = ({ formData, setFormData, organizerId, showStep1Errors }) => {
   const [venues, setVenues] = useState([]);
   /* inside component */
   const startDateRef = useRef(null);
@@ -114,6 +114,20 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
         if (next.eventDetails.endDate && next.eventDetails.endDate < v) {
           next.eventDetails.endDate = v;
         }
+
+        // Prefill booking start/end dates
+        const parts = v.split("-");
+        const formattedDate = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : "";
+        next.booking = {
+          ...(prev.booking || {}),
+          bookingStartDate: formattedDate,
+          _lastEventStart: v,
+        };
+        if (next.eventDetails.endDate) {
+          const endParts = next.eventDetails.endDate.split("-");
+          next.booking.bookingEndDate = endParts.length === 3 ? `${endParts[2]}/${endParts[1]}/${endParts[0]}` : "";
+          next.booking._lastEventEnd = next.eventDetails.endDate;
+        }
         return next;
       });
       return;
@@ -121,13 +135,22 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
     if (name === "endDate") {
       const minForEnd = formData.eventDetails?.startDate || todayLocal;
       const v = value < minForEnd ? minForEnd : value;
-      setFormData((prev) => ({
-        ...prev,
-        eventDetails: {
-          ...prev.eventDetails,
-          endDate: v,
-        },
-      }));
+      setFormData((prev) => {
+        const parts = v.split("-");
+        const formattedDate = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : "";
+        return {
+          ...prev,
+          eventDetails: {
+            ...prev.eventDetails,
+            endDate: v,
+          },
+          booking: {
+            ...(prev.booking || {}),
+            bookingEndDate: formattedDate,
+            _lastEventEnd: v,
+          }
+        };
+      });
       return;
     }
     if (name === "vehiclePass" && !checked) {
@@ -178,6 +201,24 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
       },
     }));
   };
+  const categoryError = showStep1Errors && !formData.eventDetails?.category ? "Event Category is required." : "";
+  
+  const eventNameError = (showStep1Errors && !formData.eventDetails?.eventName) 
+    ? "Event Name is required." 
+    : (formData.eventDetails?.eventName && formData.eventDetails.eventName.length > 50) 
+      ? "Max 50 characters allowed" 
+      : "";
+
+  const descriptionError = showStep1Errors && !formData.eventDetails?.description ? "Event Description is required." : "";
+  
+  const startDateError = showStep1Errors && !formData.eventDetails?.startDate ? "Start Date is required." : "";
+  const startTimeError = showStep1Errors && !formData.eventDetails?.startTime ? "Start Time is required." : "";
+  
+  const endDateError = showStep1Errors && !formData.eventDetails?.endDate ? "End Date is required." : "";
+  const endTimeError = showStep1Errors && !formData.eventDetails?.endTime ? "End Time is required." : "";
+  
+  const venueError = showStep1Errors && !formData.eventDetails?.venue ? "Venue Name is required." : "";
+  const addressError = showStep1Errors && !formData.eventDetails?.address ? "Address is required." : "";
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-3 pt-2 bg-gray-50/50 rounded-2xl">
@@ -208,7 +249,9 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
                     },
                   }))
                 }
-                className="w-full bg-gray-50 ring-1 ring-gray-200 p-3 rounded-xl cursor-pointer flex items-center justify-between"
+                className={`w-full bg-gray-50 ring-1 p-3 rounded-xl cursor-pointer flex items-center justify-between ${
+                  categoryError ? "ring-red-500" : "ring-gray-200"
+                }`}
               >
                 <span
                   className={
@@ -297,6 +340,11 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
                 </div>
               )}
             </div>
+            {categoryError && (
+              <p className="text-red-500 text-xs mt-1.5 ml-1">
+                {categoryError}
+              </p>
+            )}
           </div>
 
           <div className="group">
@@ -307,28 +355,21 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
               name="eventName"
               placeholder="Event Title"
               value={formData.eventDetails?.eventName || ""}
-              onChange={(e) => {
-                const value = e.target.value;
-                handleChange(e);
-                const errorMsg = validateEventName(value);
-                setErrors((prev) => ({
-                  ...prev,
-                  eventName: errorMsg,
-                }));
-              }}
-              className={`w-full bg-gray-50 border-0 ring-1 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none ${errors.eventName ? "ring-red-500" : "ring-gray-200"
-                }`}
+              onChange={handleChange}
+              className={`w-full bg-gray-50 border-0 ring-1 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none ${
+                eventNameError ? "ring-red-500" : "ring-gray-200"
+              }`}
             />
-            {errors.eventName && (
-              <p className="text-red-500 text-xs mt-1.5 ml-1 animate-pulse">
-                {errors.eventName}
+            {eventNameError && (
+              <p className="text-red-500 text-xs mt-1.5 ml-1">
+                {eventNameError}
               </p>
             )}
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">
-              Event Description <span className="text-red-500">*</span>
+              Explain About Your Event <span className="text-red-500">*</span>
             </label>
             <textarea
               name="description"
@@ -336,8 +377,15 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
               value={formData.eventDetails?.description || ""}
               onChange={handleChange}
               rows="3"
-              className="w-full bg-gray-50 border-0 ring-1 ring-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none resize-y"
+              className={`w-full bg-gray-50 border-0 ring-1 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none resize-y ${
+                descriptionError ? "ring-red-500" : "ring-gray-200"
+              }`}
             />
+            {descriptionError && (
+              <p className="text-red-500 text-xs mt-1.5 ml-1">
+                {descriptionError}
+              </p>
+            )}
           </div>
 
           <div>
@@ -385,7 +433,7 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
 
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-gray-700">
-                Visibility <span className="text-red-500">*</span>
+                Event Visibility <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {["Public", "Private"].map((opt) => (
@@ -435,7 +483,7 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
             </label>
             <div className="grid grid-cols-3 gap-3">
               {[
-                { id: "mail", label: "Email" },
+                { id: "mail", label: "Mail ID" },
                 { id: "whatsapp", label: "WhatsApp" },
                 { id: "print", label: "Print" },
               ].map((item) => (
@@ -461,11 +509,11 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
             </label>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { id: "visitorMail", label: "Email ID" },
-                { id: "visitorName", label: "visitor Name" },
-                { id: "visitorPhoto", label: "Photo" },
-                { id: "visitorMobile", label: "Mobile" },
-                { id: "documentProof", label: "ID Proof" },
+                { id: "visitorMail", label: "Mail ID" },
+                { id: "visitorName", label: "Visitor Name" },
+                { id: "visitorPhoto", label: "Visitor Photo" },
+                { id: "visitorMobile", label: "Mobile Number" },
+                { id: "documentProof", label: "Document Proof" },
               ].map((item) => (
                 <label key={item.id} className="cursor-pointer group">
                   <div className="flex items-center p-2.5 rounded-xl bg-gray-50 ring-1 ring-gray-200 group-hover:bg-gray-100 transition-all">
@@ -490,11 +538,11 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
             </div>
           </div>
 
-          <div className="space-y-3 pt-2">
-            <label className="block text-sm font-semibold text-gray-700 ml-1">
-              Pass Validity and Include International
-            </label>
-            <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 pt-2">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700 ml-1">
+                Pass Validity
+              </label>
               <label className="flex items-center p-3 rounded-xl bg-indigo-50/50 ring-1 ring-indigo-100 cursor-pointer hover:bg-indigo-50 transition-all">
                 <input
                   type="checkbox"
@@ -504,8 +552,13 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
                   className="w-4 h-4 rounded text-indigo-600 border-indigo-300 focus:ring-indigo-500"
                 />
                 <span className="ml-3 text-sm font-semibold text-gray-600">
-                  Day Pass
+                  Is Day Pass
                 </span>
+              </label>
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700 ml-1">
+                Include International
               </label>
               <label className="flex items-center p-3 rounded-xl bg-purple-50/50 ring-1 ring-purple-100 cursor-pointer hover:bg-purple-50 transition-all">
                 <input
@@ -516,29 +569,42 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
                   className="w-4 h-4 rounded text-purple-600 border-purple-300 focus:ring-purple-500"
                 />
                 <span className="ml-3 text-sm font-semibold text-gray-600">
-                  International
+                  Is International
                 </span>
               </label>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Mandatory Documents (LEFT) */}
-            <div className="space-y-3">
-              <label className="block text-sm font-semibold text-gray-700 ml-1">
-                Mandatory Documents
+          <div className="space-y-3">
+            <label className="block text-sm font-semibold text-gray-700 ml-1">
+              Mandatory Documents
+            </label>
+            <div className="grid grid-cols-2 gap-4">
+              <label className="flex items-center p-3 rounded-xl bg-gray-50 ring-1 ring-gray-200 cursor-pointer hover:bg-gray-100 transition-all">
+                <input
+                  type="checkbox"
+                  name="aadhar"
+                  checked={formData.eventDetails?.aadhar || false}
+                  onChange={handleChange}
+                  className="w-4 h-4 rounded text-indigo-600"
+                />
+                <span className="ml-3 text-sm font-semibold text-gray-600">Is Aadhar</span>
               </label>
-              <div className="space-y-2">
-                <label className="flex items-center p-3 rounded-xl bg-gray-50 ring-1 ring-gray-200 cursor-pointer hover:bg-gray-100 transition-all">
-                  <input
-                    type="checkbox"
-                    name="aadhar"
-                    checked={formData.eventDetails?.aadhar || false}
-                    onChange={handleChange}
-                    className="w-4 h-4 rounded text-indigo-600"
-                  />
-                  <span className="ml-3 text-sm font-semibold text-gray-600">Aadhar Card</span>
-                </label>
+
+              <label className="flex items-center p-3 rounded-xl bg-gray-50 ring-1 ring-gray-200 cursor-pointer hover:bg-gray-100 transition-all">
+                <input
+                  type="checkbox"
+                  name="vehiclePass"
+                  checked={formData.eventDetails?.vehiclePass || false}
+                  onChange={handleChange}
+                  className="w-4 h-4 rounded text-indigo-600"
+                />
+                <span className="ml-3 text-sm font-semibold text-gray-600">Is Vehicle Pass</span>
+              </label>
+            </div>
+
+            {(formData.eventDetails?.isInternationalInclude || formData.eventDetails?.vehiclePass) && (
+              <div className="grid grid-cols-2 gap-4 mt-2">
                 {formData.eventDetails?.isInternationalInclude && (
                   <label className="flex items-center p-3 rounded-xl bg-gray-50 ring-1 ring-gray-200 cursor-pointer hover:bg-gray-100 transition-all animate-fadeIn">
                     <input
@@ -564,28 +630,7 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
                   </label>
                 )}
               </div>
-            </div>
-
-            {/* Vehicle Pass (RIGHT) */}
-            <div className="space-y-3">
-              <label className="block text-sm font-semibold text-gray-700 ml-1">
-                Vehicle Pass
-              </label>
-              <div>
-                <label className="flex items-center p-3 rounded-xl bg-emerald-50/50 ring-1 ring-emerald-100 cursor-pointer hover:bg-emerald-50 transition-all">
-                  <input
-                    type="checkbox"
-                    name="vehiclePass"
-                    checked={formData.eventDetails?.vehiclePass || false}
-                    onChange={handleChange}
-                    className="w-4 h-4 rounded text-emerald-600 border-emerald-300 focus:ring-emerald-500"
-                  />
-                  <span className="ml-3 text-sm font-semibold text-gray-600">
-                    Is Vehicle Pass Include
-                  </span>
-                </label>
-              </div>
-            </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -626,7 +671,7 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
                     className="w-4 h-4 rounded text-indigo-600 border-indigo-300 focus:ring-indigo-500"
                   />
                   <span className="ml-3 text-sm font-semibold text-gray-600">
-                    Include Welcome Kit
+                   Welcome Kit
                   </span>
                 </label>
               </div>
@@ -646,7 +691,7 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
         </div>
         <div className="space-y-1">
           <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
-            When does Your Event Start and End? *
+            When does Your Event Start and End? <span className="text-red-500">*</span>
           </label>
           <div className="flex bg-gray-50 p-1 rounded-2xl ring-1 ring-gray-200 gap-1">
             {[
@@ -682,8 +727,13 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
                 value={formData.eventDetails?.startDate || ""}
                 min={todayLocal}
                 onChange={handleChange}
-                className="w-full bg-gray-50 border-0 ring-1 ring-gray-200 p-2.5 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
+                className={`w-full bg-gray-50 border-0 ring-1 p-2.5 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm ${
+                  startDateError ? "ring-red-500" : "ring-gray-200"
+                }`}
               />
+              {startDateError && (
+                <p className="text-red-500 text-xs mt-1 ml-1">{startDateError}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
@@ -692,6 +742,7 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
 
               <CustomTimePicker
                 value={formData.eventDetails?.startTime || ""}
+                hasError={!!startTimeError}
                 onChange={(value) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -702,6 +753,9 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
                   }))
                 }
               />
+              {startTimeError && (
+                <p className="text-red-500 text-xs mt-1 ml-1">{startTimeError}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
@@ -714,8 +768,13 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
                 value={formData.eventDetails?.endDate || ""}
                 min={formData.eventDetails?.startDate || todayLocal}
                 onChange={handleChange}
-                className="w-full bg-gray-50 border-0 ring-1 ring-gray-200 p-2.5 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
+                className={`w-full bg-gray-50 border-0 ring-1 p-2.5 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm ${
+                  endDateError ? "ring-red-500" : "ring-gray-200"
+                }`}
               />
+              {endDateError && (
+                <p className="text-red-500 text-xs mt-1 ml-1">{endDateError}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
@@ -724,6 +783,7 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
 
               <CustomTimePicker
                 value={formData.eventDetails?.endTime || ""}
+                hasError={!!endTimeError}
                 onChange={(value) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -734,6 +794,9 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
                   }))
                 }
               />
+              {endTimeError && (
+                <p className="text-red-500 text-xs mt-1 ml-1">{endTimeError}</p>
+              )}
             </div>
           </div>
 
@@ -759,7 +822,7 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
 
           <div className="pt-2">
             <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
-              Location Venue <span className="text-red-500">*</span>
+              Where It's Located? <span className="text-red-500">*</span>
             </label>
 
             <div className="relative" ref={venueRef}>
@@ -775,7 +838,9 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
                     },
                   }))
                 }
-                className="w-full bg-gray-50 ring-1 ring-gray-200 p-3 rounded-xl cursor-pointer flex items-center justify-between"
+                className={`w-full bg-gray-50 ring-1 p-3 rounded-xl cursor-pointer flex items-center justify-between ${
+                  venueError ? "ring-red-500" : "ring-gray-200"
+                }`}
               >
                 <span
                   className={
@@ -784,7 +849,7 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
                       : "text-gray-400"
                   }
                 >
-                  {formData.eventDetails?.venue || "Venue name"}
+                  {formData.eventDetails?.venue || "Venue Name"}
                 </span>
               </div>
 
@@ -904,18 +969,27 @@ const Step1EventDetails = ({ formData, setFormData, organizerId }) => {
                 </div>
               )}
             </div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1 ml-1 mt-4">
-              Detailed Address
-            </label>
+            {venueError && (
+              <p className="text-red-500 text-xs mt-1.5 ml-1">
+                {venueError}
+              </p>
+            )}
 
             <textarea
               name="address"
-              placeholder="Detailed Address"
+              placeholder="Address"
               value={formData.eventDetails?.address || ""}
               onChange={handleChange}
               rows="2"
-              className="w-full mt-3 bg-gray-50 border-0 ring-1 ring-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none resize-none text-sm"
+              className={`w-full mt-3 bg-gray-50 border-0 ring-1 p-3 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none resize-none text-sm ${
+                addressError ? "ring-red-500" : "ring-gray-200"
+              }`}
             />
+            {addressError && (
+              <p className="text-red-500 text-xs mt-1.5 ml-1">
+                {addressError}
+              </p>
+            )}
 
             {formData.eventDetails?.address && (
               <div className="mt-4 rounded-xl overflow-hidden ring-1 ring-gray-200 h-48 w-full relative">

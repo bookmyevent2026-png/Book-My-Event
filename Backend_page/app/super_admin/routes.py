@@ -788,8 +788,10 @@ def delete_sponsor(id):
 def export_sponsors_excel():
     try:
         print(f"INFO: [{datetime.now()}] Initiating Excel export for Sponsor Management.")
+
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
+
         cursor.execute("""
         SELECT 
             sponsor_code,
@@ -804,14 +806,17 @@ def export_sponsors_excel():
             modified_on
         FROM sponsors_details ORDER BY id DESC
         """)
+
         data = cursor.fetchall()
-        
+
         if not data:
             return jsonify({"error": "No data available for export"}), 404
 
         df = pd.DataFrame(data)
+
         df["created_on"] = pd.to_datetime(df["created_on"]).dt.tz_localize(None)
         df["modified_on"] = pd.to_datetime(df["modified_on"]).dt.tz_localize(None)
+
         df.columns = [
             "Sponsor Code",
             "Sponsor Name",
@@ -824,41 +829,93 @@ def export_sponsors_excel():
             "Modified By",
             "Modified On"
         ]
-        
+
         output = BytesIO()
+
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
             df.to_excel(writer, index=False, sheet_name='Sponsor_Report')
+
             workbook = writer.book
             worksheet = writer.sheets['Sponsor_Report']
 
-            # Apply date format
-            for cell in worksheet["H"][1:]:
-                cell.number_format = 'DD/MM/YYYY'
-            for cell in worksheet["J"][1:]:
-                cell.number_format = 'DD/MM/YYYY'
-
+            # =========================
             # Header Styling
-            header_font = openpyxl.styles.Font(bold=True, color="FFFFFF")
-            header_fill = openpyxl.styles.PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+            # =========================
+            header_font = openpyxl.styles.Font(
+                bold=True,
+                color="FFFFFF"
+            )
+
+            header_fill = openpyxl.styles.PatternFill(
+                start_color="4F81BD",
+                end_color="4F81BD",
+                fill_type="solid"
+            )
+
+            center_alignment = openpyxl.styles.Alignment(
+                horizontal="center",
+                vertical="center"
+            )
+
+            # =========================
+            # Border Style
+            # =========================
+            thin_border = openpyxl.styles.Border(
+                left=openpyxl.styles.Side(style='thin'),
+                right=openpyxl.styles.Side(style='thin'),
+                top=openpyxl.styles.Side(style='thin'),
+                bottom=openpyxl.styles.Side(style='thin')
+            )
+
+            # Apply styles to all cells
+            for row in worksheet.iter_rows():
+                for cell in row:
+                    cell.border = thin_border
+
+            # Apply header style
             for cell in worksheet[1]:
                 cell.font = header_font
                 cell.fill = header_fill
-                cell.alignment = openpyxl.styles.Alignment(horizontal="center")
+                cell.alignment = center_alignment
+                cell.border = thin_border
+
+            # =========================
+            # Date Format
+            # =========================
+            for cell in worksheet["H"][1:]:
+                cell.number_format = 'DD/MM/YYYY'
+
+            for cell in worksheet["J"][1:]:
+                cell.number_format = 'DD/MM/YYYY'
+
+            # =========================
+            # Auto Column Width
+            # =========================
+            for column_cells in worksheet.columns:
+                length = max(len(str(cell.value)) if cell.value else 0 for cell in column_cells)
+                worksheet.column_dimensions[column_cells[0].column_letter].width = length + 5
 
             output.seek(0)
+
             filename = f"sponsor_list_{datetime.now().strftime('%Y_%m_%d')}.xlsx"
-        
+
         response = make_response(output.getvalue())
+
         response.headers["Content-Disposition"] = f"attachment; filename={filename}"
         response.headers["Content-Type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
         return response
 
     except Exception as e:
         print(f"ERROR: [{datetime.now()}] Excel export failed: {str(e)}")
         return jsonify({"error": str(e)}), 500
+
     finally:
-        if 'cursor' in locals(): cursor.close()
-        if 'conn' in locals(): conn.close()
+        if 'cursor' in locals():
+            cursor.close()
+
+        if 'conn' in locals():
+            conn.close()
 
 @super_admin_bp.route("/api/sponsors/export/pdf", methods=["GET"])
 def export_sponsors_pdf():

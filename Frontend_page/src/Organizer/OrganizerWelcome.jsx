@@ -10,7 +10,7 @@ import {
   Ticket,
   Layout,
   TrendingUp,
-  Users
+  Users,X
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getEventshow } from "../Services/api";
@@ -59,12 +59,13 @@ export const OrganizerWelcome = () => {
   const totalEvents = events.length;
   const approvedEvents = events.filter(e => e.status === "APPROVED").length;
   const pendingEvents = events.filter(e => e.status === "PENDING" || e.status === "Pending").length;
+  const RejectEvents = events.filter(e => e.status === "REJECTED" || e.status === "Rejected").length;
 
   const stats = [
     { title: "Total Events", value: totalEvents, icon: <Calendar className="text-purple-600" />, color: "bg-purple-50" },
     { title: "Approved Events", value: approvedEvents, icon: <CheckCircle className="text-green-600" />, color: "bg-green-50" },
     { title: "Pending Events", value: pendingEvents, icon: <Clock className="text-orange-600" />, color: "bg-orange-50" },
-    
+    { title: "Rejected Events", value: RejectEvents, icon: <X className="text-red-600" />, color: "bg-red-50" },
   ];
 
   const quickActions = [
@@ -91,7 +92,7 @@ export const OrganizerWelcome = () => {
           </p>
           <div className="flex gap-4">
             <button 
-              onClick={() => navigate("/OrganizerHome/CrenteEvent")}
+              onClick={() => navigate("/OrganizerHome/CreateEvent")}
               className="px-8 py-4 bg-white text-purple-700 font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center gap-2"
             >
               Get Started <ArrowRight size={20} />
@@ -154,7 +155,7 @@ export const OrganizerWelcome = () => {
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-bold text-slate-800">Your Recent Activity</h3>
             <button 
-              onClick={() => navigate("/OrganizerHome/CrenteEvent")}
+              onClick={() => navigate("/OrganizerHome/CreateEvent")}
               className="text-purple-600 font-semibold hover:text-purple-700 transition-colors"
             >
               View All

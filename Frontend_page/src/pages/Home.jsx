@@ -344,7 +344,7 @@ const HomeSearchWidget = ({ events }) => {
             onChange={(e) => setLocation(e.target.value)}
             className="w-full bg-transparent text-slate-800 placeholder-slate-400 outline-none text-sm font-medium appearance-none cursor-pointer pr-8"
           >
-            <option value="" className="text-slate-400">Location</option>
+            <option value="" className="text-slate-400 text-center">Location</option>
             {uniqueLocations.map((loc) => (
               <option key={loc} value={loc} className="text-slate-800 text-center">
                 {loc}

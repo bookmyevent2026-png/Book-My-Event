@@ -18,7 +18,7 @@ const convert24to12 = (time24h) => {
   }
   let [hours, minutes] = time24h.split(":");
   if (!hours || !minutes) return time24h;
-  
+
   let period = "AM";
   let h = parseInt(hours, 10);
   if (h >= 12) {
@@ -51,6 +51,8 @@ const convert12to24 = (time12h) => {
 
 const CreateEvent = ({ onBack, editData, isView }) => {
   const [step, setStep] = useState(1);
+  const [step1Touched, setStep1Touched] = useState(false);
+  const [step2Touched, setStep2Touched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const Redexorganizer = useSelector((state) => state.user);
 
@@ -120,11 +122,17 @@ const CreateEvent = ({ onBack, editData, isView }) => {
       })) || []
     },
     vehicleProvision: {
-      details: editData?.vehicle_details?.map(vd => ({
-        vehicleType: vd.vehicle_type,
-        priceINR: vd.price_inr,
-        priceUSD: vd.price_usd
-      })) || [],
+      details: (editData?.vehicle_details && editData.vehicle_details.length > 0)
+        ? editData.vehicle_details.map(vd => ({
+          vehicleType: vd.vehicle_type,
+          priceINR: vd.price_inr || "0",
+          priceUSD: vd.price_usd || "0"
+        }))
+        : [
+          { vehicleType: "Two Wheeler", priceINR: "0", priceUSD: "0" },
+          { vehicleType: "Four Wheeler", priceINR: "0", priceUSD: "0" },
+          { vehicleType: "Heavy Vehicle", priceINR: "0", priceUSD: "0" }
+        ],
       addons: editData?.vehicle_addons?.map(va => ({
         isParent: va.is_parent === 1 || va.is_parent === true,
         addOnName: va.addon_name,
@@ -366,6 +374,25 @@ const CreateEvent = ({ onBack, editData, isView }) => {
     return getFormValidationErrors().length === 0;
   };
 
+  const validateStep1 = (details) => {
+    if (!details) return false;
+    return !!(
+      details.category &&
+      details.eventName &&
+      details.eventName.trim() &&
+      details.eventName.length <= 50 &&
+      details.description &&
+      details.description.trim() &&
+      details.startDate &&
+      details.startTime &&
+      details.endDate &&
+      details.endTime &&
+      details.venue &&
+      details.address &&
+      details.address.trim()
+    );
+  };
+
   const handleSubmit = async () => {
     if (isSubmitting) return;
 
@@ -484,6 +511,8 @@ const CreateEvent = ({ onBack, editData, isView }) => {
               setFormData(val);
             }}
             organizerId={organizer?.id}
+            showStep1Errors={step1Touched}
+            showStep2Errors={step2Touched}
           />
         </fieldset>
       </div>
@@ -499,7 +528,15 @@ const CreateEvent = ({ onBack, editData, isView }) => {
 
         {step < allSteps.length ? (
           <button
-            onClick={() => setStep(step + 1)}
+            onClick={() => {
+              if (step === 1) {
+                setStep1Touched(true);
+              }
+              if (step === 2) {
+                setStep2Touched(true);
+              }
+              setStep(step + 1);
+            }}
             className="bg-sky-700 text-white px-8 py-2.5 rounded-xl hover:bg-sky-800 transition-all shadow-md font-semibold"
           >
             Next →
@@ -512,9 +549,9 @@ const CreateEvent = ({ onBack, editData, isView }) => {
                 disabled={isSubmitting || !isFormValid()}
                 className={`px-8 py-2.5 rounded-xl text-white font-semibold transition-all shadow-md
       ${isSubmitting || !isFormValid()
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-green-600 hover:bg-green-700"
-                }`}
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-green-600 hover:bg-green-700"
+                  }`}
               >
                 {isSubmitting ? "Submitting..." : "Submit"}
               </button>

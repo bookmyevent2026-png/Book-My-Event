@@ -269,6 +269,7 @@ export const getSponsorNames = async () => {
 export const getEventshow = async (organizerId) => {
   const url = organizerId ? `/superadmin/get-events?organizer=${encodeURIComponent(organizerId)}` : "/superadmin/get-events";
   const res = await api.get(url);
+  console.log("Test events", res.data);
   return res.data;
 };
 
@@ -525,7 +526,9 @@ export const uploadImage = async (formData) => {
 
 export const getEventFullDetails = async (id) => {
   const res = await api.get(`/superadmin/api/event-full-details/${id}`);
+  console.log("Document File",res.data);
   return res.data;
+
 };
 
 // get abstract verification

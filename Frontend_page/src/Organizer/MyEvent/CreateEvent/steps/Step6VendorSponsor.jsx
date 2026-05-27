@@ -486,7 +486,7 @@ const Step6VendorSponsor = ({ formData, setFormData }) => {
   const handleNameChange = (e) => {
     const value = e.target.value;
     if (value === "" || /^[a-zA-Z\s]*$/.test(value)) {
-      if (value.length <= 20) {
+      if (value.length <= 50) {
         setGuestName(value);
       }
     }
@@ -1064,10 +1064,10 @@ const Step6VendorSponsor = ({ formData, setFormData }) => {
                       placeholder="Guest Name"
                       value={guestName}
                       onChange={handleNameChange}
-                      className={inputClasses}
+                      className={`${inputClasses} pr-14`}
                     />
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-gray-300 font-medium">
-                      {guestName.length}/20
+                      {guestName.length}/50
                     </span>
                   </div>
                   <div className="relative">
@@ -1075,7 +1075,7 @@ const Step6VendorSponsor = ({ formData, setFormData }) => {
                       placeholder="Designation"
                       value={designation}
                       onChange={handleDesignationChange}
-                      className={inputClasses}
+                      className={`${inputClasses} pr-14`}
                     />
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-gray-300 font-medium">
                       {designation.length}/30
@@ -1090,7 +1090,7 @@ const Step6VendorSponsor = ({ formData, setFormData }) => {
                   maxLength={10}
                   value={contact}
                   onChange={handleContactChange}
-                  className={inputClasses}
+                  className={`${inputClasses} pr-14`}
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-gray-300 font-medium">
                   {contact.length}/10

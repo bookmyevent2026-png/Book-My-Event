@@ -181,13 +181,14 @@ export default function AllEvents() {
     // Filter by title
     if (searchTitle.trim()) {
       result = result.filter((e) =>
-        e.title.toLowerCase().includes(searchTitle.toLowerCase())
+        e.title.toLowerCase().includes(searchTitle.toLowerCase()) ||
+        e.location.toLowerCase().includes(searchTitle.toLowerCase())
       );
     }
 
     // Filter by country
     if (searchCountry) {
-      const countryObj = countries.find((c) => c.id === searchCountry);
+      const countryObj = countries.find((c) => String(c.id).toLowerCase() === String(searchCountry).toLowerCase());
       if (countryObj) {
         result = result.filter((e) =>
           e.location.toLowerCase().includes(countryObj.country_name.toLowerCase())
@@ -197,7 +198,7 @@ export default function AllEvents() {
 
     // Filter by state
     if (searchState) {
-      const stateObj = states.find((s) => s.id === searchState);
+      const stateObj = states.find((s) => String(s.id).toLowerCase() === String(searchState).toLowerCase());
       if (stateObj) {
         result = result.filter((e) =>
           e.location.toLowerCase().includes(stateObj.state_name.toLowerCase())

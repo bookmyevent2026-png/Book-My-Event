@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getPolicies, createPolicy } from "../../../../Services/api";
 import { useSelector } from "react-redux";
-import { Plus, X, CheckCircle, Trash2, Eye, ChevronRight, Info, Edit3 } from "lucide-react";
+import { Plus, X, CheckCircle, Trash2, Eye, ChevronRight, Info, Edit } from "lucide-react";
 
 const Step5Terms = ({ formData, setFormData }) => {
   const [policyData, setPolicyData] = useState({});
@@ -401,9 +401,9 @@ const Step5Terms = ({ formData, setFormData }) => {
                             <div className="flex items-center justify-center gap-2 opacity-40 group-hover:opacity-100 transition-opacity">
                               <button
                                 onClick={() => editPolicy(realIndex)}
-                                className="p-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
+                               className="w-9 h-9 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-200"
                               >
-                                <Edit3 size={14} />
+                               <Edit size={14} />
                               </button>
                               <button
                                 onClick={() => removePolicy(realIndex)}

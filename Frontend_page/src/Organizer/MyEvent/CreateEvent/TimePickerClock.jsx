@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Clock, ChevronUp, ChevronDown } from "lucide-react";
 
-const TimeDropdownPicker = ({ value, onChange }) => {
+const TimeDropdownPicker = ({ value, onChange, hasError }) => {
   const [open, setOpen] = useState(false);
   const ref = useRef();
 
@@ -100,7 +100,9 @@ const TimeDropdownPicker = ({ value, onChange }) => {
       {/* INPUT BOX */}
       <div
         onClick={handleOpenToggle}
-        className="w-full bg-gray-50 ring-1 ring-gray-200 p-2.5 rounded-xl cursor-pointer flex items-center justify-between text-sm transition-all hover:ring-indigo-300"
+        className={`w-full bg-gray-50 ring-1 p-2.5 rounded-xl cursor-pointer flex items-center justify-between text-sm transition-all hover:ring-indigo-300 ${
+          hasError ? "ring-red-500 hover:ring-red-500" : "ring-gray-200"
+        }`}
       >
         <span className={value ? "text-gray-700 font-medium" : "text-gray-400"}>
           {value || "HH:MM"}

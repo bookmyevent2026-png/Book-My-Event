@@ -19,7 +19,7 @@ const EarlyBirdCustomInput = React.forwardRef(({ value, onClick, placeholder }, 
   </div>
 ));
 
-const Step2Booking = ({ formData, setFormData }) => {
+const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
   const [taxSearch, setTaxSearch] = useState("");
   const [isTaxDropdownOpen, setIsTaxDropdownOpen] = useState(false);
   const taxDropdownRef = useRef(null);
@@ -27,6 +27,14 @@ const Step2Booking = ({ formData, setFormData }) => {
   const [currencySearch, setCurrencySearch] = useState("");
   const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false);
   const currencyDropdownRef = useRef(null);
+
+  const eventStartDate = formData.eventDetails?.startDate
+    ? new Date(formData.eventDetails.startDate)
+    : null;
+
+  const eventMaxDate = formData.eventDetails?.endDate
+    ? new Date(formData.eventDetails.endDate)
+    : eventStartDate;
 
   const handlePriceTypeChange = (type) => {
     setFormData(prev => ({
@@ -182,6 +190,43 @@ const Step2Booking = ({ formData, setFormData }) => {
     });
   }, [setFormData]);
 
+  useEffect(() => {
+    const eventStart = formData.eventDetails?.startDate; // YYYY-MM-DD
+    const eventEnd = formData.eventDetails?.endDate;     // YYYY-MM-DD
+
+    if (eventStart || eventEnd) {
+      setFormData((prev) => {
+        const bookingStart = prev.booking?.bookingStartDate;
+        const bookingEnd = prev.booking?.bookingEndDate;
+
+        const expectedStart = eventStart ? eventStart.split("-").reverse().join("/") : "";
+        const expectedEnd = eventEnd ? eventEnd.split("-").reverse().join("/") : "";
+
+        let updated = false;
+        const newBooking = { ...(prev.booking || {}) };
+
+        if (expectedStart && (!bookingStart || prev.booking?._lastEventStart !== eventStart)) {
+          newBooking.bookingStartDate = expectedStart;
+          newBooking._lastEventStart = eventStart;
+          updated = true;
+        }
+        if (expectedEnd && (!bookingEnd || prev.booking?._lastEventEnd !== eventEnd)) {
+          newBooking.bookingEndDate = expectedEnd;
+          newBooking._lastEventEnd = eventEnd;
+          updated = true;
+        }
+
+        if (updated) {
+          return {
+            ...prev,
+            booking: newBooking
+          };
+        }
+        return prev;
+      });
+    }
+  }, [formData.eventDetails?.startDate, formData.eventDetails?.endDate, setFormData]);
+
   const taxOptions = [
     "Ticket - CGST",
     "Ticket - SGST",
@@ -331,6 +376,10 @@ const Step2Booking = ({ formData, setFormData }) => {
       }
     }
   }, [formData.booking?.earlyBirdExpireDate, formData.booking?.earlyBirdExpireTime]);
+  const bookingStartDateError = showStep2Errors && !formData.booking?.bookingStartDate ? "Booking Start Date is required." : "";
+  const bookingEndDateError = showStep2Errors && !formData.booking?.bookingEndDate ? "Booking End Date is required." : "";
+  const capacityError = showStep2Errors && !formData.booking?.capacity ? "Max Capacity is required." : "";
+  const maxPassError = showStep2Errors && !formData.booking?.maxPass ? "Max Passes is required." : "";
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 bg-gray-50/50 rounded-2xl">
@@ -373,15 +422,21 @@ const Step2Booking = ({ formData, setFormData }) => {
                       },
                     });
                   }}
-                  openToDate={new Date()}
+                  openToDate={eventStartDate || new Date()}
                   minDate={new Date()}
+                  maxDate={eventMaxDate || undefined}
                   dateFormat="dd/MM/yyyy"
                   placeholderText=" Booking Start Date"
-                  className="w-full bg-gray-50 border-0 ring-1 ring-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm cursor-pointer"
+                  className={`w-full bg-gray-50 border-0 ring-1 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm cursor-pointer ${
+                    bookingStartDateError ? "ring-red-500" : "ring-gray-200"
+                  }`}
                   wrapperClassName="w-full"
                 />
                 <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400 pointer-events-none" />
               </div>
+              {bookingStartDateError && (
+                <p className="text-red-500 text-xs mt-1 ml-1">{bookingStartDateError}</p>
+              )}
             </div>
 
             {/* END DATE */}
@@ -407,15 +462,30 @@ const Step2Booking = ({ formData, setFormData }) => {
                       },
                     });
                   }}
-                  openToDate={new Date()}
-                  minDate={new Date()}
+                  openToDate={eventMaxDate || new Date()}
+                  minDate={
+                    formData.booking?.bookingStartDate
+                      ? new Date(
+                        formData.booking.bookingStartDate
+                          .split("/")
+                          .reverse()
+                          .join("-"),
+                      )
+                      : new Date()
+                  }
+                  maxDate={eventMaxDate || undefined}
                   dateFormat="dd/MM/yyyy"
                   placeholderText=" Booking End Date"
-                  className="w-full bg-gray-50 border-0 ring-1 ring-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm cursor-pointer"
+                  className={`w-full bg-gray-50 border-0 ring-1 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm cursor-pointer ${
+                    bookingEndDateError ? "ring-red-500" : "ring-gray-200"
+                  }`}
                   wrapperClassName="w-full"
                 />
                 <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400 pointer-events-none" />
               </div>
+              {bookingEndDateError && (
+                <p className="text-red-500 text-xs mt-1 ml-1">{bookingEndDateError}</p>
+              )}
             </div>
           </div>
         </div>
@@ -448,8 +518,13 @@ const Step2Booking = ({ formData, setFormData }) => {
         e.preventDefault();
       }
     }}
-    className="w-full h-16 bg-gray-50 border-0 ring-1 ring-gray-200 px-4 rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-lg"
+    className={`w-full h-16 bg-gray-50 border-0 ring-1 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none ${
+                capacityError ? "ring-red-500" : "ring-gray-200"
+              }`}
   />
+  {capacityError && (
+    <p className="text-red-500 text-xs mt-1.5 ml-1">{capacityError}</p>
+  )}
 </div>
         {/* Pass Type */}
         <div className="space-y-3">
@@ -631,8 +706,13 @@ const Step2Booking = ({ formData, setFormData }) => {
                   e.preventDefault();
                 }
               }}
-              className="w-full bg-gray-50 border-0 ring-1 ring-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+              className={`w-full bg-gray-50 border-0 ring-1 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none ${
+                maxPassError ? "ring-red-500" : "ring-gray-200"
+              }`}
             />
+            {maxPassError && (
+              <p className="text-red-500 text-xs mt-1.5 ml-1">{maxPassError}</p>
+            )}
           </div>
 
           <div className="group">
@@ -852,6 +932,16 @@ const Step2Booking = ({ formData, setFormData }) => {
                     dateFormat="dd/MM/yyyy h:mm aa"
                     customInput={<EarlyBirdCustomInput placeholder="End Date & Time" />}
                     minDate={new Date()}
+                    maxDate={
+                      formData.booking?.bookingEndDate
+                        ? new Date(
+                          formData.booking.bookingEndDate
+                            .split("/")
+                            .reverse()
+                            .join("-"),
+                        )
+                        : eventMaxDate || undefined
+                    }
                     wrapperClassName="w-full"
                   />
                 </div>
