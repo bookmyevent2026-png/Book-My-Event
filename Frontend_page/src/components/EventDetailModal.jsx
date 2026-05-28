@@ -68,6 +68,16 @@ const EventDetailModal = ({ selectedEventId, fullData, closeModal }) => {
   return (
     <div className="fixed inset-0 bg-[#f8faff] z-[100] overflow-y-auto animate-fadeIn">
       <div className="w-full min-h-screen flex flex-col relative pb-10">
+         <button
+          onClick={() => {
+            closeModal();
+            navigate("/");
+          }}
+          className="fixed top-6 right-20 px-3.5 py-2 bg-slate-900/40 hover:bg-slate-900/80 backdrop-blur-md rounded-full transition-all text-white z-[110] shadow-lg flex items-center gap-1 text-xs font-bold uppercase tracking-wider group"
+        >
+          <ChevronLeft size={16} className="transform group-hover:-translate-x-0.5 transition-transform duration-200" />
+          <span>Home</span>
+        </button>
 
         {/* Floating close button - Top Right fixed relative to viewport */}
         <button
@@ -219,7 +229,17 @@ const EventDetailModal = ({ selectedEventId, fullData, closeModal }) => {
                         <div className="grid grid-cols-2 gap-4">
                           {fullData.guests.map((guest, i) => (
                             <div key={i} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-lg">👤</div>
+                              {(guest.image_url || guest.image) ? (
+                                <img
+                                  src={guest.image_url || guest.image}
+                                  alt={guest.guest_name}
+                                  className="w-10 h-10 rounded-full object-cover border border-slate-200"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-xs font-bold text-blue-600">
+                                  {guest.guest_name ? guest.guest_name.charAt(0).toUpperCase() : '👤'}
+                                </div>
+                              )}
                               <div>
                                 <p className="text-sm font-bold text-slate-800">{guest.guest_name}</p>
                                 <p className="text-[10px] text-blue-600 font-bold uppercase">{guest.designation}</p>

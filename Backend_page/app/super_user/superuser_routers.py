@@ -81,10 +81,12 @@ def get_events():
                 e.end_date,
                 e.end_time,
                 e.venue,
+                
                  
                 e.address,
                 e.created_by,
                 b.capacity,
+                b.charge_type,
                 f.file_path,
                 f.file_type AS banner_type
             FROM event_details_table e
@@ -175,7 +177,8 @@ def full_event(event_id):
                    u.address as organizer_address,
                    u.mobile as organizer_phone,
                    u.city as organizer_city,
-                   u.state as organizer_state
+                   u.state as organizer_state,
+                   u.organization_name as organizer_company
             FROM event_details_table e
             LEFT JOIN users u ON e.user_id = u.id
             WHERE e.id=%s
@@ -276,6 +279,7 @@ def full_event(event_id):
             "eventDetails": event,
             "organizer": {
                 "name": event.get("organizer_name"),
+                "company_name": event.get("organizer_company"),
                 "email": event.get("organizer_email"),
                 "address": f"{event.get('organizer_address') or ''} {event.get('organizer_city') or ''} {event.get('organizer_state') or ''}".strip(),
                 "phone": event.get("organizer_phone")

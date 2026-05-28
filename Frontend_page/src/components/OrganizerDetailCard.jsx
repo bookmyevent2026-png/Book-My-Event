@@ -2,8 +2,9 @@ import React from "react";
 import { ExternalLink } from "lucide-react";
 
 const OrganizerDetailCard = ({ organizerData }) => {
-  // Use organizerData from backend
-  const companyName = organizerData?.name || "None";
+  const companyName = (organizerData?.company_name && organizerData.company_name !== "None") 
+    ? organizerData.company_name 
+    : (organizerData?.name || "None");
   const address = organizerData?.address || "None";
   const email = organizerData?.email || "None";
   const phone = organizerData?.phone || "None";

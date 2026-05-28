@@ -57,6 +57,7 @@ const Step6VendorSponsor = ({ formData, setFormData }) => {
   const [designation, setDesignation] = useState("");
   const [contact, setContact] = useState("");
   const [guestList, setGuestList] = useState([]);
+  const [croppingImage, setCroppingImage] = useState(null);
   const [previewModal, setPreviewModal] = useState({ open: false, url: "" });
 
   const Redexorganizer = useSelector((state) => state.user);
@@ -307,8 +308,16 @@ const Step6VendorSponsor = ({ formData, setFormData }) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const preview = URL.createObjectURL(file);
-    setGuestImage({ file, preview });
+    if (file.size > 5 * 1024 * 1024) {
+      showNotification("File size should be less than 5MB", "error");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCroppingImage(reader.result);
+    };
+    reader.readAsDataURL(file);
   };
 
   const addGuest = () => {
@@ -1128,16 +1137,15 @@ const Step6VendorSponsor = ({ formData, setFormData }) => {
                   <thead className="sticky top-0 z-10">
                     <tr className="bg-gray-50">
                       <th className={tableHeaderClasses}>Action</th>
-                      
+                      <th className={tableHeaderClasses}>Photo</th>
                       <th className={tableHeaderClasses}>Guest Name</th>
-                     
                       <th className={tableHeaderClasses}>Contact Number</th>
                     </tr>
                   </thead>
                   <tbody>
                     {guestList.length === 0 ? (
                       <tr>
-                        <td colSpan="5" className="p-10 text-center text-gray-400">
+                        <td colSpan="4" className="p-10 text-center text-gray-400">
                           No guests added
                         </td>
                       </tr>
@@ -1162,9 +1170,20 @@ const Step6VendorSponsor = ({ formData, setFormData }) => {
                               </button>
                             </div>
                           </td>
-                          
+                          <td className={tableCellClasses}>
+                            {g.image ? (
+                              <img
+                                src={g.image}
+                                alt={g.name}
+                                className="w-8 h-8 rounded-full object-cover border border-slate-100"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] font-bold">
+                                {g.name ? g.name.charAt(0).toUpperCase() : '?'}
+                              </div>
+                            )}
+                          </td>
                           <td className={`${tableCellClasses} font-semibold text-gray-800`}>{g.name}</td>
-                          
                           <td className={`${tableCellClasses} text-gray-600 text-sm`}>
                             {g.contact || "NA"}
                           </td>
@@ -1382,8 +1401,196 @@ const Step6VendorSponsor = ({ formData, setFormData }) => {
           </div>
         </div>
       )}
+
+      {croppingImage && (
+        <ImageCropperModal
+          imageSrc={croppingImage}
+          onCrop={(croppedBase64) => {
+            setGuestImage({ file: null, preview: croppedBase64 });
+            setCroppingImage(null);
+          }}
+          onClose={() => setCroppingImage(null)}
+        />
+      )}
     </div>
 
+  );
+};
+
+const ImageCropperModal = ({ imageSrc, onCrop, onClose }) => {
+  const [zoom, setZoom] = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const containerRef = React.useRef(null);
+  const imageRef = React.useRef(null);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0, fitScale: 1 });
+
+  const handleImageLoad = (e) => {
+    const { naturalWidth, naturalHeight } = e.target;
+    const containerSize = 240;
+    const fitScale = Math.max(containerSize / naturalWidth, containerSize / naturalHeight);
+    setDimensions({
+      width: naturalWidth,
+      height: naturalHeight,
+      fitScale
+    });
+    setOffset({ x: 0, y: 0 });
+    setZoom(1);
+  };
+
+  const containerSize = 240;
+  const baseW = dimensions.width * dimensions.fitScale;
+  const baseH = dimensions.height * dimensions.fitScale;
+  const dispW = baseW * zoom;
+  const dispH = baseH * zoom;
+
+  const left = (containerSize - dispW) / 2 + offset.x;
+  const top = (containerSize - dispH) / 2 + offset.y;
+
+  const handleMouseDown = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    let newX = e.clientX - dragStart.x;
+    let newY = e.clientY - dragStart.y;
+
+    const maxOffsetX = Math.max(0, (dispW - containerSize) / 2);
+    const maxOffsetY = Math.max(0, (dispH - containerSize) / 2);
+
+    newX = Math.min(Math.max(newX, -maxOffsetX), maxOffsetX);
+    newY = Math.min(Math.max(newY, -maxOffsetY), maxOffsetY);
+
+    setOffset({ x: newX, y: newY });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchStart = (e) => {
+    if (e.touches.length !== 1) return;
+    setIsDragging(true);
+    const touch = e.touches[0];
+    setDragStart({ x: touch.clientX - offset.x, y: touch.clientY - offset.y });
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging || e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    let newX = touch.clientX - dragStart.x;
+    let newY = touch.clientY - dragStart.y;
+
+    const maxOffsetX = Math.max(0, (dispW - containerSize) / 2);
+    const maxOffsetY = Math.max(0, (dispH - containerSize) / 2);
+
+    newX = Math.min(Math.max(newX, -maxOffsetX), maxOffsetX);
+    newY = Math.min(Math.max(newY, -maxOffsetY), maxOffsetY);
+
+    setOffset({ x: newX, y: newY });
+  };
+
+  const handleCrop = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = containerSize;
+    canvas.height = containerSize;
+    const ctx = canvas.getContext("2d");
+
+    const img = new Image();
+    img.onload = () => {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, containerSize, containerSize);
+      ctx.drawImage(img, left, top, dispW, dispH);
+      const croppedBase64 = canvas.toDataURL("image/jpeg", 0.9);
+      onCrop(croppedBase64);
+    };
+    img.src = imageSrc;
+  };
+
+  return (
+    <div className="fixed inset-0 z-[6000] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
+      <div className="bg-white rounded-[2.5rem] w-full max-w-md overflow-hidden shadow-2xl p-8 flex flex-col items-center border border-slate-100">
+        <h3 className="text-lg font-black text-slate-800 tracking-tight mb-1">Adjust Guest Photo</h3>
+        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-6">Drag to position & slide to zoom</p>
+
+        <div 
+          ref={containerRef}
+          className="relative w-[240px] h-[240px] rounded-full overflow-hidden border-4 border-purple-100 shadow-inner bg-slate-50 cursor-move select-none"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleMouseUp}
+        >
+          <img
+            ref={imageRef}
+            src={imageSrc}
+            alt="To Crop"
+            onLoad={handleImageLoad}
+            style={{
+              position: "absolute",
+              width: dispW,
+              height: dispH,
+              left: left,
+              top: top,
+              maxWidth: "none",
+              pointerEvents: "none"
+            }}
+          />
+          <div className="absolute inset-0 rounded-full border border-purple-500/20 pointer-events-none" />
+        </div>
+
+        <div className="w-full mt-6 space-y-2">
+          <div className="flex justify-between text-[9px] font-black text-slate-400 uppercase tracking-wider">
+            <span>Zoom</span>
+            <span>{Math.round(zoom * 100)}%</span>
+          </div>
+          <input
+            type="range"
+            min="1"
+            max="3"
+            step="0.01"
+            value={zoom}
+            onChange={(e) => {
+              const newZoom = parseFloat(e.target.value);
+              setZoom(newZoom);
+              setOffset((prev) => {
+                const newDispW = baseW * newZoom;
+                const newDispH = baseH * newZoom;
+                const maxOffsetX = Math.max(0, (newDispW - containerSize) / 2);
+                const maxOffsetY = Math.max(0, (newDispH - containerSize) / 2);
+                return {
+                  x: Math.min(Math.max(prev.x, -maxOffsetX), maxOffsetX),
+                  y: Math.min(Math.max(prev.y, -maxOffsetY), maxOffsetY),
+                };
+              });
+            }}
+            className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-purple-600"
+          />
+        </div>
+
+        <div className="flex gap-4 w-full mt-8">
+          <button
+            onClick={onClose}
+            className="flex-1 py-3 border border-slate-200 text-slate-500 hover:bg-slate-50 font-bold rounded-full text-xs uppercase tracking-widest transition-all"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleCrop}
+            className="flex-1 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-full text-xs uppercase tracking-widest shadow-lg shadow-purple-100 hover:scale-[1.02] active:scale-95 transition-all duration-200"
+          >
+            Apply Crop
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 

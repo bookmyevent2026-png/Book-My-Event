@@ -368,7 +368,7 @@ const Step5Terms = ({ formData, setFormData }) => {
                 disabled={!policyGroup || !policyType || !policyName}
                 className="w-full py-5 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white font-black rounded-full shadow-xl shadow-purple-100 hover:shadow-2xl hover:scale-[1.02] active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed flex items-center justify-center gap-3 uppercase tracking-widest text-xs"
               >
-                {editingIndex !== null ? <Edit3 size={18} /> : <Plus size={18} />}
+                {editingIndex !== null ? <Edit size={18} /> : <Plus size={18} />}
                 {editingIndex !== null ? "Update Policy" : "Add to Selection"}
               </button>
               {editingIndex !== null && (

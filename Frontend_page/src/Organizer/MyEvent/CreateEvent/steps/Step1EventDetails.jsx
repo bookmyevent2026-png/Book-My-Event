@@ -397,10 +397,10 @@ const Step1EventDetails = ({ formData, setFormData, organizerId, showStep1Errors
               placeholder="Event Amenities Description"
               value={formData.eventDetails?.amenities || ""}
               onChange={handleChange}
-              maxLength={100}
-              rows="2"
-              className="w-full bg-gray-50 border-0 ring-1 ring-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none resize-y"
-            />
+              rows="3"
+             className={`w-full bg-gray-50 border-0 ring-1 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none resize-y ${
+                descriptionError ? "ring-red-500" : "ring-gray-200"
+              }`}            />
           </div>
 
           <div>

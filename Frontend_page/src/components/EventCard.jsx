@@ -235,13 +235,13 @@ export const EventCard = ({ event, isFeatured = false, isLiked, onToggleLike, on
         ) : (
           <div className="pt-3 border-t border-slate-700/50">
             <div className="text-xs font-bold text-red-400 bg-red-500/10 px-3 py-1.5 rounded-lg w-full text-center">
-              Booking Closed on {new Date(event.bookingEnds).toLocaleString("en-US", {
+              Booking Closed{/* on  This is comment {new Date(event.bookingEnds).toLocaleString("en-US", {
                 month: "short",
                 day: "numeric",
                 year: "numeric",
                 hour: "numeric",
                 minute: "2-digit"
-              })}
+              })}*/}
             </div>
           </div>
         )}

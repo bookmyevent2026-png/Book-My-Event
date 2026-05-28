@@ -253,7 +253,7 @@ const CategorySection = () => {
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                 loading="lazy"
               />
-              
+
               {/* Overlay Gradient */}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent transition-opacity duration-300 group-hover:opacity-95" />
 
@@ -281,6 +281,43 @@ const CategorySection = () => {
   );
 };
 
+// Helper to extract clean city name
+const getCityFromLocation = (loc) => {
+  if (!loc) return "";
+  const cleanLoc = loc.toLowerCase();
+
+  // 1. Check if city name is within parentheses, e.g. "Vishaal Mal (Madurai)"
+  const parenthesized = loc.match(/\(([^)]+)\)/);
+  if (parenthesized && parenthesized[1]) {
+    const pCity = parenthesized[1].trim();
+    return pCity.charAt(0).toUpperCase() + pCity.slice(1).toLowerCase();
+  }
+
+  // 2. Custom checks for known cities
+  if (cleanLoc.includes("chennai")) return "Chennai";
+  if (cleanLoc.includes("bengaluru") || cleanLoc.includes("bangalore")) return "Bengaluru";
+  if (cleanLoc.includes("mumbai")) return "Mumbai";
+  if (cleanLoc.includes("delhi")) return "Delhi";
+  if (cleanLoc.includes("hyderabad")) return "Hyderabad";
+  if (cleanLoc.includes("coimbatore")) return "Coimbatore";
+  if (cleanLoc.includes("madurai")) return "Madurai";
+  if (cleanLoc.includes("trichy")) return "Trichy";
+  if (cleanLoc.includes("sivakasi")) return "Sivakasi";
+  if (cleanLoc.includes("tirunelveli")) return "Tirunelveli";
+  if (cleanLoc.includes("raipur")) return "Raipur";
+  if (cleanLoc.includes("manipal")) return "Manipal";
+
+  // 3. Fallback split by comma
+  const parts = loc.split(",");
+  let lastPart = parts[parts.length - 1]?.trim() || "";
+  const upperLast = lastPart.toUpperCase();
+  if (upperLast === "INDIA" || upperLast === "TAMIL NADU" || upperLast === "KARNATAKA") {
+    lastPart = parts[parts.length - 2]?.trim() || lastPart;
+  }
+
+  return lastPart.charAt(0).toUpperCase() + lastPart.slice(1).toLowerCase();
+};
+
 const HomeSearchWidget = ({ events }) => {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
@@ -290,14 +327,10 @@ const HomeSearchWidget = ({ events }) => {
   const uniqueLocations = Array.from(
     new Set(
       events
-        .map((e) => {
-          if (!e.location) return "";
-          const parts = e.location.split(",");
-          return parts[parts.length - 1]?.trim() || e.location;
-        })
+        .map((e) => getCityFromLocation(e.fullLocation || e.location))
         .filter(Boolean)
     )
-  );
+  ).sort();
 
   const handleSearch = () => {
     navigate("/all-events", {
@@ -382,27 +415,6 @@ const EventsSection = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [citySearchQuery, setCitySearchQuery] = useState("");
 
-  // Helper to extract clean city name
-  const getCityFromLocation = (loc) => {
-    if (!loc) return "";
-    const cleanLoc = loc.toLowerCase();
-    if (cleanLoc.includes("chennai")) return "CHENNAI";
-    if (cleanLoc.includes("bengaluru") || cleanLoc.includes("bangalore")) return "BENGALURU";
-    if (cleanLoc.includes("mumbai")) return "MUMBAI";
-    if (cleanLoc.includes("delhi")) return "DELHI";
-    if (cleanLoc.includes("hyderabad")) return "HYDERABAD";
-    if (cleanLoc.includes("coimbatore")) return "COIMBATORE";
-    if (cleanLoc.includes("madurai")) return "MADURAI";
-    if (cleanLoc.includes("trichy")) return "TRICHY";
-    
-    const parts = loc.split(",");
-    const lastPart = parts[parts.length - 1]?.trim().toUpperCase() || "";
-    if (lastPart === "INDIA" || lastPart === "TAMIL NADU" || lastPart === "KARNATAKA") {
-      return parts[parts.length - 2]?.trim().toUpperCase() || lastPart;
-    }
-    return lastPart;
-  };
-
   // 🔥 SORTING: Open events first (by date), Closed events last
   const finalEvents = [...events].sort((a, b) => {
     const aClosed = new Date() > new Date(a.bookingEnds);
@@ -420,7 +432,7 @@ const EventsSection = ({
   const citiesList = Array.from(
     new Set(
       events
-        .map((e) => getCityFromLocation(e.location))
+        .map((e) => getCityFromLocation(e.fullLocation || e.location))
         .filter(Boolean)
     )
   ).sort();
@@ -428,14 +440,14 @@ const EventsSection = ({
   // Apply City Filter
   const cityFilteredEvents = finalEvents.filter((event) => {
     if (!selectedCity) return true;
-    return getCityFromLocation(event.location) === selectedCity;
+    return getCityFromLocation(event.fullLocation || event.location) === selectedCity;
   });
 
   const otherEvents = cityFilteredEvents.slice(0, 4);
 
   return (
-    <section 
-      id="events-list" 
+    <section
+      id="events-list"
       className="py-12 bg-slate-950 relative bg-cover bg-center bg-no-repeat"
       style={{ backgroundImage: "url('/event_bg.png')" }}
     >
@@ -447,7 +459,7 @@ const EventsSection = ({
               <h2 className="text-3xl font-extrabold text-white tracking-wide">
                 EVENTS
               </h2>
-              
+
               {/* City Filter Dropdown */}
               <div className="relative">
                 <button
@@ -499,11 +511,10 @@ const EventsSection = ({
                                 setIsDropdownOpen(false);
                                 setCitySearchQuery("");
                               }}
-                              className={`px-3 py-2 text-xs font-bold rounded-md cursor-pointer transition-all ${
-                                selectedCity === city
+                              className={`px-3 py-2 text-xs font-bold rounded-md cursor-pointer transition-all ${selectedCity === city
                                   ? "bg-yellow-100 text-yellow-800"
                                   : "text-slate-700 hover:bg-slate-100"
-                              }`}
+                                }`}
                             >
                               {city}
                             </div>
@@ -686,8 +697,8 @@ const PricingSection = () => {
       <h2 className="text-2xl font-black mb-4 tracking-wider uppercase text-white">PRICING PLANS</h2>
       <p className="mb-2 text-[15px] font-medium text-slate-400">Explore Our Budget-Friendly Rates</p>
       <p className="text-orange-400 font-bold text-lg  cursor-pointer">
-               Kindly Contact us at (+91) 9444221003
-              </p>
+        Kindly Contact us at (+91) 9444221003
+      </p>
     </section>
   );
 };
@@ -763,7 +774,7 @@ const App = () => {
 
   const fetchEvents = async () => {
     const data = await getHomeEventshow();
-    console.log("Fetched events:", data);
+    console.log("Fetched Home events:", data);
 
     if (!data || data.length === 0) {
       setEvents([]);
@@ -777,7 +788,8 @@ const App = () => {
       category: e.category || "General",
       price: e.entry_type === "Free" ? 0 : (e.pass_fee || 0),
       currency: e.currency || "₹",
-      location: `${e.venue}, ${e.address}`,
+      location: e.venue,
+      fullLocation: `${e.venue}, ${e.address}`,
       date: e.start_date,
       endDate: e.end_date,
       time: e.start_time,

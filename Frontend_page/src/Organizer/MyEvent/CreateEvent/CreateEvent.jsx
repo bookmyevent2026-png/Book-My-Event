@@ -54,6 +54,7 @@ const CreateEvent = ({ onBack, editData, isView }) => {
   const [step1Touched, setStep1Touched] = useState(false);
   const [step2Touched, setStep2Touched] = useState(false);
   const [step3Touched, setStep3Touched] = useState(false);
+  const [step4Touched, setStep4Touched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const Redexorganizer = useSelector((state) => state.user);
 
@@ -348,6 +349,7 @@ const CreateEvent = ({ onBack, editData, isView }) => {
   const getFormValidationErrors = () => {
     const event = formData.eventDetails || {};
     const booking = formData.booking || {};
+    const documents = formData.documents || {};
     const errors = [];
 
     if (!event.eventName) errors.push("Event Name");
@@ -368,6 +370,9 @@ const CreateEvent = ({ onBack, editData, isView }) => {
     if (!booking.maxPass) errors.push("Max Passes/Person");
     if (booking.chargeType === "Paid" && !booking.earlyBirdExpire) {
       errors.push("Early Bird Expiry");
+    }
+    if (!documents.banner && !documents.bannerPreview) {
+      errors.push("Event Banner");
     }
 
     return errors;
@@ -519,6 +524,7 @@ const CreateEvent = ({ onBack, editData, isView }) => {
             showStep1Errors={step1Touched}
             showStep2Errors={step2Touched}
             showStep3Errors={step3Touched}
+            showStep4Errors={step4Touched}
           />
         </fieldset>
       </div>
@@ -535,14 +541,18 @@ const CreateEvent = ({ onBack, editData, isView }) => {
         {step < allSteps.length ? (
           <button
             onClick={() => {
-              if (step === 1) {
+              const currentStepLabel = allSteps[step - 1].label;
+              if (currentStepLabel === "Event Details") {
                 setStep1Touched(true);
               }
-              if (step === 2) {
+              if (currentStepLabel === "Booking") {
                 setStep2Touched(true);
               }
-              if (step === 3) {
+              if (currentStepLabel === "Layout & Stall") {
                 setStep3Touched(true);
+              }
+              if (currentStepLabel === "Documents") {
+                setStep4Touched(true);
               }
               setStep(step + 1);
             }}

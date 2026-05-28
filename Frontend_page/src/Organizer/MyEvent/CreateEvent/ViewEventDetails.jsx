@@ -565,11 +565,24 @@ const ViewEventDetails = ({ eventId, onClose }) => {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {guests.map((v, idx) => (
-                        <div key={idx} className="p-5 bg-gray-50 rounded-xl border border-gray-100 transition">
-                          <DetailItem label="Guest Name" value={v.guest_name} />
-                          <div className="grid grid-cols-2 gap-4 mt-3">
-                            <DetailItem label="Designation" value={v.designation} />
-                            <DetailItem label="Contact" value={v.contact} />
+                        <div key={idx} className="p-5 bg-gray-50 rounded-xl border border-gray-100 transition flex gap-4 items-center">
+                          {(v.image_url || v.image) ? (
+                            <img
+                              src={v.image_url || v.image}
+                              alt={v.guest_name}
+                              className="w-16 h-16 rounded-full object-cover border-2 border-indigo-100 shrink-0"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 rounded-full bg-indigo-50 border-2 border-indigo-100 flex items-center justify-center text-indigo-300 font-black text-xl shrink-0">
+                              {v.guest_name ? v.guest_name.charAt(0).toUpperCase() : '?'}
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <DetailItem label="Guest Name" value={v.guest_name} />
+                            <div className="grid grid-cols-2 gap-4 mt-3">
+                              <DetailItem label="Designation" value={v.designation} />
+                              <DetailItem label="Contact" value={v.contact} />
+                            </div>
                           </div>
                         </div>
                       ))}

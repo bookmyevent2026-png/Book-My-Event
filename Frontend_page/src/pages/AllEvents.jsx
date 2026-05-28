@@ -140,7 +140,8 @@ export default function AllEvents() {
         category: e.category || "General",
         price: e.entry_type === "Free" ? 0 : (e.pass_fee || 0),
         currency: e.currency || "₹",
-        location: `${e.venue}, ${e.address}`,
+        location: e.venue,
+        fullLocation: `${e.venue}, ${e.address}`,
         date: e.start_date,
         endDate: e.end_date,
         time: e.start_time,
@@ -182,7 +183,7 @@ export default function AllEvents() {
     if (searchTitle.trim()) {
       result = result.filter((e) =>
         e.title.toLowerCase().includes(searchTitle.toLowerCase()) ||
-        e.location.toLowerCase().includes(searchTitle.toLowerCase())
+        (e.fullLocation || e.location).toLowerCase().includes(searchTitle.toLowerCase())
       );
     }
 
@@ -191,7 +192,7 @@ export default function AllEvents() {
       const countryObj = countries.find((c) => String(c.id).toLowerCase() === String(searchCountry).toLowerCase());
       if (countryObj) {
         result = result.filter((e) =>
-          e.location.toLowerCase().includes(countryObj.country_name.toLowerCase())
+          (e.fullLocation || e.location).toLowerCase().includes(countryObj.country_name.toLowerCase())
         );
       }
     }
@@ -201,15 +202,17 @@ export default function AllEvents() {
       const stateObj = states.find((s) => String(s.id).toLowerCase() === String(searchState).toLowerCase());
       if (stateObj) {
         result = result.filter((e) =>
-          e.location.toLowerCase().includes(stateObj.state_name.toLowerCase())
+          (e.fullLocation || e.location).toLowerCase().includes(stateObj.state_name.toLowerCase())
         );
       }
     }
 
     // Filter by city
     if (searchCity) {
+      const cityObj = cities.find((c) => String(c.id) === String(searchCity));
+      const targetCity = cityObj ? cityObj.city_name : searchCity;
       result = result.filter((e) =>
-        e.location.toLowerCase().includes(searchCity.toLowerCase())
+        (e.fullLocation || e.location).toLowerCase().includes(targetCity.toLowerCase())
       );
     }
 
@@ -223,7 +226,7 @@ export default function AllEvents() {
     // Filter by location
     if (searchLocation.trim()) {
       result = result.filter((e) =>
-        e.location.toLowerCase().includes(searchLocation.toLowerCase())
+        (e.fullLocation || e.location).toLowerCase().includes(searchLocation.toLowerCase())
       );
     }
 
@@ -684,9 +687,8 @@ export default function AllEvents() {
       {/* Return to top */}
       <button
         onClick={scrollToTop}
-        className={`fixed bottom-8 right-8 z-[100] p-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full shadow-2xl transition-all duration-500 transform hover:scale-110 active:scale-95 group ${
-          showScrollTop ? "translate-y-0 opacity-100 visible" : "translate-y-20 opacity-0 invisible"
-        }`}
+        className={`fixed bottom-8 right-8 z-[100] p-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full shadow-2xl transition-all duration-500 transform hover:scale-110 active:scale-95 group ${showScrollTop ? "translate-y-0 opacity-100 visible" : "translate-y-20 opacity-0 invisible"
+          }`}
         aria-label="Return to top"
       >
         <ArrowUp className="w-6 h-6 group-hover:-translate-y-1 transition-transform" />

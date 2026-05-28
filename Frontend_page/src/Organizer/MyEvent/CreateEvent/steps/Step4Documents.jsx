@@ -12,7 +12,7 @@ import {
   Eye
 } from "lucide-react";
 
-const Step4Documents = ({ formData, setFormData }) => {
+const Step4Documents = ({ formData, setFormData, showStep4Errors }) => {
   const [bannerType, setBannerType] = useState("image");
   const [docType, setDocType] = useState("");
   const [docNumber, setDocNumber] = useState("");
@@ -22,6 +22,9 @@ const Step4Documents = ({ formData, setFormData }) => {
 
   const [bannerError, setBannerError] = useState("");
   const [docError, setDocError] = useState("");
+
+  const hasNoBanner = !formData.documents?.bannerPreview && !formData.documents?.banner;
+  const bannerRequiredError = showStep4Errors && hasNoBanner ? "Event Banner is required." : "";
   const [previewModal, setPreviewModal] = useState({
     open: false,
     file: null,
@@ -297,7 +300,7 @@ const Step4Documents = ({ formData, setFormData }) => {
                       <Video className="w-4 h-4 text-blue-600" />
                     )}
                   </div>
-                  <h2 className="text-lg font-bold text-gray-900">Banner</h2>
+                  <h2 className="text-lg font-bold text-gray-900">Banner <span className="text-red-500">*</span></h2>
                 </div>
 
                 {/* Toggle */}
@@ -329,10 +332,13 @@ const Step4Documents = ({ formData, setFormData }) => {
 
                 {/* Upload Area */}
                 <label
-                  className={`relative flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-6 transition-all duration-200 cursor-pointer min-h-[160px] ${dragActiveBanner
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-blue-400 hover:bg-blue-50"
-                    }`}
+                  className={`relative flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-6 transition-all duration-200 cursor-pointer min-h-[160px] ${
+                    bannerRequiredError
+                      ? "border-red-500 hover:border-red-600 bg-red-50/10"
+                      : dragActiveBanner
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200 hover:border-blue-400 hover:bg-blue-50"
+                  }`}
                   onDragEnter={handleBannerDrag}
                   onDragLeave={handleBannerDrag}
                   onDragOver={handleBannerDrag}
@@ -435,6 +441,12 @@ const Step4Documents = ({ formData, setFormData }) => {
                     onChange={handleBannerUpload}
                   />
                 </label>
+
+                {bannerRequiredError && (
+                  <p className="text-red-500 text-xs mt-1.5 ml-1">
+                    {bannerRequiredError}
+                  </p>
+                )}
 
                 {bannerError && (
                   <div className="flex items-center gap-2 mt-4 p-3 bg-red-50 border border-red-100 rounded-xl">
