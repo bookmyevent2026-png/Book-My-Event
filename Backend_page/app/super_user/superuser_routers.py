@@ -80,7 +80,8 @@ def get_events():
                 e.start_time,
                 e.end_date,
                 e.end_time,
-                e.venue, 
+                e.venue,
+                 
                 e.address,
                 e.created_by,
                 b.capacity,
@@ -211,6 +212,9 @@ def full_event(event_id):
         cursor.execute("SELECT * FROM event_vehicle_addons WHERE event_id=%s", (event_id,))
         vehicle_addons = cursor.fetchall()
 
+        cursor.execute("SELECT * FROM stall_amenities WHERE event_id=%s", (event_id,))
+        amenities = cursor.fetchall()
+
         # =========================
         # ✅ FIX TIME FIELDS
         # =========================
@@ -277,7 +281,7 @@ def full_event(event_id):
                 "phone": event.get("organizer_phone")
             },
             "booking": booking,
-            "layout": {"stalls": stalls},
+            "layout": {"stalls": stalls, "amenities": amenities},
             "documents": {"docs": docs},
             "terms": terms,
             "vendors": vendors,

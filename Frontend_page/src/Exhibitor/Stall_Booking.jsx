@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Send, Upload, User, Mail, Phone, Building2, MapPin, FileText, CheckCircle, AlertCircle, X } from "lucide-react";
+import { Send, Upload, User, Mail, Phone, Building2, MapPin, FileText, CheckCircle, AlertCircle, X, ChevronDown } from "lucide-react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { bookStall, getEventById, getCountries, getStates, getCities } from "../Services/api";
 import { useSelector } from "react-redux";
@@ -455,19 +455,54 @@ const Stall = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                   <div className="relative" ref={countryRef}>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">Country <span className="text-red-500">*</span></label>
-                    <input
-                      type="text"
-                      placeholder="Search Country"
-                      value={countrySearch}
-                      onChange={(e) => {
-                        setCountrySearch(e.target.value);
-                        setShowCountryDropdown(true);
-                        setErrors(prev => ({ ...prev, country: "" }));
-                      }}
-                      onFocus={() => setShowCountryDropdown(true)}
-                      className={`w-full px-3 py-2 rounded-lg border bg-gray-50 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all hover:bg-white ${errors.country ? "border-red-500" : "border-gray-200"
-                        }`}
-                    />
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Search Country"
+                        value={countrySearch}
+                        onChange={(e) => {
+                          setCountrySearch(e.target.value);
+                          setShowCountryDropdown(true);
+                          setErrors(prev => ({ ...prev, country: "" }));
+                        }}
+                        onFocus={() => setShowCountryDropdown(true)}
+                        className={`w-full px-3 py-2 pr-14 rounded-lg border bg-gray-50 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all hover:bg-white ${errors.country ? "border-red-500" : "border-gray-200"
+                          }`}
+                      />
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                        {countrySearch && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFormData({ ...formData, country: "", state: "", city: "" });
+                              setCountrySearch("");
+                              setStateSearch("");
+                              setCitySearch("");
+                              setShowCountryDropdown(true);
+                              setErrors(prev => ({ ...prev, country: "", state: "", city: "" }));
+                            }}
+                            className="text-gray-400 hover:text-gray-600 p-0.5 rounded-full hover:bg-gray-200 transition-colors"
+                          >
+                            <X size={14} />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowCountryDropdown(!showCountryDropdown);
+                          }}
+                          className="text-gray-400 hover:text-gray-600 p-0.5 transition-transform"
+                        >
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform duration-200 ${
+                              showCountryDropdown ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
                     {showCountryDropdown && (
                       <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-lg mt-1 max-h-40 overflow-y-auto shadow-lg">
                         {countries
@@ -503,19 +538,53 @@ const Stall = () => {
 
                   <div className="relative" ref={stateRef}>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">State <span className="text-red-500">*</span></label>
-                    <input
-                      type="text"
-                      placeholder="Search State"
-                      value={stateSearch}
-                      onChange={(e) => {
-                        setStateSearch(e.target.value);
-                        setShowStateDropdown(true);
-                        setErrors(prev => ({ ...prev, state: "" }));
-                      }}
-                      onFocus={() => setShowStateDropdown(true)}
-                      className={`w-full px-3 py-2 rounded-lg border bg-gray-50 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all hover:bg-white ${errors.state ? "border-red-500" : "border-gray-200"
-                        }`}
-                    />
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Search State"
+                        value={stateSearch}
+                        onChange={(e) => {
+                          setStateSearch(e.target.value);
+                          setShowStateDropdown(true);
+                          setErrors(prev => ({ ...prev, state: "" }));
+                        }}
+                        onFocus={() => setShowStateDropdown(true)}
+                        className={`w-full px-3 py-2 pr-14 rounded-lg border bg-gray-50 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all hover:bg-white ${errors.state ? "border-red-500" : "border-gray-200"
+                          }`}
+                      />
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                        {stateSearch && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFormData({ ...formData, state: "", city: "" });
+                              setStateSearch("");
+                              setCitySearch("");
+                              setShowStateDropdown(true);
+                              setErrors(prev => ({ ...prev, state: "", city: "" }));
+                            }}
+                            className="text-gray-400 hover:text-gray-600 p-0.5 rounded-full hover:bg-gray-200 transition-colors"
+                          >
+                            <X size={14} />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowStateDropdown(!showStateDropdown);
+                          }}
+                          className="text-gray-400 hover:text-gray-600 p-0.5 transition-transform"
+                        >
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform duration-200 ${
+                              showStateDropdown ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
                     {showStateDropdown && (
                       <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-lg mt-1 max-h-40 overflow-y-auto shadow-lg">
                         {states
@@ -556,19 +625,52 @@ const Stall = () => {
 
                   <div className="relative" ref={cityRef}>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">City/Location <span className="text-red-500">*</span></label>
-                    <input
-                      type="text"
-                      placeholder="Search City"
-                      value={citySearch}
-                      onChange={(e) => {
-                        setCitySearch(e.target.value);
-                        setShowCityDropdown(true);
-                        setErrors(prev => ({ ...prev, city: "" }));
-                      }}
-                      onFocus={() => setShowCityDropdown(true)}
-                      className={`w-full px-3 py-2 rounded-lg border bg-gray-50 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all hover:bg-white ${errors.city ? "border-red-500" : "border-gray-200"
-                        }`}
-                    />
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Search City"
+                        value={citySearch}
+                        onChange={(e) => {
+                          setCitySearch(e.target.value);
+                          setShowCityDropdown(true);
+                          setErrors(prev => ({ ...prev, city: "" }));
+                        }}
+                        onFocus={() => setShowCityDropdown(true)}
+                        className={`w-full px-3 py-2 pr-14 rounded-lg border bg-gray-50 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all hover:bg-white ${errors.city ? "border-red-500" : "border-gray-200"
+                          }`}
+                      />
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                        {citySearch && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFormData({ ...formData, city: "" });
+                              setCitySearch("");
+                              setShowCityDropdown(true);
+                              setErrors(prev => ({ ...prev, city: "" }));
+                            }}
+                            className="text-gray-400 hover:text-gray-600 p-0.5 rounded-full hover:bg-gray-200 transition-colors"
+                          >
+                            <X size={14} />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowCityDropdown(!showCityDropdown);
+                          }}
+                          className="text-gray-400 hover:text-gray-600 p-0.5 transition-transform"
+                        >
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform duration-200 ${
+                              showCityDropdown ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
                     {showCityDropdown && (
                       <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-lg mt-1 max-h-40 overflow-y-auto shadow-lg">
                         {cities

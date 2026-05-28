@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Eye, Plus, X, CheckCircle, AlertCircle, Info, Trash2, Edit, FileSpreadsheet, FileText, Download, Search } from "lucide-react";
+import { Eye, Plus, X, CheckCircle, AlertCircle, Info, Trash2, Edit, FileSpreadsheet, FileText, Download, Search, ChevronDown } from "lucide-react";
 import { saveAs } from "file-saver";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
@@ -958,8 +958,40 @@ export const VendorPage = () => {
                             setCountrySearch(e.target.value);
                             setShowCountryDropdown(true);
                           }}
-                          className={`w-full border p-2 pl-9 rounded bg-white focus:ring-2 focus:ring-sky-500 outline-none ${fieldErrors.country ? "border-red-500" : "border-sky-200"}`}
+                          className={`w-full border p-2 pl-9 pr-14 rounded bg-white focus:ring-2 focus:ring-sky-500 outline-none ${fieldErrors.country ? "border-red-500" : "border-sky-200"}`}
                         />
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                          {countrySearch && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setForm({ ...form, country: "", country_id: "", state: "", city: "" });
+                                setCountrySearch("");
+                                setStateSearch("");
+                                setCitySearch("");
+                                setShowCountryDropdown(true);
+                              }}
+                              className="text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-100 transition-colors"
+                            >
+                              <X size={14} />
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowCountryDropdown(!showCountryDropdown);
+                            }}
+                            className="text-slate-400 hover:text-slate-600 p-0.5 transition-transform"
+                          >
+                            <ChevronDown
+                              className={`w-4 h-4 transition-transform duration-200 ${
+                                showCountryDropdown ? "rotate-180" : ""
+                              }`}
+                            />
+                          </button>
+                        </div>
                       </div>
                       {showCountryDropdown && (
                         <div className="absolute z-10 w-full mt-1 bg-white border border-sky-100 rounded-lg shadow-xl max-h-48 overflow-y-auto custom-scrollbar">
@@ -1025,8 +1057,40 @@ export const VendorPage = () => {
                             setShowStateDropdown(true);
                           }}
                           disabled={!form.country}
-                          className={`w-full border p-2 pl-9 rounded bg-white focus:ring-2 focus:ring-sky-500 outline-none ${fieldErrors.state ? "border-red-500" : "border-sky-200"} disabled:bg-gray-50`}
+                          className={`w-full border p-2 pl-9 pr-14 rounded bg-white focus:ring-2 focus:ring-sky-500 outline-none ${fieldErrors.state ? "border-red-500" : "border-sky-200"} disabled:bg-gray-50`}
                         />
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                          {stateSearch && form.country && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setForm({ ...form, state: "", state_id: "", city: "" });
+                                setStateSearch("");
+                                setCitySearch("");
+                                setShowStateDropdown(true);
+                              }}
+                              className="text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-100 transition-colors"
+                            >
+                              <X size={14} />
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            disabled={!form.country}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowStateDropdown(!showStateDropdown);
+                            }}
+                            className="text-slate-400 hover:text-slate-600 p-0.5 transition-transform disabled:opacity-50"
+                          >
+                            <ChevronDown
+                              className={`w-4 h-4 transition-transform duration-200 ${
+                                showStateDropdown ? "rotate-180" : ""
+                              }`}
+                            />
+                          </button>
+                        </div>
                       </div>
                       {showStateDropdown && (
                         <div className="absolute z-10 w-full mt-1 bg-white border border-sky-100 rounded-lg shadow-xl max-h-48 overflow-y-auto custom-scrollbar">
@@ -1090,8 +1154,39 @@ export const VendorPage = () => {
                             setShowCityDropdown(true);
                           }}
                           disabled={!form.state}
-                          className={`w-full border p-2 pl-9 rounded bg-white focus:ring-2 focus:ring-sky-500 outline-none ${fieldErrors.city ? "border-red-500" : "border-sky-200"} disabled:bg-gray-50`}
+                          className={`w-full border p-2 pl-9 pr-14 rounded bg-white focus:ring-2 focus:ring-sky-500 outline-none ${fieldErrors.city ? "border-red-500" : "border-sky-200"} disabled:bg-gray-50`}
                         />
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                          {citySearch && form.state && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setForm({ ...form, city: "" });
+                                setCitySearch("");
+                                setShowCityDropdown(true);
+                              }}
+                              className="text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-100 transition-colors"
+                            >
+                              <X size={14} />
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            disabled={!form.state}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowCityDropdown(!showCityDropdown);
+                            }}
+                            className="text-slate-400 hover:text-slate-600 p-0.5 transition-transform disabled:opacity-50"
+                          >
+                            <ChevronDown
+                              className={`w-4 h-4 transition-transform duration-200 ${
+                                showCityDropdown ? "rotate-180" : ""
+                              }`}
+                            />
+                          </button>
+                        </div>
                       </div>
                       {showCityDropdown && (
                         <div className="absolute z-10 w-full mt-1 bg-white border border-sky-100 rounded-lg shadow-xl max-h-48 overflow-y-auto custom-scrollbar">

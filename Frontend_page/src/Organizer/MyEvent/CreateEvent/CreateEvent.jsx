@@ -53,6 +53,7 @@ const CreateEvent = ({ onBack, editData, isView }) => {
   const [step, setStep] = useState(1);
   const [step1Touched, setStep1Touched] = useState(false);
   const [step2Touched, setStep2Touched] = useState(false);
+  const [step3Touched, setStep3Touched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const Redexorganizer = useSelector((state) => state.user);
 
@@ -222,9 +223,11 @@ const CreateEvent = ({ onBack, editData, isView }) => {
         existingFiles: []
       },
     terms: editData?.terms?.map(t => ({
-      policyGroup: t.policy_group,
-      policyType: t.policy_type,
-      policyName: t.policy_name
+      policyGroup: t.policy_group || t.policyGroup,
+      policyType: t.policy_type || t.policyType,
+      policyName: t.policy_name || t.policyName,
+      description: t.description || t.policy_description || t.policy_desc || "",
+      isDefault: t.is_default || t.isDefault || false
     })) || [],
     vendors: editData?.vendor_data
       ? {
@@ -486,7 +489,9 @@ const CreateEvent = ({ onBack, editData, isView }) => {
     <div className="flex flex-col min-h-screen bg-white rounded shadow">
       {/* HEADER */}
       <div className="bg-white border-b border-gray-100 shadow-sm px-4 pt-2 pb-0">
-        <h1 className="text-xl font-bold mb-2">Create Event</h1>
+        <h1 className="text-xl font-bold mb-2">
+          {isView ? "View Event Page" : editData ? "Edit Event Page" : "Create Event"}
+        </h1>
 
         <div className="flex flex-wrap gap-4 md:gap-6 pb-0 mb-0 text-sm">
           {allSteps.map((s, idx) => (
@@ -513,6 +518,7 @@ const CreateEvent = ({ onBack, editData, isView }) => {
             organizerId={organizer?.id}
             showStep1Errors={step1Touched}
             showStep2Errors={step2Touched}
+            showStep3Errors={step3Touched}
           />
         </fieldset>
       </div>
@@ -534,6 +540,9 @@ const CreateEvent = ({ onBack, editData, isView }) => {
               }
               if (step === 2) {
                 setStep2Touched(true);
+              }
+              if (step === 3) {
+                setStep3Touched(true);
               }
               setStep(step + 1);
             }}

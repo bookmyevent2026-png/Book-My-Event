@@ -562,7 +562,7 @@ const Step6VendorSponsor = ({ formData, setFormData }) => {
 
             <div className="space-y-3">
               <div className="space-y-1 relative vendor-type-dropdown">
-                <label className={labelClasses}>Vendor Category <span className="text-red-500">*</span> </label>
+                <label className={labelClasses}>Vendor Type <span className="text-red-500">*</span> </label>
                 <div className="relative group">
                   <div
                     className={`flex items-center gap-3 ${inputClasses} cursor-pointer hover:border-purple-400 transition-all duration-300 ${isVendorTypeOpen ? "border-purple-500 ring-4 ring-purple-500/10" : ""}`}
@@ -621,7 +621,7 @@ const Step6VendorSponsor = ({ formData, setFormData }) => {
               </div>
 
               <div className="space-y-1 relative vendor-name-dropdown">
-                <label className={labelClasses}>Provider Name <span className="text-red-500">*</span></label>
+                <label className={labelClasses}>Vendor Name  <span className="text-red-500">*</span></label>
                 <div className="relative group">
                   <div
                     className={`flex items-center gap-3 ${inputClasses} cursor-pointer hover:border-purple-400 transition-all duration-300 ${isVendorNameOpen ? "border-purple-500 ring-4 ring-purple-500/10" : ""} ${!vendorType ? "opacity-50 cursor-not-allowed grayscale" : ""}`}
@@ -800,7 +800,7 @@ const Step6VendorSponsor = ({ formData, setFormData }) => {
 
             <div className="space-y-3">
               <div className="space-y-1 relative sponsor-name-dropdown">
-                <label className={labelClasses}>Sponsor Partner <span className="text-red-500">*</span></label>
+                <label className={labelClasses}>Sponsor<span className="text-red-500">*</span></label>
                 <div className="relative group">
                   <div
                     className={`flex items-center gap-3 ${inputClasses} cursor-pointer hover:border-indigo-400 transition-all duration-300 ${isSponsorNameOpen ? "border-indigo-500 ring-4 ring-indigo-500/10" : ""}`}
@@ -859,7 +859,7 @@ const Step6VendorSponsor = ({ formData, setFormData }) => {
               </div>
 
               <div className="space-y-1 relative sponsorship-dropdown">
-                <label className={labelClasses}>Tier / Level <span className="text-red-500">*</span></label>
+                <label className={labelClasses}>Sponsorship<span className="text-red-500">*</span></label>
                 <div className="relative group">
                   <div
                     className={`flex items-center gap-3 ${inputClasses} cursor-pointer hover:border-indigo-400 transition-all duration-300 ${isSponsorshipOpen ? "border-indigo-500 ring-4 ring-indigo-500/10" : ""}`}
@@ -1128,9 +1128,9 @@ const Step6VendorSponsor = ({ formData, setFormData }) => {
                   <thead className="sticky top-0 z-10">
                     <tr className="bg-gray-50">
                       <th className={tableHeaderClasses}>Action</th>
-                      <th className={tableHeaderClasses}>Image</th>
+                      
                       <th className={tableHeaderClasses}>Guest Name</th>
-                      <th className={tableHeaderClasses}>Designation</th>
+                     
                       <th className={tableHeaderClasses}>Contact Number</th>
                     </tr>
                   </thead>
@@ -1162,26 +1162,9 @@ const Step6VendorSponsor = ({ formData, setFormData }) => {
                               </button>
                             </div>
                           </td>
-                          <td className={tableCellClasses}>
-                            {g.image ? (
-                              <img
-                                src={g.image}
-                                alt={g.name}
-                                className="w-8 h-8 rounded-full object-cover border-2 border-purple-100 cursor-pointer"
-                                onClick={() => setPreviewModal({ open: true, url: g.image })}
-                              />
-                            ) : (
-                              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-[10px] text-gray-400 font-bold uppercase">
-                                NA
-                              </div>
-                            )}
-                          </td>
+                          
                           <td className={`${tableCellClasses} font-semibold text-gray-800`}>{g.name}</td>
-                          <td className={tableCellClasses}>
-                            <span className="px-3 py-1 bg-purple-50 text-purple-600 rounded-full text-[10px] font-bold uppercase tracking-wider">
-                              {g.designation}
-                            </span>
-                          </td>
+                          
                           <td className={`${tableCellClasses} text-gray-600 text-sm`}>
                             {g.contact || "NA"}
                           </td>

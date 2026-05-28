@@ -238,7 +238,7 @@ const SuperUserEvents = () => {
   const handleView = async (id) => {
     try {
       const res = await getFullEventDetails(id);
-      
+
       const formatDate = (dateStr) => {
         if (!dateStr) return dateStr;
         const d = new Date(dateStr);
@@ -257,17 +257,17 @@ const SuperUserEvents = () => {
         if (res.booking.booking_start_date) res.booking.booking_start_date = formatDate(res.booking.booking_start_date);
         if (res.booking.booking_end_date) res.booking.booking_end_date = formatDate(res.booking.booking_end_date);
         if (res.booking.early_bird_expire) {
-            // early_bird_expire is sometimes formatted as a datetime string "2026-05-23T12:00:00"
-            // if it is GMT format, the date parser in CreateEvent might fail
-            const ed = new Date(res.booking.early_bird_expire);
-            if (!isNaN(ed.getTime())) {
-                const ey = ed.getFullYear();
-                const em = String(ed.getMonth() + 1).padStart(2, '0');
-                const eday = String(ed.getDate()).padStart(2, '0');
-                const eh = String(ed.getHours()).padStart(2, '0');
-                const emin = String(ed.getMinutes()).padStart(2, '0');
-                res.booking.early_bird_expire = `${ey}-${em}-${eday}T${eh}:${emin}:00`;
-            }
+          // early_bird_expire is sometimes formatted as a datetime string "2026-05-23T12:00:00"
+          // if it is GMT format, the date parser in CreateEvent might fail
+          const ed = new Date(res.booking.early_bird_expire);
+          if (!isNaN(ed.getTime())) {
+            const ey = ed.getFullYear();
+            const em = String(ed.getMonth() + 1).padStart(2, '0');
+            const eday = String(ed.getDate()).padStart(2, '0');
+            const eh = String(ed.getHours()).padStart(2, '0');
+            const emin = String(ed.getMinutes()).padStart(2, '0');
+            res.booking.early_bird_expire = `${ey}-${em}-${eday}T${eh}:${emin}:00`;
+          }
         }
       }
 
@@ -750,7 +750,7 @@ const SuperUserEvents = () => {
                         Fee
                       </p>
                       <p className="font-bold text-gray-900 text-xs">
-                        {e.pass_fee || "Free"}
+                        {e.charge_type || "Free"}
                       </p>
                     </div>
                   </div>

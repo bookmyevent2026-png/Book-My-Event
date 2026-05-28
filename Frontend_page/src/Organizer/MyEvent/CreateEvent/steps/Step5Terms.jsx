@@ -99,6 +99,20 @@ const Step5Terms = ({ formData, setFormData }) => {
     return Array.from(names);
   };
 
+  const getSelectedDescription = () => {
+    if (!policyGroup || !policyType || !policyName) return "";
+    if (policyGroup === "All") {
+      for (const g of Object.keys(policyData)) {
+        if (policyData[g][policyType] && policyData[g][policyType][policyName]) {
+          return policyData[g][policyType][policyName];
+        }
+      }
+    } else {
+      return policyData[policyGroup][policyType][policyName] || "";
+    }
+    return "";
+  };
+
   const addPolicy = () => {
     if (!policyGroup || !policyType || !policyName) {
       showNotification("Please select all fields", "error");
@@ -322,6 +336,17 @@ const Step5Terms = ({ formData, setFormData }) => {
               </div>
             </div>
 
+            {/* DESCRIPTION PREVIEW */}
+            {policyName && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                <label className={labelClasses}>Policy Description Preview</label>
+                <div 
+                  className="w-full px-6 py-4 rounded-3xl border border-slate-200 bg-slate-50 text-xs text-slate-600 max-h-40 overflow-y-auto custom-scrollbar policy-desc-view whitespace-pre-wrap shadow-inner"
+                  dangerouslySetInnerHTML={{ __html: getSelectedDescription() || "<i>No description available for this policy.</i>" }}
+                />
+              </div>
+            )}
+
             <div className="flex items-center gap-4 p-4 bg-purple-50/50 rounded-2xl border border-purple-100 transition-all hover:bg-purple-50 group">
               <div className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -465,8 +490,8 @@ const Step5Terms = ({ formData, setFormData }) => {
       {/* MODAL: VIEW DESCRIPTION */}
       {showViewModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex justify-center items-center z-[5000] p-4 animate-in fade-in duration-300">
-          <div className="w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-            <div className="bg-slate-50 px-10 py-8 border-b border-slate-100 flex justify-between items-center">
+          <div className="w-full max-w-3xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
+            <div className="bg-slate-50 px-10 py-8 border-b border-slate-100 flex justify-between items-center shrink-0">
               <div>
                 <h3 className="text-xl font-black text-slate-800 tracking-tight">Policy Insight</h3>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Detailed terms overview</p>
@@ -475,15 +500,16 @@ const Step5Terms = ({ formData, setFormData }) => {
                 <X size={20} />
               </button>
             </div>
-            <div className="p-10">
+            <div className="p-10 overflow-y-auto custom-scrollbar flex-1">
               <div className="relative">
                 <div className="absolute -top-4 -left-4 text-purple-100 opacity-50"><Info size={40} /></div>
-                <p className="relative z-10 text-sm font-medium text-slate-600 leading-relaxed italic bg-slate-50/50 p-8 rounded-[2rem] border border-slate-100">
-                  "{viewDescription || "No detailed description provided for this specific policy."}"
-                </p>
+                <div 
+                  className="relative z-10 text-sm font-medium text-slate-600 leading-relaxed bg-slate-50/50 p-8 rounded-[2rem] border border-slate-100 policy-desc-view whitespace-pre-wrap"
+                  dangerouslySetInnerHTML={{ __html: viewDescription || "<i>No detailed description provided for this specific policy.</i>" }}
+                />
               </div>
             </div>
-            <div className="px-10 py-6 bg-slate-50 flex justify-end">
+            <div className="px-10 py-6 bg-slate-50 flex justify-end shrink-0">
               <button onClick={() => setShowViewModal(false)} className="px-8 py-2 bg-slate-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-slate-200 hover:scale-105 transition-all">
                 Acknowledge
               </button>

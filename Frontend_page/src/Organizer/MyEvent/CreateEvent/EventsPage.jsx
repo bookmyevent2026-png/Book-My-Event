@@ -558,7 +558,7 @@ const EventsPage = () => {
                           Pass Fee
                         </p>
                         <p className="font-bold text-gray-900 text-xs">
-                          {e.charge_type || "Free"}
+                          {e.charge_type || "--"}
                         </p>
                       </div>
                     </div>

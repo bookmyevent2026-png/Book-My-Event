@@ -19,6 +19,11 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
+  Facebook,
+  Instagram,
+  Twitter,
+  Linkedin,
+  Youtube
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import MediaRenderer from "../components/MediaRenderer";
@@ -640,23 +645,25 @@ const Footer = () => {
               </a>
               <div className="flex gap-3 pt-4">
                 {[
-                  { name: "Facebook", short: "f", url: "https://www.facebook.com/login" },
-                  { name: "Instagram", short: "in", url: "https://www.instagram.com/accounts/login/" },
-                  { name: "Twitter", short: "tw", url: "https://twitter.com/login" },
-                  { name: "YouTube", short: "yt", url: "https://accounts.google.com/signin/v2/identifier?service=youtube" }
-                ].map((social) => (
-                  <a
-                    key={social.name}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-9 h-9 bg-slate-800 hover:bg-orange-500 rounded-full flex items-center justify-center transition-colors"
-                  >
-                    <span className="text-white text-xs font-bold">
-                      {social.short}
-                    </span>
-                  </a>
-                ))}
+                  { name: "Facebook", icon: Facebook, url: "https://www.facebook.com/login", color: "hover:bg-blue-600" },
+                  { name: "Instagram", icon: Instagram, url: "https://www.instagram.com/accounts/login/", color: "hover:bg-pink-600" },
+                  { name: "Twitter", icon: Twitter, url: "https://twitter.com/login", color: "hover:bg-sky-500" },
+                  { name: "LinkedIn", icon: Linkedin, url: "https://www.instagram.com/accounts/login/", color: "hover:bg-blue-700" },
+                  { name: "YouTube", icon: Youtube, url: "https://accounts.google.com/signin/v2/identifier?service=youtube", color: "hover:bg-red-600" }
+                ].map((social) => {
+                  const Icon = social.icon;
+                  return (
+                    <a
+                      key={social.name}
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`w-9 h-9 bg-slate-800 rounded-full flex items-center justify-center transition-colors ${social.color}`}
+                    >
+                      <Icon className="w-4 h-4 text-white" />
+                    </a>
+                  );
+                })}
               </div>
             </div>
           </div>

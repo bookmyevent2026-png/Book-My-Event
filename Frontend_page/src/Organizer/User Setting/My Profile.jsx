@@ -14,7 +14,6 @@ const MyProfile = () => {
   const [message, setMessage] = useState({ type: "", text: "" });
   const dispatch = useDispatch();
 
-
   const userId = sessionStorage.getItem("userId") || sessionStorage.getItem("User_id") || sessionStorage.getItem("id");
 
   const [countries, setCountries] = useState([]);

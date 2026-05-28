@@ -863,115 +863,119 @@ export const Venuepage = () => {
             {/* FORM */}
             <form
               onSubmit={handleSubmit}
-              className="flex-1 overflow-y-auto p-4 grid grid-cols-1 md:grid-cols-2 gap-4 custom-scrollbar"
+              className="flex-grow overflow-hidden p-6 grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 h-[calc(95vh-120px)]"
             >
 
-              {/* IMAGE UPLOAD */}
-              <div className="bg-sky-50 px-6 py-4 rounded-xl border border-sky-100 shadow-sm w-full h-fit">
-                <h3 className="text-sm font-semibold mb-2 text-sky-700">
-                  Venue Image
-                </h3>
+              {/* COLUMN 1: VENUE INFORMATION */}
+              <div className="flex flex-col h-full bg-sky-50 rounded-xl border border-sky-100 shadow-sm overflow-hidden">
+                <div className="px-6 py-4 border-b border-sky-100/50 bg-sky-50/50 shrink-0">
+                  <h3 className="text-sm font-semibold text-sky-700 flex items-center gap-2">
+                    <span className="w-1.5 h-4 bg-sky-600 rounded-full"></span>
+                    Venue Information
+                  </h3>
+                </div>
+                <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+                  {/* VENUE IMAGE */}
+                  <div className="space-y-3">
+                    <label className="text-xs font-medium text-slate-700">
+                      Venue Image
+                    </label>
 
-                <label
-                  className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-5 cursor-pointer hover:border-sky-400 transition bg-white ${fieldErrors.venue_image ? "border-red-500" : "border-sky-200"
-                    }`}
-                >
-                  <span className="text-sky-500 text-sm">Upload Image</span>
+                    <label
+                      className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-5 cursor-pointer hover:border-sky-400 transition bg-white ${fieldErrors.venue_image ? "border-red-500" : "border-sky-200"
+                        }`}
+                    >
+                      <span className="text-sky-500 text-sm font-semibold">Upload Image</span>
+                     
 
-                  <input
-                    type="file"
-                    onChange={handleImage}
-                    className="hidden"
-                  />
-                </label>
+                      <input
+                        type="file"
+                        onChange={handleImage}
+                        className="hidden"
+                      />
+                    </label>
+                    <p className="text-xs text-gray-400 mt-1">Supported files: jpg, png, jpeg, webp</p>
 
-                {fieldErrors.venue_image && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {fieldErrors.venue_image}
-                  </p>
-                )}
+                    {fieldErrors.venue_image && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {fieldErrors.venue_image}
+                      </p>
+                    )}
 
-                {imagePreview && (
-                  <div
-                    className="relative mt-3 group cursor-pointer"
-                    onClick={() => setFullPreview(imagePreview)}
-                  >
-                    <img
-                      src={imagePreview}
-                      className="rounded-lg h-80 w-full object-cover border border-sky-100"
+                    {imagePreview && (
+                      <div
+                        className="relative mt-3 group cursor-pointer"
+                        onClick={() => setFullPreview(imagePreview)}
+                      >
+                        <img
+                          src={imagePreview}
+                          className="rounded-lg h-48 w-full object-cover border border-sky-100 shadow-sm"
+                        />
+
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition rounded-lg flex items-center justify-center">
+                          <Eye size={20} className="text-white" />
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveImage();
+                          }}
+                          className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* VENUE NAME */}
+                  <div>
+                    <label className="text-xs font-medium text-slate-700">
+                      Venue Name <span className="text-red-500">*</span>
+                    </label>
+
+                    <input
+                      name="venue_name"
+                      value={form.venue_name}
+                      placeholder="Enter venue name"
+                      onChange={handleChange}
+                      className={`w-full mt-1 p-2 rounded-lg bg-white border focus:ring-2 focus:ring-sky-500 text-sm outline-none transition ${fieldErrors.venue_name ? "border-red-500" : "border-sky-200"
+                        }`}
                     />
 
-                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition rounded-lg flex items-center justify-center">
-                      <Eye size={20} className="text-white" />
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveImage();
-                      }}
-                      className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
-                    >
-                      <X size={14} />
-                    </button>
+                    {fieldErrors.venue_name && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {fieldErrors.venue_name}
+                      </p>
+                    )}
                   </div>
-                )}
-              </div>
 
-              {/* LOCATION DETAILS */}
-              <div className="bg-sky-50 px-6 py-4 rounded-xl border border-sky-100 shadow-sm w-full space-y-3 h-fit">
-                <h3 className="text-sm font-semibold text-sky-700">
-                  Location Details
-                </h3>
+                  {/* ADDRESS */}
+                  <div>
+                    <label className="text-xs font-medium text-slate-700">
+                      Address <span className="text-red-500">*</span>
+                    </label>
 
-                {/* VENUE NAME */}
-                <div>
-                  <label className="text-xs font-medium text-slate-700">
-                    Venue Name <span className="text-red-500">*</span>
-                  </label>
+                    <textarea
+                      name="address"
+                      value={form.address}
+                      rows="3"
+                      placeholder="Enter address"
+                      onChange={handleChange}
+                      className={`w-full mt-1 p-2 rounded-lg bg-white border focus:ring-2 focus:ring-sky-500 text-sm resize-none outline-none transition ${fieldErrors.address ? "border-red-500" : "border-sky-200"
+                        }`}
+                    />
 
-                  <input
-                    name="venue_name"
-                    value={form.venue_name}
-                    placeholder="Enter venue name"
-                    onChange={handleChange}
-                    className={`w-full mt-1 p-2 rounded-lg bg-white border focus:ring-2 focus:ring-sky-500 text-sm ${fieldErrors.venue_name ? "border-red-500" : "border-sky-200"
-                      }`}
-                  />
+                    {fieldErrors.address && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {fieldErrors.address}
+                      </p>
+                    )}
+                  </div>
 
-                  {fieldErrors.venue_name && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {fieldErrors.venue_name}
-                    </p>
-                  )}
-                </div>
-
-                {/* ADDRESS */}
-                <div>
-                  <label className="text-xs font-medium text-slate-700">
-                    Address <span className="text-red-500">*</span>
-                  </label>
-
-                  <textarea
-                    name="address"
-                    value={form.address}
-                    rows="2"
-                    placeholder="Enter address"
-                    onChange={handleChange}
-                    className={`w-full mt-1 p-2 rounded-lg bg-white border focus:ring-2 focus:ring-sky-500 text-sm resize-none ${fieldErrors.address ? "border-red-500" : "border-sky-200"
-                      }`}
-                  />
-
-                  {fieldErrors.address && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {fieldErrors.address}
-                    </p>
-                  )}
-                </div>
-
-                {/* COUNTRY + STATE */}
-                <div className="grid grid-cols-2 gap-3">
+                  {/* COUNTRY */}
                   <div className="relative" ref={countryRef}>
                     <label className="text-xs font-medium text-slate-700">
                       Country <span className="text-red-500">*</span>
@@ -995,9 +999,8 @@ export const Venuepage = () => {
                           }
                         }}
                         onFocus={() => setShowCountryDropdown(true)}
-                        className={`w-full p-2 pl-9 pr-14 rounded-lg bg-white border focus:ring-2 focus:ring-sky-500 text-sm outline-none transition-all ${
-                          fieldErrors.country ? "border-red-500" : "border-sky-200"
-                        }`}
+                        className={`w-full p-2 pl-9 pr-14 rounded-lg bg-white border focus:ring-2 focus:ring-sky-500 text-sm outline-none transition-all ${fieldErrors.country ? "border-red-500" : "border-sky-200"
+                          }`}
                       />
                       <div className="absolute right-3 flex items-center gap-1.5">
                         {countrySearch && (
@@ -1025,9 +1028,8 @@ export const Venuepage = () => {
                           className="text-slate-400 hover:text-slate-600 p-0.5 transition-transform"
                         >
                           <ChevronDown
-                            className={`w-4 h-4 transition-transform duration-200 ${
-                              showCountryDropdown ? "rotate-180" : ""
-                            }`}
+                            className={`w-4 h-4 transition-transform duration-200 ${showCountryDropdown ? "rotate-180" : ""
+                              }`}
                           />
                         </button>
                       </div>
@@ -1046,11 +1048,10 @@ export const Venuepage = () => {
                               setCitySearch("");
                               setShowCountryDropdown(false);
                             }}
-                            className={`p-2 cursor-pointer transition-colors text-sm ${
-                              form.country === c.country_name
+                            className={`p-2 cursor-pointer transition-colors text-sm ${form.country === c.country_name
                                 ? "bg-sky-600 text-white"
                                 : "hover:bg-sky-100 text-slate-700"
-                            }`}
+                              }`}
                           >
                             {c.country_name}
                           </div>
@@ -1065,6 +1066,7 @@ export const Venuepage = () => {
                     )}
                   </div>
 
+                  {/* STATE */}
                   <div className="relative" ref={stateRef}>
                     <label className="text-xs font-medium text-slate-700">
                       State <span className="text-red-500">*</span>
@@ -1087,13 +1089,11 @@ export const Venuepage = () => {
                           }
                         }}
                         onFocus={() => setShowStateDropdown(true)}
-                        className={`w-full p-2 pl-9 pr-14 rounded-lg outline-none transition-all text-sm ${
-                          !form.country
+                        className={`w-full p-2 pl-9 pr-14 rounded-lg outline-none transition-all text-sm ${!form.country
                             ? "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
-                            : `bg-white border focus:ring-2 focus:ring-sky-500 ${
-                                fieldErrors.state ? "border-red-500" : "border-sky-200"
-                              }`
-                        }`}
+                            : `bg-white border focus:ring-2 focus:ring-sky-500 ${fieldErrors.state ? "border-red-500" : "border-sky-200"
+                            }`
+                          }`}
                       />
                       <div className="absolute right-3 flex items-center gap-1.5">
                         {stateSearch && form.country && (
@@ -1124,9 +1124,8 @@ export const Venuepage = () => {
                             className="text-slate-400 hover:text-slate-600 p-0.5 transition-transform disabled:opacity-50"
                           >
                             <ChevronDown
-                              className={`w-4 h-4 transition-transform duration-200 ${
-                                showStateDropdown ? "rotate-180" : ""
-                              }`}
+                              className={`w-4 h-4 transition-transform duration-200 ${showStateDropdown ? "rotate-180" : ""
+                                }`}
                             />
                           </button>
                         )}
@@ -1154,11 +1153,10 @@ export const Venuepage = () => {
                                 setCitySearch("");
                                 setShowStateDropdown(false);
                               }}
-                              className={`p-2 cursor-pointer transition-colors text-sm ${
-                                form.state === s.state_name
+                              className={`p-2 cursor-pointer transition-colors text-sm ${form.state === s.state_name
                                   ? "bg-sky-600 text-white"
                                   : "hover:bg-sky-100 text-slate-700"
-                              }`}
+                                }`}
                             >
                               {s.state_name}
                             </div>
@@ -1167,252 +1165,318 @@ export const Venuepage = () => {
                       </div>
                     )}
                   </div>
-                </div>
 
-                {/* CITY */}
-                <div className="relative" ref={cityRef}>
-                  <label className="text-xs font-medium text-slate-700">
-                    City <span className="text-red-500">*</span>
-                  </label>
+                  {/* CITY */}
+                  <div className="relative" ref={cityRef}>
+                    <label className="text-xs font-medium text-slate-700">
+                      City <span className="text-red-500">*</span>
+                    </label>
 
-                  <div className="relative flex items-center mt-1">
-                    <Search className="absolute left-3 text-slate-400 w-4 h-4 pointer-events-none" />
-                    <input
-                      type="text"
-                      placeholder={form.state ? "Search City" : "Select State first"}
-                      value={citySearch}
-                      disabled={!form.state}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setCitySearch(val);
-                        setShowCityDropdown(true);
-                        if (val === "") {
-                          setForm({ ...form, city: "" });
-                        }
-                      }}
-                      onFocus={() => setShowCityDropdown(true)}
-                      className={`w-full p-2 pl-9 pr-14 rounded-lg outline-none transition-all text-sm ${
-                        !form.state
-                          ? "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
-                          : `bg-white border focus:ring-2 focus:ring-sky-500 ${
-                              fieldErrors.city ? "border-red-500" : "border-sky-200"
-                            }`
-                      }`}
-                    />
-                    <div className="absolute right-3 flex items-center gap-1.5">
-                      {citySearch && form.state && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
+                    <div className="relative flex items-center mt-1">
+                      <Search className="absolute left-3 text-slate-400 w-4 h-4 pointer-events-none" />
+                      <input
+                        type="text"
+                        placeholder={form.state ? "Search City" : "Select State first"}
+                        value={citySearch}
+                        disabled={!form.state}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setCitySearch(val);
+                          setShowCityDropdown(true);
+                          if (val === "") {
                             setForm({ ...form, city: "" });
-                            setCitySearch("");
-                            setShowCityDropdown(true);
-                          }}
-                          className="text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-100 transition-colors"
-                        >
-                          <X size={14} />
-                        </button>
-                      )}
-                      {loadingCities ? (
-                        <Loader2 className="w-4 h-4 animate-spin text-sky-600 mr-0.5" />
-                      ) : (
-                        <button
-                          type="button"
-                          disabled={!form.state}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowCityDropdown(!showCityDropdown);
-                          }}
-                          className="text-slate-400 hover:text-slate-600 p-0.5 transition-transform disabled:opacity-50"
-                        >
-                          <ChevronDown
-                            className={`w-4 h-4 transition-transform duration-200 ${
-                              showCityDropdown ? "rotate-180" : ""
-                            }`}
-                          />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {showCityDropdown && (
-                    <div className="absolute z-50 w-full bg-white border border-sky-200 rounded-lg mt-1 max-h-40 overflow-y-auto shadow-lg">
-                      {loadingCities ? (
-                        <div className="p-2 text-center text-gray-400 text-sm flex items-center justify-center gap-2">
-                          <Loader2 className="animate-spin text-sky-600 w-4 h-4" />
-                          Loading cities...
-                        </div>
-                      ) : filteredCities.length === 0 ? (
-                        <div className="p-2 text-gray-400 text-sm italic">
-                          {!form.state ? "Please select a state first" : "No results found"}
-                        </div>
-                      ) : (
-                        filteredCities.map((c) => (
-                          <div
-                            key={c.id}
-                            onClick={() => {
-                              setForm({ ...form, city: c.city_name });
-                              setCitySearch(c.city_name);
-                              setShowCityDropdown(false);
-                              // Auto-fetch pincode if country is India
-                              if (form.country === "India") {
-                                fetchPincodeByCity(c.city_name);
-                              }
+                          }
+                        }}
+                        onFocus={() => setShowCityDropdown(true)}
+                        className={`w-full p-2 pl-9 pr-14 rounded-lg outline-none transition-all text-sm ${!form.state
+                            ? "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
+                            : `bg-white border focus:ring-2 focus:ring-sky-500 ${fieldErrors.city ? "border-red-500" : "border-sky-200"
+                            }`
+                          }`}
+                      />
+                      <div className="absolute right-3 flex items-center gap-1.5">
+                        {citySearch && form.state && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setForm({ ...form, city: "" });
+                              setCitySearch("");
+                              setShowCityDropdown(true);
                             }}
-                            className={`p-2 cursor-pointer transition-colors text-sm ${
-                              form.city === c.city_name
-                                ? "bg-sky-600 text-white"
-                                : "hover:bg-sky-100 text-slate-700"
-                            }`}
+                            className="text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-100 transition-colors"
                           >
-                            {c.city_name}
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {/* PIN CODE */}
-                <div className="mt-3">
-                  <label className="text-xs font-medium text-slate-700">
-                    Pin Code <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="pin_code"
-                    value={form.pin_code}
-                    placeholder="Enter 6-digit pin code"
-                    maxLength={6}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, "");
-                      setForm({ ...form, pin_code: val });
-                      if (fieldErrors.pin_code) {
-                        setFieldErrors((prev) => ({ ...prev, pin_code: "" }));
-                      }
-                    }}
-                    className={`w-full mt-1 p-2 rounded-lg bg-white border focus:ring-2 focus:ring-sky-500 text-sm ${fieldErrors.pin_code ? "border-red-500" : "border-sky-200"
-                      }`}
-                  />
-                  {fieldErrors.pin_code && (
-                    <p className="text-red-500 text-[10px] mt-1">
-                      {fieldErrors.pin_code}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* DOCUMENTS DETAILS */}
-              <div className="md:col-span-2 bg-sky-50 px-6 py-4 rounded-xl border border-sky-100 shadow-sm w-full space-y-3">
-                <h3 className="text-sm font-semibold text-sky-700 flex items-center gap-2">
-                  <span className="w-1.5 h-4 bg-sky-600 rounded-full"></span>
-                  Documents Details (Optional)
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {documents.map((doc, index) => (
-                    <div
-                      key={index}
-                      className="space-y-3 p-4 border border-sky-200 rounded-xl bg-white shadow-sm relative group"
-                    >
-                      {documents.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeDocument(index)}
-                          className="absolute top-2 right-2 text-red-400 hover:text-red-600 transition p-1 bg-red-50 rounded-full opacity-0 group-hover:opacity-100"
-                          title="Remove Document"
-                        >
-                          <X size={14} />
-                        </button>
-                      )}
-                      <div>
-                        <label className="block text-xs font-bold text-sky-600 mb-1 tracking-wider">
-                          Document Type
-                        </label>
-                        <select
-                          name="document_type"
-                          value={doc.document_type}
-                          onChange={(e) => handleDocChange(e, index)}
-                          className="w-full border border-sky-100 p-2 rounded bg-sky-50 text-xs focus:ring-2 focus:ring-sky-500 outline-none"
-                        >
-                          <option value="">Select Document Type</option>
-                          <option>PAN</option>
-                          <option>Aadhar</option>
-                          <option>GST</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-sky-600 mb-1 tracking-wider">
-                          Document Number
-                        </label>
-                        <input
-                          name="document_number"
-                          value={doc.document_number}
-                          placeholder="Enter Document Number"
-                          onChange={(e) => handleDocChange(e, index)}
-                          className="w-full border border-sky-100 p-2 rounded bg-sky-50 text-xs focus:ring-2 focus:ring-sky-500 outline-none"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-sky-600 mb-1 tracking-wider font-semibold">
-                          Upload Document
-                        </label>
-                        {!doc.preview ? (
-                          <input
-                            type="file"
-                            onChange={(e) => handleDocument(e, index)}
-                            accept="image/*,.pdf"
-                            className="w-full text-xs text-sky-500 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 transition cursor-pointer"
-                          />
+                            <X size={14} />
+                          </button>
+                        )}
+                        {loadingCities ? (
+                          <Loader2 className="w-4 h-4 animate-spin text-sky-600 mr-0.5" />
                         ) : (
-                          <div
-                            className="relative group/preview cursor-zoom-in mt-1"
-                            onClick={() => setFullPreview(doc.preview)}
+                          <button
+                            type="button"
+                            disabled={!form.state}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowCityDropdown(!showCityDropdown);
+                            }}
+                            className="text-slate-400 hover:text-slate-600 p-0.5 transition-transform disabled:opacity-50"
                           >
-                            {isPDF(doc.preview) ? (
-                              <div className="w-full h-20 rounded-lg border border-sky-200 bg-sky-50 flex flex-col items-center justify-center text-sky-600">
-                                <FileText size={24} />
-                                <span className="text-[10px] font-bold mt-1">PDF Document</span>
-                              </div>
-                            ) : (
-                              <img
-                                src={doc.preview}
-                                alt="Doc Preview"
-                                className="w-full h-20 object-cover rounded-lg border border-sky-200 shadow-sm"
-                              />
-                            )}
-                            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/preview:opacity-100 transition rounded-lg flex items-center justify-center">
-                              <Eye size={16} className="text-white" />
-                            </div>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRemoveDocFile(index);
-                              }}
-                              className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full shadow-lg hover:bg-red-600 transition-colors"
-                              title="Remove File"
-                            >
-                              <X size={10} />
-                            </button>
-                          </div>
+                            <ChevronDown
+                              className={`w-4 h-4 transition-transform duration-200 ${showCityDropdown ? "rotate-180" : ""
+                                }`}
+                            />
+                          </button>
                         )}
                       </div>
                     </div>
-                  ))}
-                </div>
 
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={addDocument}
-                    className="border border-sky-500 text-sky-600 px-4 py-2 rounded-lg hover:bg-sky-600 hover:text-white transition text-xs font-semibold shadow-sm"
-                  >
-                    + Add Another Document
-                  </button>
+                    {showCityDropdown && (
+                      <div className="absolute z-50 w-full bg-white border border-sky-200 rounded-lg mt-1 max-h-40 overflow-y-auto shadow-lg">
+                        {loadingCities ? (
+                          <div className="p-2 text-center text-gray-400 text-sm flex items-center justify-center gap-2">
+                            <Loader2 className="animate-spin text-sky-600 w-4 h-4" />
+                            Loading cities...
+                          </div>
+                        ) : filteredCities.length === 0 ? (
+                          <div className="p-2 text-gray-400 text-sm italic">
+                            {!form.state ? "Please select a state first" : "No results found"}
+                          </div>
+                        ) : (
+                          filteredCities.map((c) => (
+                            <div
+                              key={c.id}
+                              onClick={() => {
+                                setForm({ ...form, city: c.city_name });
+                                setCitySearch(c.city_name);
+                                setShowCityDropdown(false);
+                                // Auto-fetch pincode if country is India
+                                if (form.country === "India") {
+                                  fetchPincodeByCity(c.city_name);
+                                }
+                              }}
+                              className={`p-2 cursor-pointer transition-colors text-sm ${form.city === c.city_name
+                                  ? "bg-sky-600 text-white"
+                                  : "hover:bg-sky-100 text-slate-700"
+                                }`}
+                            >
+                              {c.city_name}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* PIN CODE */}
+                  <div>
+                    <label className="text-xs font-medium text-slate-700">
+                      Pin Code <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="pin_code"
+                      value={form.pin_code}
+                      placeholder="Enter 6-digit pin code"
+                      maxLength={6}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "");
+                        setForm({ ...form, pin_code: val });
+                        if (fieldErrors.pin_code) {
+                          setFieldErrors((prev) => ({ ...prev, pin_code: "" }));
+                        }
+                      }}
+                      className={`w-full mt-1 p-2 rounded-lg bg-white border focus:ring-2 focus:ring-sky-500 text-sm outline-none transition ${fieldErrors.pin_code ? "border-red-500" : "border-sky-200"
+                        }`}
+                    />
+                    {fieldErrors.pin_code && (
+                      <p className="text-red-500 text-[10px] mt-1">
+                        {fieldErrors.pin_code}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* STATUS */}
+                  <div>
+                    <label className="text-xs font-medium text-slate-700">
+                      Status <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      name="status"
+                      value="Active"
+                      disabled
+                      className="w-full mt-1 p-2 rounded-lg bg-slate-100 border border-slate-200 focus:outline-none text-sm text-slate-500 cursor-not-allowed"
+                    >
+                      <option value="Active">Active</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* COLUMN 2: LOCATION DETAILS */}
+              <div className="flex flex-col h-full bg-sky-50 rounded-xl border border-sky-100 shadow-sm overflow-hidden">
+                <div className="px-6 py-4 border-b border-sky-100/50 bg-sky-50/50 shrink-0">
+                  <h3 className="text-sm font-semibold text-sky-700 flex items-center gap-2">
+                    <span className="w-1.5 h-4 bg-sky-600 rounded-full"></span>
+                    Location Details
+                  </h3>
+                </div>
+                <div className="flex-1 p-6 space-y-4 overflow-hidden">
+                  {/* LATITUDE & LONGITUDE */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-medium text-slate-700">
+                        Latitude <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Latitude"
+                        value="Latitude"
+                        disabled
+                        className="w-full mt-1 p-2 rounded-lg bg-slate-100 border border-slate-200 focus:outline-none text-sm text-slate-500 cursor-not-allowed"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-slate-700">
+                        Longitude <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Longitude"
+                        value="Longitude"
+                        disabled
+                        className="w-full mt-1 p-2 rounded-lg bg-slate-100 border border-slate-200 focus:outline-none text-sm text-slate-500 cursor-not-allowed"
+                      />
+                    </div>
+                  </div>
+
+                  {/* LOCATION TEXTAREA */}
+                  <div>
+                    <label className="text-xs font-medium text-slate-700">
+                      Location
+                    </label>
+                    <textarea
+                      placeholder="Location"
+                      value=""
+                      disabled
+                      className="w-full mt-1 p-2 rounded-lg bg-slate-100 border border-slate-200 text-sm text-slate-500 cursor-not-allowed resize-none h-44"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* COLUMN 3: DOCUMENTS DETAILS */}
+              <div className="flex flex-col h-full bg-sky-50 rounded-xl border border-sky-100 shadow-sm overflow-hidden">
+                <div className="px-6 py-4 border-b border-sky-100/50 bg-sky-50/50 shrink-0">
+                  <h3 className="text-sm font-semibold text-sky-700 flex items-center gap-2">
+                    <span className="w-1.5 h-4 bg-sky-600 rounded-full"></span>
+                    Documents Details (Optional)
+                  </h3>
+                </div>
+                <div className="flex-1 p-6 space-y-4 overflow-hidden">
+                  <div className="space-y-4">
+                    {documents.map((doc, index) => (
+                      <div
+                        key={index}
+                        className="space-y-3 p-4 border border-sky-200 rounded-xl bg-white shadow-sm relative group"
+                      >
+                        {documents.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeDocument(index)}
+                            className="absolute top-2 right-2 text-red-400 hover:text-red-600 transition p-1 bg-red-50 rounded-full opacity-0 group-hover:opacity-100 shadow"
+                            title="Remove Document"
+                          >
+                            <X size={14} />
+                          </button>
+                        )}
+                        <div>
+                          <label className="block text-xs font-bold text-sky-600 mb-1 tracking-wider">
+                            Document Type
+                          </label>
+                          <select
+                            name="document_type"
+                            value={doc.document_type}
+                            onChange={(e) => handleDocChange(e, index)}
+                            className="w-full border border-sky-100 p-2 rounded bg-sky-50 text-xs focus:ring-2 focus:ring-sky-500 outline-none"
+                          >
+                            <option value="">Select Document Type</option>
+                            <option>PAN</option>
+                            <option>Aadhar</option>
+                            <option>GST</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-sky-600 mb-1 tracking-wider">
+                            Document Number
+                          </label>
+                          <input
+                            name="document_number"
+                            value={doc.document_number}
+                            placeholder="Enter Document Number"
+                            onChange={(e) => handleDocChange(e, index)}
+                            className="w-full border border-sky-100 p-2 rounded bg-sky-50 text-xs focus:ring-2 focus:ring-sky-500 outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-sky-600 mb-1 tracking-wider font-semibold">
+                            Upload Document
+                          </label>
+                          {!doc.preview ? (
+                            <input
+                              type="file"
+                              onChange={(e) => handleDocument(e, index)}
+                              accept="image/*,.pdf"
+                              className="w-full text-xs text-sky-500 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 transition cursor-pointer"
+                            />
+                          ) : (
+                            <div
+                              className="relative group/preview cursor-zoom-in mt-1"
+                              onClick={() => setFullPreview(doc.preview)}
+                            >
+                              {isPDF(doc.preview) ? (
+                                <div className="w-full h-20 rounded-lg border border-sky-200 bg-sky-50 flex flex-col items-center justify-center text-sky-600">
+                                  <FileText size={24} />
+                                  <span className="text-[10px] font-bold mt-1">PDF Document</span>
+                                </div>
+                              ) : (
+                                <img
+                                  src={doc.preview}
+                                  alt="Doc Preview"
+                                  className="w-full h-20 object-cover rounded-lg border border-sky-200 shadow-sm"
+                                />
+                              )}
+                              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/preview:opacity-100 transition rounded-lg flex items-center justify-center">
+                                <Eye size={16} className="text-white" />
+                              </div>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRemoveDocFile(index);
+                                }}
+                                className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full shadow-lg hover:bg-red-600 transition-colors"
+                                title="Remove File"
+                              >
+                                <X size={10} />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={addDocument}
+                      className="w-full border border-sky-500 text-sky-600 px-4 py-2 rounded-lg hover:bg-sky-600 hover:text-white transition text-xs font-semibold shadow-sm"
+                    >
+                      + Add Another Document
+                    </button>
+                  </div>
                 </div>
               </div>
             </form>
@@ -1511,6 +1575,7 @@ export const Venuepage = () => {
                   src={viewData.venue.venue_image}
                   className="w-full h-64 object-cover rounded-lg mt-2 shadow-sm border border-white"
                 />
+                
               </div>
 
               {/* Venue Name */}

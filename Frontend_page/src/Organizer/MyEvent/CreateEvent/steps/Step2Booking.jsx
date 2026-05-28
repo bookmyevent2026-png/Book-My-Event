@@ -4,14 +4,15 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Calendar, X } from "lucide-react";
 import CustomTimePicker from "../TimePickerClock";
 
-const EarlyBirdCustomInput = React.forwardRef(({ value, onClick, placeholder }, ref) => (
-  <div 
-    onClick={onClick} 
+const EarlyBirdDateCustomInput = React.forwardRef(({ value, onClick, placeholder, hasError }, ref) => (
+  <div
+    onClick={onClick}
     ref={ref}
-    className="w-full bg-white border border-gray-200 rounded-xl shadow-sm flex items-center justify-between cursor-pointer overflow-hidden h-14"
+    className={`w-full bg-white border rounded-xl shadow-sm flex items-center justify-between cursor-pointer overflow-hidden h-14 ${hasError ? "border-red-500" : "border-gray-200"
+      }`}
   >
     <span className={`px-4 text-sm font-medium ${value ? 'text-gray-700' : 'text-gray-400'}`}>
-      {value || placeholder || "End Date & Time"}
+      {value || placeholder || "Select Date"}
     </span>
     <div className="h-full w-14 bg-blue-600 flex items-center justify-center text-white flex-shrink-0">
       <Calendar size={20} />
@@ -36,6 +37,46 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
     ? new Date(formData.eventDetails.endDate)
     : eventStartDate;
 
+  const todayLocal = new Date(
+    Date.now() - new Date().getTimezoneOffset() * 60000,
+  )
+    .toISOString()
+    .split("T")[0];
+
+  const earlyBirdMaxDate = formData.booking?.bookingEndDate
+    ? formData.booking.bookingEndDate.split("/").reverse().join("-")
+    : formData.eventDetails?.endDate || "";
+
+  const earlyBirdDateValue = formData.booking?.earlyBirdExpireDate
+    ? formData.booking.earlyBirdExpireDate.split("/").reverse().join("-")
+    : "";
+
+  const handleEarlyBirdDateChange = (e) => {
+    const value = e.target.value; // YYYY-MM-DD
+    if (!value) {
+      setFormData(prev => ({
+        ...prev,
+        booking: {
+          ...prev.booking,
+          earlyBirdExpireDate: "",
+        }
+      }));
+      return;
+    }
+
+    // Convert YYYY-MM-DD to DD/MM/YYYY
+    const parts = value.split("-");
+    const formattedDate = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : "";
+
+    setFormData(prev => ({
+      ...prev,
+      booking: {
+        ...prev.booking,
+        earlyBirdExpireDate: formattedDate
+      }
+    }));
+  };
+
   const handlePriceTypeChange = (type) => {
     setFormData(prev => ({
       ...prev,
@@ -46,57 +87,6 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
       }
     }));
   };
-
-  const handleEarlyBirdChange = (date) => {
-    if (!date) {
-      setFormData(prev => ({
-        ...prev,
-        booking: {
-          ...prev.booking,
-          earlyBirdExpire: "",
-          earlyBirdExpireDate: "",
-          earlyBirdExpireTime: ""
-        }
-      }));
-      return;
-    }
-
-    // Format Date: DD/MM/YYYY
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    const dateStr = `${day}/${month}/${year}`;
-
-    // Format Time: HH:MM AM/PM
-    let hours = date.getHours();
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    const ampm = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12;
-    hours = hours ? hours : 12; // the hour '0' should be '12'
-    const timeStr = `${String(hours).padStart(2, "0")}:${minutes} ${ampm}`;
-
-    // YYYY-MM-DDTHH:MM format for earlyBirdExpire
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    const dd = String(date.getDate()).padStart(2, "0");
-    const hh = String(date.getHours()).padStart(2, "0");
-    const min = String(date.getMinutes()).padStart(2, "0");
-    const combined = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-
-    setFormData(prev => ({
-      ...prev,
-      booking: {
-        ...prev.booking,
-        earlyBirdExpire: combined,
-        earlyBirdExpireDate: dateStr,
-        earlyBirdExpireTime: timeStr
-      }
-    }));
-  };
-
-  const selectedEarlyBird = formData.booking?.earlyBirdExpire && !isNaN(new Date(formData.booking.earlyBirdExpire).getTime())
-    ? new Date(formData.booking.earlyBirdExpire) 
-    : null;
 
   const currencyOptions = [
     "Indian Rupee - INR (₹)",
@@ -182,6 +172,10 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
         updated.companyType = "Editable";
         changed = true;
       }
+      if (updated.chargeType === undefined) {
+        updated.chargeType = "Free";
+        changed = true;
+      }
 
       if (changed) {
         return { ...prev, booking: updated };
@@ -254,10 +248,10 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
   const handleSelectAllTaxes = () => {
     const currentTaxes = formData.booking?.taxes || [];
     const filteredOptions = taxOptions.filter(t => t.toLowerCase().includes(taxSearch.toLowerCase()));
-    
+
     // If all currently visible options are selected, deselect them
     const allVisibleSelected = filteredOptions.every(t => currentTaxes.includes(t));
-    
+
     let newTaxes;
     if (allVisibleSelected) {
       newTaxes = currentTaxes.filter(t => !filteredOptions.includes(t));
@@ -374,12 +368,24 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
           }));
         }
       }
+    } else {
+      if (formData.booking?.earlyBirdExpire) {
+        setFormData(prev => ({
+          ...prev,
+          booking: {
+            ...prev.booking,
+            earlyBirdExpire: ""
+          }
+        }));
+      }
     }
   }, [formData.booking?.earlyBirdExpireDate, formData.booking?.earlyBirdExpireTime]);
   const bookingStartDateError = showStep2Errors && !formData.booking?.bookingStartDate ? "Booking Start Date is required." : "";
   const bookingEndDateError = showStep2Errors && !formData.booking?.bookingEndDate ? "Booking End Date is required." : "";
   const capacityError = showStep2Errors && !formData.booking?.capacity ? "Max Capacity is required." : "";
   const maxPassError = showStep2Errors && !formData.booking?.maxPass ? "Max Passes is required." : "";
+  const earlyBirdExpireDateError = showStep2Errors && !formData.booking?.earlyBirdExpireDate ? "Expiry Date is required." : "";
+  const earlyBirdExpireTimeError = showStep2Errors && !formData.booking?.earlyBirdExpireTime ? "Expiry Time is required." : "";
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 bg-gray-50/50 rounded-2xl">
@@ -395,7 +401,7 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
         {/* Booking Dates */}
         <div className="space-y-4">
           <label className="block text-sm font-semibold text-gray-700 ml-1">
-             When does your Booking Start for the event? <span className="text-red-500">*</span>
+            When does your Booking Start for the event? <span className="text-red-500">*</span>
           </label>
 
           <div className="grid grid-cols-2 gap-4">
@@ -427,9 +433,8 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
                   maxDate={eventMaxDate || undefined}
                   dateFormat="dd/MM/yyyy"
                   placeholderText=" Booking Start Date"
-                  className={`w-full bg-gray-50 border-0 ring-1 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm cursor-pointer ${
-                    bookingStartDateError ? "ring-red-500" : "ring-gray-200"
-                  }`}
+                  className={`w-full bg-gray-50 border-0 ring-1 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm cursor-pointer ${bookingStartDateError ? "ring-red-500" : "ring-gray-200"
+                    }`}
                   wrapperClassName="w-full"
                 />
                 <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400 pointer-events-none" />
@@ -476,9 +481,8 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
                   maxDate={eventMaxDate || undefined}
                   dateFormat="dd/MM/yyyy"
                   placeholderText=" Booking End Date"
-                  className={`w-full bg-gray-50 border-0 ring-1 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm cursor-pointer ${
-                    bookingEndDateError ? "ring-red-500" : "ring-gray-200"
-                  }`}
+                  className={`w-full bg-gray-50 border-0 ring-1 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm cursor-pointer ${bookingEndDateError ? "ring-red-500" : "ring-gray-200"
+                    }`}
                   wrapperClassName="w-full"
                 />
                 <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400 pointer-events-none" />
@@ -492,40 +496,39 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
 
         {/* Capacity */}
         <div className="group mb-6">
-  <h2 className="text-xl font-bold text-gray-800 mb-4">
-    Registration Information
-  </h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-4">
+            Registration Information
+          </h2>
 
-  <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
-    What's the Capacity for Your Event? <span className="text-red-500">*</span>
-  </label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
+            What's the Capacity for Your Event? <span className="text-red-500">*</span>
+          </label>
 
-  <input
-    type="text"
-    name="capacity"
-    placeholder="Max Capacity"
-    inputMode="numeric"
-    maxLength={5}
-    value={formData.booking?.capacity || ""}
-    onChange={(e) => {
-      const value = e.target.value;
-      if (/^\d*$/.test(value)) {
-        handleChange(e);
-      }
-    }}
-    onKeyDown={(e) => {
-      if (["e", "E", "+", "-", "."].includes(e.key)) {
-        e.preventDefault();
-      }
-    }}
-    className={`w-full h-16 bg-gray-50 border-0 ring-1 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none ${
-                capacityError ? "ring-red-500" : "ring-gray-200"
+          <input
+            type="text"
+            name="capacity"
+            placeholder="Max Capacity"
+            inputMode="numeric"
+            maxLength={5}
+            value={formData.booking?.capacity || ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d*$/.test(value)) {
+                handleChange(e);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (["e", "E", "+", "-", "."].includes(e.key)) {
+                e.preventDefault();
+              }
+            }}
+            className={`w-full h-16 bg-gray-50 border-0 ring-1 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none ${capacityError ? "ring-red-500" : "ring-gray-200"
               }`}
-  />
-  {capacityError && (
-    <p className="text-red-500 text-xs mt-1.5 ml-1">{capacityError}</p>
-  )}
-</div>
+          />
+          {capacityError && (
+            <p className="text-red-500 text-xs mt-1.5 ml-1">{capacityError}</p>
+          )}
+        </div>
         {/* Pass Type */}
         <div className="space-y-3">
           <label className="block text-sm font-semibold text-gray-700 ml-1">
@@ -655,7 +658,7 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
         {/* Charge Type */}
         <div className="space-y-3">
           <label className="block text-sm font-semibold text-gray-700 ml-1">
-           How much do You Want to Charge for Passes?  <span className="text-red-500">*</span>
+            How much do You Want to Charge for Passes?  <span className="text-red-500">*</span>
           </label>
           <div className="grid grid-cols-3 gap-2 bg-gray-50 p-1.5 rounded-2xl ring-1 ring-gray-200">
             {["Paid", "Free", "Donation"].map((opt) => (
@@ -706,9 +709,8 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
                   e.preventDefault();
                 }
               }}
-              className={`w-full bg-gray-50 border-0 ring-1 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none ${
-                maxPassError ? "ring-red-500" : "ring-gray-200"
-              }`}
+              className={`w-full bg-gray-50 border-0 ring-1 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none ${maxPassError ? "ring-red-500" : "ring-gray-200"
+                }`}
             />
             {maxPassError && (
               <p className="text-red-500 text-xs mt-1.5 ml-1">{maxPassError}</p>
@@ -753,11 +755,10 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
                     <button
                       type="button"
                       onClick={() => handlePriceTypeChange("National")}
-                      className={`px-8 h-full flex items-center justify-center text-xs font-bold tracking-widest uppercase transition-all border-b-4 ${
-                        formData.booking?.priceType === "National"
-                          ? "text-blue-600 border-blue-600 bg-blue-50/10"
-                          : "text-gray-400 border-transparent hover:text-gray-600 hover:bg-gray-50/50"
-                      }`}
+                      className={`px-8 h-full flex items-center justify-center text-xs font-bold tracking-widest uppercase transition-all border-b-4 ${formData.booking?.priceType === "National"
+                        ? "text-blue-600 border-blue-600 bg-blue-50/10"
+                        : "text-gray-400 border-transparent hover:text-gray-600 hover:bg-gray-50/50"
+                        }`}
                     >
                       NATIONAL
                     </button>
@@ -765,11 +766,10 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
                       <button
                         type="button"
                         onClick={() => handlePriceTypeChange("International")}
-                        className={`px-8 h-full flex items-center justify-center text-xs font-bold tracking-widest uppercase transition-all border-b-4 ${
-                          formData.booking?.priceType === "International"
-                            ? "text-blue-600 border-blue-600 bg-blue-50/10"
-                            : "text-gray-400 border-transparent hover:text-gray-600 hover:bg-gray-50/50"
-                        }`}
+                        className={`px-8 h-full flex items-center justify-center text-xs font-bold tracking-widest uppercase transition-all border-b-4 ${formData.booking?.priceType === "International"
+                          ? "text-blue-600 border-blue-600 bg-blue-50/10"
+                          : "text-gray-400 border-transparent hover:text-gray-600 hover:bg-gray-50/50"
+                          }`}
                       >
                         INTERNATIONAL
                       </button>
@@ -782,7 +782,7 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">
                     Currency <span className="text-red-500">*</span>
                   </label>
-                  <div 
+                  <div
                     className="w-full bg-white border border-gray-200 rounded-xl shadow-sm p-3.5 focus:ring-2 focus:ring-blue-500 outline-none text-sm flex items-center justify-between cursor-pointer h-14"
                     onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
                   >
@@ -797,8 +797,8 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
                       {/* Search header */}
                       <div className="p-3 border-b border-gray-100 flex items-center gap-3 bg-white">
                         <div className="flex-1 flex items-center px-3 py-1.5 border border-gray-200 rounded-lg focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-all bg-white">
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             value={currencySearch}
                             onChange={(e) => setCurrencySearch(e.target.value)}
                             placeholder="Search Currency..."
@@ -813,8 +813,8 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
                       {/* Options */}
                       <div className="max-h-60 overflow-y-auto bg-white custom-scrollbar">
                         {currencyOptions.filter(c => c.toLowerCase().includes(currencySearch.toLowerCase())).map((curr) => (
-                          <div 
-                            key={curr} 
+                          <div
+                            key={curr}
                             className={`px-4 py-2.5 cursor-pointer text-sm font-medium transition-colors hover:bg-indigo-50 
                               ${formData.booking?.currency === curr ? 'bg-indigo-50 text-indigo-900 font-bold' : 'text-gray-700'}`}
                             onClick={() => {
@@ -845,13 +845,13 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">
                       Select Tax <span className="text-red-500">*</span>
                     </label>
-                    <div 
+                    <div
                       className="w-full bg-white border border-gray-200 rounded-xl shadow-sm p-3.5 focus:ring-2 focus:ring-blue-500 outline-none text-sm flex items-center justify-between cursor-pointer h-14"
                       onClick={() => setIsTaxDropdownOpen(!isTaxDropdownOpen)}
                     >
                       <span className="truncate text-gray-700 text-sm font-medium">
-                        {(formData.booking?.taxes || []).length > 0 
-                          ? (formData.booking?.taxes || []).join(", ") 
+                        {(formData.booking?.taxes || []).length > 0
+                          ? (formData.booking?.taxes || []).join(", ")
                           : "Select Tax"}
                       </span>
                       <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isTaxDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
@@ -872,8 +872,8 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
                             className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                           />
                           <div className="flex-1 flex items-center px-3 py-1.5 border border-gray-200 rounded-lg focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-all bg-white">
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               value={taxSearch}
                               onChange={(e) => setTaxSearch(e.target.value)}
                               placeholder="Search Tax..."
@@ -883,13 +883,13 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                           </div>
-                          <button 
+                          <button
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setIsTaxDropdownOpen(false); 
-                              setTaxSearch(''); 
-                            }} 
+                              setIsTaxDropdownOpen(false);
+                              setTaxSearch('');
+                            }}
                             className="text-gray-400 hover:text-gray-600 p-1"
                           >
                             <X size={18} />
@@ -922,28 +922,91 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">
                     When does your Early Bird amount need to Expire for the event? <span className="text-red-500">*</span>
                   </label>
-                  <DatePicker
-                    selected={selectedEarlyBird}
-                    onChange={handleEarlyBirdChange}
-                    showTimeSelect
-                    timeFormat="HH:mm"
-                    timeIntervals={15}
-                    timeCaption="Time"
-                    dateFormat="dd/MM/yyyy h:mm aa"
-                    customInput={<EarlyBirdCustomInput placeholder="End Date & Time" />}
-                    minDate={new Date()}
-                    maxDate={
-                      formData.booking?.bookingEndDate
-                        ? new Date(
-                          formData.booking.bookingEndDate
-                            .split("/")
-                            .reverse()
-                            .join("-"),
-                        )
-                        : eventMaxDate || undefined
-                    }
-                    wrapperClassName="w-full"
-                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* EXPIRE DATE */}
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
+                        Expire Date
+                      </label>
+                      <DatePicker
+                        selected={
+                          formData.booking?.earlyBirdExpireDate
+                            ? new Date(
+                              formData.booking.earlyBirdExpireDate
+                                .split("/")
+                                .reverse()
+                                .join("-"),
+                            )
+                            : null
+                        }
+                        onChange={(date) => {
+                          if (!date) {
+                            setFormData(prev => ({
+                              ...prev,
+                              booking: {
+                                ...prev.booking,
+                                earlyBirdExpireDate: "",
+                              }
+                            }));
+                            return;
+                          }
+                          const day = String(date.getDate()).padStart(2, "0");
+                          const month = String(date.getMonth() + 1).padStart(2, "0");
+                          const year = date.getFullYear();
+                          const dateStr = `${day}/${month}/${year}`;
+                          setFormData(prev => ({
+                            ...prev,
+                            booking: {
+                              ...prev.booking,
+                              earlyBirdExpireDate: dateStr,
+                            }
+                          }));
+                        }}
+                        minDate={new Date()}
+                        maxDate={
+                          formData.booking?.bookingEndDate
+                            ? new Date(
+                              formData.booking.bookingEndDate
+                                .split("/")
+                                .reverse()
+                                .join("-"),
+                            )
+                            : eventMaxDate || undefined
+                        }
+                        dateFormat="dd/MM/yyyy"
+                        customInput={<EarlyBirdDateCustomInput placeholder="Select Date" hasError={!!earlyBirdExpireDateError} />}
+                        wrapperClassName="w-full"
+                      />
+                      {earlyBirdExpireDateError && (
+                        <p className="text-red-500 text-xs mt-1 ml-1">{earlyBirdExpireDateError}</p>
+                      )}
+                    </div>
+
+                    {/* EXPIRE TIME */}
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
+                        Expire Time
+                      </label>
+                      <CustomTimePicker
+                        value={formData.booking?.earlyBirdExpireTime || ""}
+                        isCustomStyle={true}
+                        dropdownPosition="top"
+                        hasError={!!earlyBirdExpireTimeError}
+                        onChange={(value) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            booking: {
+                              ...prev.booking,
+                              earlyBirdExpireTime: value,
+                            },
+                          }))
+                        }
+                      />
+                      {earlyBirdExpireTimeError && (
+                        <p className="text-red-500 text-xs mt-1 ml-1">{earlyBirdExpireTimeError}</p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

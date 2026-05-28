@@ -228,13 +228,14 @@ export const EventCard = ({ event, isFeatured = false, isLiked, onToggleLike, on
 
         {/* Countdown or Closed Time */}
         {new Date() <= new Date(event.bookingEnds) ? (
-          <div className="pt-3 border-t border-slate-700/50">
+          <div className="pt-3 border-t border-slate-700/50 flex flex-col gap-1.5">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Booking closes in</span>
             <CountdownTimer targetDate={event.bookingEnds} />
           </div>
         ) : (
           <div className="pt-3 border-t border-slate-700/50">
             <div className="text-xs font-bold text-red-400 bg-red-500/10 px-3 py-1.5 rounded-lg w-full text-center">
-              Closed on {new Date(event.bookingEnds).toLocaleString("en-US", {
+              Booking Closed on {new Date(event.bookingEnds).toLocaleString("en-US", {
                 month: "short",
                 day: "numeric",
                 year: "numeric",

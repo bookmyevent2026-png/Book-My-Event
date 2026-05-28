@@ -36,7 +36,7 @@ const formatSizeRange = (val, unit, isDeleting) => {
   };
 };
 
-const Step3LayoutStall = ({ formData, setFormData }) => {
+const Step3LayoutStall = ({ formData, setFormData, showStep3Errors }) => {
   // ✅ ALWAYS take from formData (NO local state)
   const stallList = formData.layout?.stalls || [];
   const amenitiesList = formData.layout?.amenities || [];
@@ -147,10 +147,10 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
   const handleSelectAllTaxes = () => {
     const currentTaxes = formData.layout?.taxes || [];
     const filteredOptions = taxOptions.filter(t => t.toLowerCase().includes(taxSearch.toLowerCase()));
-    
+
     // If all currently visible options are selected, deselect them
     const allVisibleSelected = filteredOptions.every(t => currentTaxes.includes(t));
-    
+
     let newTaxes;
     if (allVisibleSelected) {
       newTaxes = currentTaxes.filter(t => !filteredOptions.includes(t));
@@ -645,8 +645,11 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
                     let value = e.target.value.replace(/\D/g, "");
                     handleChange({ target: { name: "personPass", value } });
                   }}
-                  className={inputClasses}
+                  className={`${inputClasses} ${showStep3Errors && !formData.layout?.personPass ? "border-red-500 ring-2 ring-red-100" : ""}`}
                 />
+                {showStep3Errors && !formData.layout?.personPass && (
+                  <p className="text-red-500 text-xs mt-1.5 ml-4">No. of Person Passes Allowed is required</p>
+                )}
               </div>
 
               <div className="space-y-3 pt-3 border-t border-gray-100 sm:col-span-2">
@@ -711,14 +714,14 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
                 {formData.layout?.includeTax && (
                   <div className="px-2 relative animate-in slide-in-from-top-2 duration-300">
                     <label className={labelClasses}>Select Taxes</label>
-                    
-                    <div 
+
+                    <div
                       className="w-full h-[45px] px-6 flex items-center justify-between rounded-full bg-white border border-gray-200 text-gray-800 cursor-pointer hover:border-purple-500 transition-all"
                       onClick={() => setIsTaxDropdownOpen(!isTaxDropdownOpen)}
                     >
                       <span className="text-sm truncate text-gray-600">
-                        {(formData.layout?.taxes || []).length > 0 
-                          ? (formData.layout?.taxes || []).join(", ") 
+                        {(formData.layout?.taxes || []).length > 0
+                          ? (formData.layout?.taxes || []).join(", ")
                           : "Select taxes..."}
                       </span>
                       <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isTaxDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
@@ -739,8 +742,8 @@ const Step3LayoutStall = ({ formData, setFormData }) => {
                             className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                           />
                           <div className="flex-1 flex items-center px-3 py-1.5 border border-blue-400 rounded focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all bg-white">
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               value={taxSearch}
                               onChange={(e) => setTaxSearch(e.target.value)}
                               className="w-full text-sm outline-none bg-transparent text-gray-700"

@@ -644,7 +644,7 @@ export const PolicyPage = () => {
                       ? "border-red-200 bg-red-50 focus:ring-red-100 focus:border-red-400"
                       : "border-slate-100 bg-slate-50 focus:ring-blue-50 focus:border-blue-500"
                       }`}
-                    placeholder="e.g. Early Bird Policy"
+                    placeholder="Enter Policy Name"
                     required
                   />
                   {fieldErrors.policy_name && (
@@ -669,7 +669,7 @@ export const PolicyPage = () => {
                       }`}
                     required
                   >
-                    <option value="">Select Type</option>
+                    <option value="">Select Policy Type</option>
                     <option>Exhibitor</option>
                     <option>Visitor</option>
                     <option>Vendor</option>
@@ -684,7 +684,7 @@ export const PolicyPage = () => {
                 {/* POLICY GROUP */}
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 ml-1">
-                    Policy Group <span className="text-red-500">*</span>
+                    Select  Group <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="policy_group"
@@ -696,7 +696,7 @@ export const PolicyPage = () => {
                       }`}
                     required
                   >
-                    <option value="">Select Group</option>
+                    <option value="">Select Policy Group</option>
                     <option>Cancellation Policy</option>
                     <option>Refund Policy</option>
                     <option>Safety Policy</option>
@@ -715,7 +715,7 @@ export const PolicyPage = () => {
                 {/* STATUS */}
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 ml-1">
-                    Status
+                    Status 
                   </label>
                   <select
                     name="status"
@@ -733,7 +733,7 @@ export const PolicyPage = () => {
               {/* DESCRIPTION */}
               <div className="space-y-2">
                 <label className="text-sm font-bold text-slate-700 ml-1">
-                  Policy Description
+                  Description
                 </label>
 
                 <div className="border-2 border-slate-100 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-50 rounded-2xl overflow-hidden bg-slate-50 transition-all shadow-sm">
