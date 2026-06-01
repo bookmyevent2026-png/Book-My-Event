@@ -2,9 +2,9 @@ import React from "react";
 import { ExternalLink } from "lucide-react";
 
 const OrganizerDetailCard = ({ organizerData }) => {
-  const companyName = (organizerData?.company_name && organizerData.company_name !== "None") 
-    ? organizerData.company_name 
-    : (organizerData?.name || "None");
+  const hasCompany = organizerData?.company_name && organizerData.company_name !== "None";
+  const companyName = hasCompany ? organizerData.company_name : null;
+  const organizerName = organizerData?.name || "None";
   const address = organizerData?.address || "None";
   const email = organizerData?.email || "None";
   const phone = organizerData?.phone || "None";
@@ -16,8 +16,12 @@ const OrganizerDetailCard = ({ organizerData }) => {
       </div>
       <div className="p-6 space-y-4">
         <div className="flex items-start gap-4">
-          <p className="text-[10px] font-bold text-slate-900 w-20 flex-shrink-0">Company Name</p>
-          <p className="text-[10px] text-slate-500 font-medium">: {companyName}</p>
+          <p className="text-[10px] font-bold text-slate-900 w-20 flex-shrink-0">
+            {hasCompany ? "Company Name" : "Organizer Name"}
+          </p>
+          <p className="text-[10px] text-slate-500 font-medium">
+            : {hasCompany ? companyName : organizerName}
+          </p>
         </div>
         <div className="flex items-start gap-4">
           <p className="text-[10px] font-bold text-slate-900 w-20 flex-shrink-0">Address</p>

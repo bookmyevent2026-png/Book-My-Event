@@ -199,12 +199,12 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
         let updated = false;
         const newBooking = { ...(prev.booking || {}) };
 
-        if (expectedStart && (!bookingStart || prev.booking?._lastEventStart !== eventStart)) {
+        if (expectedStart && (!bookingStart || (prev.booking?._lastEventStart !== undefined && prev.booking?._lastEventStart !== eventStart))) {
           newBooking.bookingStartDate = expectedStart;
           newBooking._lastEventStart = eventStart;
           updated = true;
         }
-        if (expectedEnd && (!bookingEnd || prev.booking?._lastEventEnd !== eventEnd)) {
+        if (expectedEnd && (!bookingEnd || (prev.booking?._lastEventEnd !== undefined && prev.booking?._lastEventEnd !== eventEnd))) {
           newBooking.bookingEndDate = expectedEnd;
           newBooking._lastEventEnd = eventEnd;
           updated = true;

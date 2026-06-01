@@ -134,27 +134,35 @@ export default function AllEvents() {
         return;
       }
 
-      const formatted = data.map((e) => ({
-        id: e.id,
-        title: e.event_name,
-        category: e.category || "General",
-        price: e.entry_type === "Free" ? 0 : (e.pass_fee || 0),
-        currency: e.currency || "₹",
-        location: e.venue,
-        fullLocation: `${e.venue}, ${e.address}`,
-        date: e.start_date,
-        endDate: e.end_date,
-        time: e.start_time,
-        image: e.banner_url || "https://via.placeholder.com/400",
-        banner_type: e.banner_type,
-        rating: 4.5,
-        reviews: 0,
-        attendees: e.capacity || 0,
-        organizer: "Admin",
-        tags: [],
-        bookingEnds: e.end_date || e.start_date + "T23:59:59",
-        trending: (e.capacity || 0) > 100,
-      }));
+      const formatted = data.map((e) => {
+        const entryType = e.entry_type || "";
+        const passFee = e.pass_fee;
+        // Determine display type: Donation if entry_type is Donation OR pass_fee is string 'Donation'
+        const isDonation = entryType === "Donation" || String(passFee).toLowerCase() === "donation";
+        const isFree = entryType === "Free" || (!isDonation && (!passFee || Number(passFee) === 0));
+        return {
+          id: e.id,
+          title: e.event_name,
+          category: e.category || "General",
+          entry_type: isDonation ? "Donation" : isFree ? "Free" : "Paid",
+          price: isDonation || isFree ? 0 : (Number(passFee) || 0),
+          currency: e.currency || "₹",
+          location: e.venue,
+          fullLocation: `${e.venue}, ${e.address}`,
+          date: e.start_date,
+          endDate: e.end_date,
+          time: e.start_time,
+          image: e.banner_url || "https://via.placeholder.com/400",
+          banner_type: e.banner_type,
+          rating: 4.5,
+          reviews: 0,
+          attendees: e.capacity || 0,
+          organizer: "Admin",
+          tags: [],
+          bookingEnds: e.end_date || e.start_date + "T23:59:59",
+          trending: (e.capacity || 0) > 100,
+        };
+      });
 
       // Sort: open first, then chronological
       const sorted = [...formatted].sort((a, b) => {

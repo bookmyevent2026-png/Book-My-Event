@@ -66,7 +66,9 @@ export const EventCard = ({ event, isFeatured = false, isLiked, onToggleLike, on
   };
 
   const priceDisplay =
-    event.price === 0 ? "Free" : `${event.currency}${event.price}`;
+    event.entry_type === "Donation" ? "Donation" :
+    event.entry_type === "Free" || event.price === 0 ? "Free" :
+    `${event.currency}${event.price}`;
 
   if (isFeatured) {
     return (

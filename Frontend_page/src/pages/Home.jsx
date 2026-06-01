@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Search,
   MapPin,
@@ -322,7 +322,25 @@ const HomeSearchWidget = ({ events }) => {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
+  const [categoryDisplay, setCategoryDisplay] = useState("");
   const [location, setLocation] = useState("");
+
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [categorySearch, setCategorySearch] = useState("");
+  const [isLocationOpen, setIsLocationOpen] = useState(false);
+  const [locationSearch, setLocationSearch] = useState("");
+
+  const categoryRef = useRef(null);
+  const locationRef = useRef(null);
+
+  const categoriesList = [
+    { name: "CONFERENCE", filter: "Business" },
+    { name: "ENTERTAINMENT", filter: "Music" },
+    { name: "CORPORATE", filter: "Business" },
+    { name: "EXPO", filter: "Technology" },
+    { name: "EDUCATION", filter: "Education" },
+    { name: "SPORTS", filter: "Sports" },
+  ];
 
   const uniqueLocations = Array.from(
     new Set(
@@ -331,6 +349,19 @@ const HomeSearchWidget = ({ events }) => {
         .filter(Boolean)
     )
   ).sort();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (categoryRef.current && !categoryRef.current.contains(event.target)) {
+        setIsCategoryOpen(false);
+      }
+      if (locationRef.current && !locationRef.current.contains(event.target)) {
+        setIsLocationOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSearch = () => {
     navigate("/all-events", {
@@ -341,6 +372,14 @@ const HomeSearchWidget = ({ events }) => {
       },
     });
   };
+
+  const filteredCategories = categoriesList.filter((cat) =>
+    cat.name.toLowerCase().includes(categorySearch.toLowerCase())
+  );
+
+  const filteredLocations = uniqueLocations.filter((loc) =>
+    loc.toLowerCase().includes(locationSearch.toLowerCase())
+  );
 
   return (
     <div className="relative z-20 mt-4 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -357,39 +396,122 @@ const HomeSearchWidget = ({ events }) => {
           />
         </div>
 
-        {/* Category Selector */}
-        <div className="w-full md:w-52 flex items-center gap-2 px-5 py-2 border-b md:border-b-0 md:border-r border-gray-200 relative">
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full bg-transparent text-slate-800 placeholder-slate-400 outline-none text-sm font-medium appearance-none cursor-pointer pr-8"
+        {/* Category Selector with Search Dropdown */}
+        <div ref={categoryRef} className="w-full md:w-52 flex flex-col justify-center border-b md:border-b-0 md:border-r border-gray-200 relative">
+          <div
+            onClick={() => {
+              setIsCategoryOpen(!isCategoryOpen);
+              setIsLocationOpen(false);
+            }}
+            className="w-full flex items-center justify-between px-5 py-3 cursor-pointer text-slate-800 text-sm font-medium select-none"
           >
-            <option value="" className="text-slate-400 text-center">Category</option>
-            <option value="Music" className="text-slate-800 text-center">Music</option>
-            <option value="Business" className="text-slate-800 text-center">Business</option>
-            <option value="Technology" className="text-slate-800 text-center">Technology</option>
-            <option value="Education" className="text-slate-800 text-center">Education</option>
-            <option value="Sports" className="text-slate-800 text-center">Sports</option>
-          </select>
-          <ChevronDown className="w-4 h-4 text-slate-400 absolute right-5 pointer-events-none" />
+            <span className={categoryDisplay ? "text-slate-800" : "text-slate-400"}>
+              {categoryDisplay || "Category"}
+            </span>
+            <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
+          </div>
+
+          {isCategoryOpen && (
+            <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 p-3.5 animate-fadeIn">
+              {/* Search Box inside dropdown */}
+              <div className="relative mb-3 flex items-center bg-white rounded-md border border-sky-500/80 px-2.5 py-1">
+                <input
+                  type="text"
+                  placeholder="Search Category"
+                  value={categorySearch}
+                  onChange={(e) => setCategorySearch(e.target.value)}
+                  className="w-full bg-transparent text-slate-800 placeholder-slate-400 outline-none text-xs font-semibold pr-6 h-8"
+                  autoFocus
+                />
+                <Search className="w-4 h-4 text-slate-400 absolute right-2.5 pointer-events-none" />
+              </div>
+
+              {/* List */}
+              <div className="max-h-52 overflow-y-auto no-scrollbar space-y-0.5">
+                {filteredCategories.map((cat) => (
+                  <div
+                    key={cat.name}
+                    onClick={() => {
+                      setCategory(cat.filter);
+                      setCategoryDisplay(cat.name);
+                      setIsCategoryOpen(false);
+                      setCategorySearch("");
+                    }}
+                    className={`px-3 py-2 text-xs font-bold rounded-md cursor-pointer transition-all uppercase tracking-wider text-slate-500 hover:bg-slate-100 hover:text-slate-850 ${
+                      categoryDisplay === cat.name ? "bg-slate-100 text-slate-900" : ""
+                    }`}
+                  >
+                    {cat.name}
+                  </div>
+                ))}
+                {filteredCategories.length === 0 && (
+                  <div className="px-3 py-2 text-xs text-slate-400 font-semibold text-center">
+                    No categories found
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Location Selector */}
-        <div className="w-full md:w-52 flex items-center gap-2 px-5 py-2 relative">
-          <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
-          <select
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            className="w-full bg-transparent text-slate-800 placeholder-slate-400 outline-none text-sm font-medium appearance-none cursor-pointer pr-8"
+        {/* Location Selector with Search Dropdown */}
+        <div ref={locationRef} className="w-full md:w-52 flex flex-col justify-center relative">
+          <div
+            onClick={() => {
+              setIsLocationOpen(!isLocationOpen);
+              setIsCategoryOpen(false);
+            }}
+            className="w-full flex items-center justify-between px-5 py-3 cursor-pointer text-slate-800 text-sm font-medium select-none"
           >
-            <option value="" className="text-slate-400 text-center">Location</option>
-            {uniqueLocations.map((loc) => (
-              <option key={loc} value={loc} className="text-slate-800 text-center">
-                {loc}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="w-4 h-4 text-slate-400 absolute right-5 pointer-events-none" />
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
+              <span className={location ? "text-slate-800" : "text-slate-400"}>
+                {location || "Location"}
+              </span>
+            </div>
+            <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
+          </div>
+
+          {isLocationOpen && (
+            <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 p-3.5 animate-fadeIn">
+              {/* Search Box inside dropdown */}
+              <div className="relative mb-3 flex items-center bg-white rounded-md border border-sky-500/80 px-2.5 py-1">
+                <input
+                  type="text"
+                  placeholder="Search Location"
+                  value={locationSearch}
+                  onChange={(e) => setLocationSearch(e.target.value)}
+                  className="w-full bg-transparent text-slate-800 placeholder-slate-400 outline-none text-xs font-semibold pr-6 h-8"
+                  autoFocus
+                />
+                <Search className="w-4 h-4 text-slate-400 absolute right-2.5 pointer-events-none" />
+              </div>
+
+              {/* List */}
+              <div className="max-h-52 overflow-y-auto no-scrollbar space-y-0.5">
+                {filteredLocations.map((loc) => (
+                  <div
+                    key={loc}
+                    onClick={() => {
+                      setLocation(loc);
+                      setIsLocationOpen(false);
+                      setLocationSearch("");
+                    }}
+                    className={`px-3 py-2 text-xs font-bold rounded-md cursor-pointer transition-all uppercase tracking-wider text-slate-500 hover:bg-slate-100 hover:text-slate-850 ${
+                      location === loc ? "bg-slate-100 text-slate-900" : ""
+                    }`}
+                  >
+                    {loc}
+                  </div>
+                ))}
+                {filteredLocations.length === 0 && (
+                  <div className="px-3 py-2 text-xs text-slate-400 font-semibold text-center">
+                    No locations found
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Search Button */}
@@ -659,7 +781,7 @@ const Footer = () => {
                   { name: "Facebook", icon: Facebook, url: "https://www.facebook.com/login", color: "hover:bg-blue-600" },
                   { name: "Instagram", icon: Instagram, url: "https://www.instagram.com/accounts/login/", color: "hover:bg-pink-600" },
                   { name: "Twitter", icon: Twitter, url: "https://twitter.com/login", color: "hover:bg-sky-500" },
-                  { name: "LinkedIn", icon: Linkedin, url: "https://www.instagram.com/accounts/login/", color: "hover:bg-blue-700" },
+                  { name: "LinkedIn", icon: Linkedin, url: "https://www.linkedin.com/login", color: "hover:bg-blue-700" },
                   { name: "YouTube", icon: Youtube, url: "https://accounts.google.com/signin/v2/identifier?service=youtube", color: "hover:bg-red-600" }
                 ].map((social) => {
                   const Icon = social.icon;
@@ -782,29 +904,36 @@ const App = () => {
     }
     console.log("Raw event data:", data);
 
-    const formatted = data.map((e) => ({
-      id: e.id,
-      title: e.event_name,
-      category: e.category || "General",
-      price: e.entry_type === "Free" ? 0 : (e.pass_fee || 0),
-      currency: e.currency || "₹",
-      location: e.venue,
-      fullLocation: `${e.venue}, ${e.address}`,
-      date: e.start_date,
-      endDate: e.end_date,
-      time: e.start_time,
-      image: e.banner_url || "https://via.placeholder.com/400",
-      banner_type: e.banner_type,
-      rating: 4.5,
-      reviews: 0,
-      attendees: e.capacity || 0,
-      organizer: "Admin",
-      tags: [],
-      bookingEnds: e.end_date || e.start_date + "T23:59:59",
+    const formatted = data.map((e) => {
+      const entryType = e.entry_type || "";
+      const passFee = e.pass_fee;
+      const isDonation = entryType === "Donation" || String(passFee).toLowerCase() === "donation";
+      const isFree = entryType === "Free" || (!isDonation && (!passFee || Number(passFee) === 0));
+      return {
+        id: e.id,
+        title: e.event_name,
+        category: e.category || "General",
+        entry_type: isDonation ? "Donation" : isFree ? "Free" : "Paid",
+        price: isDonation || isFree ? 0 : (Number(passFee) || 0),
+        currency: e.currency || "₹",
+        location: e.venue,
+        fullLocation: `${e.venue}, ${e.address}`,
+        date: e.start_date,
+        endDate: e.end_date,
+        time: e.start_time,
+        image: e.banner_url || "https://via.placeholder.com/400",
+        banner_type: e.banner_type,
+        rating: 4.5,
+        reviews: 0,
+        attendees: e.capacity || 0,
+        organizer: "Admin",
+        tags: [],
+        bookingEnds: e.end_date || e.start_date + "T23:59:59",
 
-      // 🔥 IMPORTANT (so featured works)
-      trending: (e.capacity || 0) > 100,
-    }));
+        // 🔥 IMPORTANT (so featured works)
+        trending: (e.capacity || 0) > 100,
+      };
+    });
 
     setEvents(formatted);
   };

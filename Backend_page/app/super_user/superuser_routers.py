@@ -81,8 +81,6 @@ def get_events():
                 e.end_date,
                 e.end_time,
                 e.venue,
-                
-                 
                 e.address,
                 e.created_by,
                 b.capacity,

@@ -49,6 +49,10 @@ const convert12to24 = (time12h) => {
   return `${String(h).padStart(2, "0")}:${minutes.slice(0, 2)}:00`;
 };
 
+const getBool = (val) => {
+  return val === 1 || val === true || val === "true" || val === "1" || val === "True";
+};
+
 const CreateEvent = ({ onBack, editData, isView }) => {
   const [step, setStep] = useState(1);
   const [step1Touched, setStep1Touched] = useState(false);
@@ -85,24 +89,24 @@ const CreateEvent = ({ onBack, editData, isView }) => {
         description: editData.details.description,
         amenities: editData.details.amenities || "",
         tags: editData.details.tags || "",
-        includeProgram: editData.details.include_program === "True" ? "Yes" : "No",
+        includeProgram: (editData.details.include_program === "True" || editData.details.include_program === "Yes") ? "Yes" : "No",
         visibility: editData.details.visibility || "Public",
-        mail: editData.details.mail === 1 || editData.details.mail === true,
-        whatsapp: editData.details.whatsapp === 1 || editData.details.whatsapp === true,
-        print: editData.details.print === 1 || editData.details.print === true,
-        visitorMail: editData.details.visitor_mail === 1 || editData.details.visitor_mail === true,
-        visitorName: editData.details.visitor_name === 1 || editData.details.visitor_name === true,
-        visitorPhoto: editData.details.visitor_photo === 1 || editData.details.visitor_photo === true,
-        visitorMobile: editData.details.visitor_mobile === 1 || editData.details.visitor_mobile === true,
-        documentProof: editData.details.document_proof === 1 || editData.details.document_proof === true,
-        dayPass: editData.details.day_pass === 1 || editData.details.day_pass === true,
-        isInternationalInclude: editData.details.is_international_include === 1 || editData.details.is_international_include === true,
-        aadhar: editData.details.aadhar === 1 || editData.details.aadhar === true,
-        passport: editData.details.passport === 1 || editData.details.passport === true,
-        welcomeKit: editData.details.welcome_kit === 1 || editData.details.welcome_kit === true,
-        food: editData.details.food === 1 || editData.details.food === true,
-        vehiclePass: editData.details.vehicle_pass === 1 || editData.details.vehicle_pass === true,
-        vehicleNumber: editData.details.vehicle_number === 1 || editData.details.vehicle_number === true,
+        mail: getBool(editData.details.mail),
+        whatsapp: getBool(editData.details.whatsapp),
+        print: getBool(editData.details.print),
+        visitorMail: getBool(editData.details.visitor_mail),
+        visitorName: getBool(editData.details.visitor_name),
+        visitorPhoto: getBool(editData.details.visitor_photo),
+        visitorMobile: getBool(editData.details.visitor_mobile),
+        documentProof: getBool(editData.details.document_proof),
+        dayPass: getBool(editData.details.day_pass),
+        isInternationalInclude: getBool(editData.details.is_international_include),
+        aadhar: getBool(editData.details.aadhar),
+        passport: getBool(editData.details.passport),
+        welcomeKit: getBool(editData.details.welcome_kit),
+        food: getBool(editData.details.food),
+        vehiclePass: getBool(editData.details.vehicle_pass),
+        vehicleNumber: getBool(editData.details.vehicle_number),
         eventType: editData.details.event_type || "OneTime",
         occurrence: editData.details.occurrence || "",
         startDate: editData.details.start_date,
@@ -145,6 +149,8 @@ const CreateEvent = ({ onBack, editData, isView }) => {
       ? {
         bookingStartDate: editData.booking.booking_start_date,
         bookingEndDate: editData.booking.booking_end_date,
+        _lastEventStart: editData.details?.start_date,
+        _lastEventEnd: editData.details?.end_date,
         capacity: editData.booking.capacity,
         passType: editData.booking.pass_type,
         entryType: editData.booking.entry_type,

@@ -2423,6 +2423,7 @@ def get_home_events():
             e.event_name,
             e.category,
             e.start_date,
+            e.end_date,
             e.start_time,
             e.venue,
             e.address,
@@ -2430,7 +2431,8 @@ def get_home_events():
             f.file_type AS banner_type,
             b.capacity,
             b.currency,
-            b.entry_type
+            b.entry_type,
+            b.charge_type AS pass_fee
         FROM event_details_table e
         LEFT JOIN event_files f 
             ON e.id = f.event_id AND f.file_type = 'banner'
@@ -2452,6 +2454,8 @@ def get_home_events():
             # =========================
             if row["start_date"]:
                 row["start_date"] = row["start_date"].strftime("%Y-%m-%d")
+            if row.get("end_date"):
+                row["end_date"] = row["end_date"].strftime("%Y-%m-%d")
 
             # =========================
             # ✅ TIME FIX

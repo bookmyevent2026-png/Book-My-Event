@@ -49,14 +49,14 @@ const EventDetailModal = ({ selectedEventId, fullData, closeModal }) => {
       });
     }
   }, [fullData?.eventDetails?.user_id]);
-  console.log("Full Data",fullData)
+  console.log("Full Data", fullData)
 
   const getTermDescription = (term) => {
     const existingDesc = term.description || term.policy_description || term.policy_desc;
     if (existingDesc) return existingDesc;
-    
+
     // Fallback to Master Policies lookup if not found directly
-    const matched = masterPolicies.find(p => 
+    const matched = masterPolicies.find(p =>
       (p.policy_name === term.policyName || p.policy_name === term.policy_name) &&
       (p.policy_group === term.policyGroup || p.policy_group === term.policy_group)
     );
@@ -68,12 +68,12 @@ const EventDetailModal = ({ selectedEventId, fullData, closeModal }) => {
   return (
     <div className="fixed inset-0 bg-[#f8faff] z-[100] overflow-y-auto animate-fadeIn">
       <div className="w-full min-h-screen flex flex-col relative pb-10">
-         <button
+        <button
           onClick={() => {
             closeModal();
             navigate("/");
           }}
-          className="fixed top-6 right-20 px-3.5 py-2 bg-slate-900/40 hover:bg-slate-900/80 backdrop-blur-md rounded-full transition-all text-white z-[110] shadow-lg flex items-center gap-1 text-xs font-bold uppercase tracking-wider group"
+          className="fixed top-6 left-6 px-3.5 py-2 bg-slate-900/40 hover:bg-slate-900/80 backdrop-blur-md rounded-full transition-all text-white z-[110] shadow-lg flex items-center gap-1 text-xs font-bold uppercase tracking-wider group"
         >
           <ChevronLeft size={16} className="transform group-hover:-translate-x-0.5 transition-transform duration-200" />
           <span>Home</span>
@@ -99,7 +99,7 @@ const EventDetailModal = ({ selectedEventId, fullData, closeModal }) => {
             <div className="w-full h-full bg-slate-800" />
           )}
           <div className="absolute inset-0 bg-slate-900/40" />
-          
+
           <div className="absolute inset-0 flex flex-col justify-center px-10 max-w-7xl mx-auto w-full">
             <h1 className="text-3xl font-bold text-white mb-2">{fullData?.eventDetails?.event_name}</h1>
             <div className="text-[10px] text-yellow-500 font-bold tracking-widest flex gap-2 uppercase mb-8">
@@ -107,30 +107,30 @@ const EventDetailModal = ({ selectedEventId, fullData, closeModal }) => {
               <span className="text-slate-300">{fullData?.eventDetails?.category || "EXPO"}</span> <span className="text-slate-400">&gt;</span>
               <span className="text-white">{fullData?.eventDetails?.event_name}</span>
             </div>
-            
+
             <div className="flex justify-between items-end">
               <div className="flex gap-12 text-white text-center">
                 <div className="flex flex-col items-center">
-                   <div className="text-2xl font-bold">3</div>
-                   <div className="text-[9px] font-bold tracking-widest text-slate-300 mt-1">EVENTS HOSTED</div>
+                  <div className="text-2xl font-bold">3</div>
+                  <div className="text-[9px] font-bold tracking-widest text-slate-300 mt-1">EVENTS HOSTED</div>
                 </div>
                 <div className="flex flex-col items-center">
-                   <div className="text-2xl font-bold">0</div>
-                   <div className="text-[9px] font-bold tracking-widest text-slate-300 mt-1">FOLLOWERS</div>
+                  <div className="text-2xl font-bold">0</div>
+                  <div className="text-[9px] font-bold tracking-widest text-slate-300 mt-1">FOLLOWERS</div>
                 </div>
                 <div className="flex flex-col items-center">
-                   <div className="text-2xl font-bold">0</div>
-                   <div className="text-[9px] font-bold tracking-widest text-slate-300 mt-1">REVIEWS</div>
+                  <div className="text-2xl font-bold">0</div>
+                  <div className="text-[9px] font-bold tracking-widest text-slate-300 mt-1">REVIEWS</div>
                 </div>
               </div>
-              
+
               <div className="flex flex-col items-end hidden md:flex">
-                 <div className="flex items-center gap-4 mb-3">
-                   <Facebook size={16} className="text-slate-300 hover:text-white cursor-pointer" />
-                   <Linkedin size={16} className="text-slate-300 hover:text-white cursor-pointer" />
-                   <Twitter size={16} className="text-slate-300 hover:text-white cursor-pointer" />
-                 </div>
-                 <div className="text-white text-[9px] font-bold tracking-widest uppercase">SHARE TO</div>
+                <div className="flex items-center gap-4 mb-3">
+                  <Facebook size={16} className="text-slate-300 hover:text-white cursor-pointer" />
+                  <Linkedin size={16} className="text-slate-300 hover:text-white cursor-pointer" />
+                  <Twitter size={16} className="text-slate-300 hover:text-white cursor-pointer" />
+                </div>
+                <div className="text-white text-[9px] font-bold tracking-widest uppercase">SHARE TO</div>
               </div>
             </div>
           </div>
@@ -143,10 +143,13 @@ const EventDetailModal = ({ selectedEventId, fullData, closeModal }) => {
             <h3 className="font-bold text-slate-800 text-sm">{fullData?.eventDetails?.venue}</h3>
             <p className="text-[10px] text-slate-500">{fullData?.eventDetails?.address || "Location unavailable"}</p>
           </div>
-          
+
           <div className="flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-slate-200 pb-4 md:pb-0">
             <Phone size={18} className="text-blue-500 mb-2" />
-            <span className="font-bold text-slate-800 text-sm">7092923536</span>
+            <span className="font-bold text-slate-800 text-sm">
+              {fullData?.organizer?.phone || "-"}
+            </span>
+            <span className="text-[10px] text-slate-500">Organiser Phone</span>
           </div>
 
           <div className="flex flex-col items-center justify-center">
@@ -175,8 +178,8 @@ const EventDetailModal = ({ selectedEventId, fullData, closeModal }) => {
                 key={tab.id}
                 onClick={() => setCurrentTab(tab.id)}
                 className={`py-4 text-[11px] font-bold transition-all border-b-2 whitespace-nowrap tracking-widest uppercase ${currentTab === tab.id
-                    ? "border-[#3f63fc] text-[#3f63fc]"
-                    : "border-transparent text-slate-500 hover:text-slate-800"
+                  ? "border-[#3f63fc] text-[#3f63fc]"
+                  : "border-transparent text-slate-500 hover:text-slate-800"
                   }`}
               >
                 {tab.label}
@@ -205,18 +208,18 @@ const EventDetailModal = ({ selectedEventId, fullData, closeModal }) => {
                       {fullData?.eventDetails?.tags ? (
                         Array.isArray(fullData.eventDetails.tags)
                           ? fullData.eventDetails.tags.map((tag, i) => (
-                              <span key={i} className="px-2 py-1 bg-slate-100 rounded text-[10px] uppercase font-bold text-slate-600">{tag.trim()}</span>
-                            ))
+                            <span key={i} className="px-2 py-1 bg-slate-100 rounded text-[10px] uppercase font-bold text-slate-600">{tag.trim()}</span>
+                          ))
                           : typeof fullData.eventDetails.tags === 'string'
                             ? fullData.eventDetails.tags.split(',').map((tag, i) => (
-                                <span key={i} className="px-2 py-1 bg-slate-100 rounded text-[10px] uppercase font-bold text-slate-600">{tag.trim()}</span>
-                              ))
+                              <span key={i} className="px-2 py-1 bg-slate-100 rounded text-[10px] uppercase font-bold text-slate-600">{tag.trim()}</span>
+                            ))
                             : <span className="px-2 py-1 bg-slate-100 rounded text-[10px] uppercase font-bold text-slate-600">{fullData.eventDetails.tags}</span>
                       ) : (
                         <span className="text-slate-400 italic">No tags</span>
                       )}
                     </div>
-                    
+
                     <div className="pt-10 flex flex-col items-center mt-8">
                       <p className="text-sm text-slate-800 font-bold mb-4">Want to Participate in the Event?</p>
                       <button className="bg-[#3f63fc] hover:bg-blue-700 text-white font-bold py-3 px-8 text-xs transition-colors rounded">
@@ -333,11 +336,28 @@ const EventDetailModal = ({ selectedEventId, fullData, closeModal }) => {
 
               {currentTab === 'amenities' && (
                 <div className="animate-fadeIn">
-                  <h3 className="text-blue-600 font-bold mb-6 flex items-center gap-2  tracking-wide">
+                  {/* <h3 className="text-blue-600 font-bold mb-6 flex items-center gap-2  tracking-wide">
                     Available Amenities & Stalls
-                  </h3>
+                  </h3> */}
                   <div className="space-y-8">
-                    {/* STALLS */}
+
+                    {/* EVENT-LEVEL AMENITIES DESCRIPTION */}
+                    {fullData?.eventDetails?.amenities && (
+                      <div>
+                        <h4 className="text-[#3f63fc] font-bold mb-4 tracking-widest text-sm flex items-center gap-2">
+                          <Layers size={14} /> Event Amenities Description
+                        </h4>
+                        <p className="text-slate-600 leading-relaxed text-xs">
+                          {(() => {
+                            const raw = fullData.eventDetails.amenities;
+                            if (Array.isArray(raw)) return raw.join(', ');
+                            return raw;
+                          })()}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* STALLS 
                     {(fullData?.layout?.stalls?.length > 0 || fullData?.stalls?.length > 0) && (
                       <div>
                         <h4 className="text-sm font-bold text-slate-700 mb-4 uppercase tracking-widest border-b pb-2">Stalls</h4>
@@ -358,7 +378,7 @@ const EventDetailModal = ({ selectedEventId, fullData, closeModal }) => {
                           ))}
                         </div>
                       </div>
-                    )}
+                    )} */}
 
                     {/* AMENITIES */}
                     {(fullData?.layout?.amenities?.length > 0 || fullData?.amenities?.length > 0 || fullData?.layout?.master?.amenities?.length > 0) && (
@@ -385,13 +405,13 @@ const EventDetailModal = ({ selectedEventId, fullData, closeModal }) => {
                       </div>
                     )}
 
-                    {(!(fullData?.layout?.stalls?.length > 0 || fullData?.stalls?.length > 0) && 
+                    {(!(fullData?.layout?.stalls?.length > 0 || fullData?.stalls?.length > 0) &&
                       !(fullData?.layout?.amenities?.length > 0 || fullData?.amenities?.length > 0 || fullData?.layout?.master?.amenities?.length > 0)) && (
-                      <div className="flex flex-col items-center justify-center py-10 text-slate-300">
-                        <Layers size={40} className="mb-2" />
-                        <p className="text-sm font-bold uppercase tracking-widest">No amenities or stalls listed</p>
-                      </div>
-                    )}
+                        <div className="flex flex-col items-center justify-center py-10 text-slate-300">
+                          <Layers size={40} className="mb-2" />
+                          <p className="text-sm font-bold uppercase tracking-widest">No amenities or stalls listed</p>
+                        </div>
+                      )}
                   </div>
                 </div>
               )}
@@ -449,8 +469,8 @@ const EventDetailModal = ({ selectedEventId, fullData, closeModal }) => {
                                   size={24}
                                   fill={(hoverRating || reviewRating) >= s ? "#facc15" : "none"}
                                   className={`transition-all duration-200 transform ${(hoverRating || reviewRating) >= s
-                                      ? "text-yellow-400 scale-110"
-                                      : "text-slate-300"
+                                    ? "text-yellow-400 scale-110"
+                                    : "text-slate-300"
                                     }`}
                                 />
                               </button>
@@ -506,8 +526,8 @@ const EventDetailModal = ({ selectedEventId, fullData, closeModal }) => {
                   disabled={isClosed}
                   onClick={() => !isClosed && navigate(`/usersbooking/${selectedEventId}`)}
                   className={`w-full font-bold py-4 transition-all uppercase tracking-widest text-xs ${isClosed
-                      ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                      : "bg-[#3f63fc] hover:bg-blue-700 text-white"
+                    ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                    : "bg-[#3f63fc] hover:bg-blue-700 text-white"
                     }`}
                 >
                   {isClosed ? "BOOKING CLOSED" : "BOOK NOW"}
@@ -529,9 +549,10 @@ const EventDetailModal = ({ selectedEventId, fullData, closeModal }) => {
                   <p className="font-bold text-slate-900 w-24 flex-shrink-0">End Date</p>
                   <p className="text-slate-600">: {formatDateLong(fullData?.eventDetails?.end_date)}</p>
                 </div>
-                <div className="flex items-start text-xs">
+                <div className="flex items-start text-xs gap-1">
                   <p className="font-bold text-slate-900 w-24 flex-shrink-0">Address</p>
-                  <p className="text-slate-600">: {fullData?.eventDetails?.venue}</p>
+                  <span className="text-slate-600 flex-shrink-0">:</span>
+                  <p className="text-slate-600 flex-1">{fullData?.eventDetails?.venue}{fullData?.eventDetails?.address ? `, ${fullData?.eventDetails?.address}` : ""}</p>
                 </div>
               </div>
             </div>

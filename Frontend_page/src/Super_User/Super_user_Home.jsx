@@ -112,6 +112,7 @@ const SuperUserEvents = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [toast, setToast] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, id: null });
+  const [statusConfirm, setStatusConfirm] = useState({ show: false, id: null, status: null });
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const location = useLocation();
 
@@ -193,7 +194,16 @@ const SuperUserEvents = () => {
   };
 
   /* APPROVE / REJECT */
-  const handleStatus = async (id, status) => {
+  /* APPROVE / REJECT / PENDING */
+  const handleStatus = (id, status) => {
+    setStatusConfirm({ show: true, id, status });
+    setOpenMenu(null);
+  };
+
+  const executeStatusChange = async () => {
+    const { id, status } = statusConfirm;
+    if (!id || !status) return;
+
     try {
       const res = await updateEventStatus(id, status);
 
@@ -226,11 +236,11 @@ const SuperUserEvents = () => {
           type: "error",
         });
       }
-
-      setOpenMenu(null);
     } catch (err) {
       console.error(err);
       setPopup({ show: true, message: "Server error ❌", type: "error" });
+    } finally {
+      setStatusConfirm({ show: false, id: null, status: null });
     }
   };
 
@@ -785,7 +795,7 @@ const SuperUserEvents = () => {
                   <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
                     Location
                   </p>
-                  <p className="font-medium text-gray-900 truncate text-xs">
+                  <p className="font-medium text-gray-900 text-xs break-words">
                     {e.venue}, {e.address}
                   </p>
                 </div>
@@ -1111,6 +1121,84 @@ const SuperUserEvents = () => {
                   className="flex-1 py-4 bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold rounded-2xl hover:shadow-lg hover:shadow-red-200 transition-all active:scale-95"
                 >
                   Delete Now
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* STATUS CONFIRMATION MODAL */}
+      {statusConfirm.show && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[110] p-4 animate-fade-in">
+          <div className={`bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md border overflow-hidden relative ${
+            statusConfirm.status === "APPROVED"
+              ? "border-emerald-100"
+              : statusConfirm.status === "REJECTED"
+                ? "border-rose-100"
+                : "border-amber-100"
+          }`}>
+            {/* Background Decoration */}
+            <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50 ${
+              statusConfirm.status === "APPROVED"
+                ? "bg-emerald-50"
+                : statusConfirm.status === "REJECTED"
+                  ? "bg-rose-50"
+                  : "bg-amber-50"
+            }`}></div>
+
+            <div className="relative">
+              {statusConfirm.status === "APPROVED" ? (
+                <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-4xl mb-6 mx-auto shadow-lg shadow-emerald-100">
+                  ✅
+                </div>
+              ) : statusConfirm.status === "REJECTED" ? (
+                <div className="w-20 h-20 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center text-4xl mb-6 mx-auto shadow-lg shadow-rose-100">
+                  ❌
+                </div>
+              ) : (
+                <div className="w-20 h-20 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-4xl mb-6 mx-auto shadow-lg shadow-amber-100">
+                  ⏳
+                </div>
+              )}
+
+              <h2 className="text-3xl font-bold text-gray-900 mb-3 text-center">
+                {statusConfirm.status === "APPROVED"
+                  ? "Approve Event?"
+                  : statusConfirm.status === "REJECTED"
+                    ? "Reject Event?"
+                    : "Set to Pending?"}
+              </h2>
+              <p className="text-gray-600 mb-8 text-center leading-relaxed">
+                {statusConfirm.status === "APPROVED"
+                  ? "Are you sure you want to approve this event? Approved events will be visible for users to browse and book tickets."
+                  : statusConfirm.status === "REJECTED"
+                    ? "Are you sure you want to reject this event? Rejected events will be hidden and users won't be able to book passes."
+                    : "Are you sure you want to change the status of this event back to pending?"}
+              </p>
+
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setStatusConfirm({ show: false, id: null, status: null })}
+                  className="flex-1 py-4 bg-gray-100 text-gray-700 font-bold rounded-2xl hover:bg-gray-200 transition-all active:scale-95 shadow-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={executeStatusChange}
+                  className={`flex-1 py-4 text-white font-bold rounded-2xl hover:shadow-lg transition-all active:scale-95 ${
+                    statusConfirm.status === "APPROVED"
+                      ? "bg-gradient-to-r from-emerald-500 to-teal-600 hover:shadow-emerald-200"
+                      : statusConfirm.status === "REJECTED"
+                        ? "bg-gradient-to-r from-red-500 to-rose-600 hover:shadow-red-200"
+                        : "bg-gradient-to-r from-amber-500 to-orange-500 hover:shadow-amber-200"
+                  }`}
+                >
+                  {statusConfirm.status === "APPROVED"
+                    ? "Approve"
+                    : statusConfirm.status === "REJECTED"
+                      ? "Reject"
+                      : "Pending"}
                 </button>
               </div>
             </div>
