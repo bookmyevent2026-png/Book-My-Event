@@ -413,6 +413,7 @@ const Step4Documents = ({ formData, setFormData, showStep4Errors }) => {
                         type="button"
                         onClick={(e) => {
                           e.preventDefault();
+                          e.stopPropagation();
                           setFormData({
                             ...formData,
                             documents: {
@@ -602,6 +603,7 @@ const Step4Documents = ({ formData, setFormData, showStep4Errors }) => {
                             type="button"
                             onClick={(e) => {
                               e.preventDefault();
+                              e.stopPropagation();
                               setDocPreview(null);
                             }}
                             className="text-[9px] font-bold text-indigo-600 hover:underline"

@@ -13,40 +13,45 @@ import Step6VendorSponsor from "./steps/Step6VendorSponsor";
 
 const convert24to12 = (time24h) => {
   if (!time24h) return "";
-  if (time24h.includes("AM") || time24h.includes("PM") || time24h.includes("am") || time24h.includes("pm")) {
-    return time24h;
-  }
-  let [hours, minutes] = time24h.split(":");
-  if (!hours || !minutes) return time24h;
-
-  let period = "AM";
-  let h = parseInt(hours, 10);
-  if (h >= 12) {
-    period = "PM";
-    if (h > 12) h -= 12;
-  } else if (h === 0) {
-    h = 12;
-  }
-  return `${String(h).padStart(2, "0")}:${minutes.slice(0, 2)} ${period}`;
+  const timeStr = String(time24h).trim();
+  if (timeStr.match(/(AM|PM|am|pm)/i)) return timeStr;
+  
+  const parts = timeStr.split(":");
+  if (parts.length < 2) return timeStr;
+  
+  let h = parseInt(parts[0], 10);
+  let m = parseInt(parts[1], 10);
+  if (isNaN(h) || isNaN(m)) return timeStr;
+  
+  const period = h >= 12 ? "PM" : "AM";
+  h = h % 12;
+  h = h ? h : 12;
+  
+  const hh = String(h).padStart(2, "0");
+  const mm = String(m).padStart(2, "0");
+  
+  return `${hh}:${mm} ${period}`;
 };
 
 const convert12to24 = (time12h) => {
   if (!time12h) return "";
-  if (!time12h.includes("AM") && !time12h.includes("PM") && !time12h.includes("am") && !time12h.includes("pm")) {
-    return time12h;
-  }
-  const [time, modifier] = time12h.split(" ");
-  let [hours, minutes] = time.split(":");
-  if (!hours || !minutes) return time12h;
-
-  let h = parseInt(hours, 10);
-  if (h === 12) {
-    h = 0;
-  }
-  if (modifier?.toUpperCase() === "PM") {
-    h += 12;
-  }
-  return `${String(h).padStart(2, "0")}:${minutes.slice(0, 2)}:00`;
+  const timeStr = String(time12h).trim();
+  if (!timeStr.match(/(AM|PM|am|pm)/i)) return timeStr;
+  
+  const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return timeStr;
+  
+  let h = parseInt(match[1], 10);
+  let m = parseInt(match[2], 10);
+  const period = match[3].toUpperCase();
+  
+  if (period === "PM" && h !== 12) h += 12;
+  if (period === "AM" && h === 12) h = 0;
+  
+  const hh = String(h).padStart(2, "0");
+  const mm = String(m).padStart(2, "0");
+  
+  return `${hh}:${mm}:00`;
 };
 
 const getBool = (val) => {
@@ -168,16 +173,7 @@ const CreateEvent = ({ onBack, editData, isView }) => {
           ? (() => {
             const timePart = editData.booking.early_bird_expire.split("T")[1];
             if (!timePart) return "";
-            let [h, m] = timePart.split(":");
-            let period = "AM";
-            h = parseInt(h, 10);
-            if (h >= 12) {
-              period = "PM";
-              if (h > 12) h -= 12;
-            } else if (h === 0) {
-              h = 12;
-            }
-            return `${String(h).padStart(2, "0")}:${m} ${period}`;
+            return convert24to12(timePart);
           })()
           : ""
       }

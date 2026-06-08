@@ -200,7 +200,7 @@ export const saveEventDetails = async (data) => {
 export const completeEvent = async (formData) => {
   const res = await api.post("/superadmin/api/complete-event", formData, {
     headers: {
-      "Content-Type": "multipart/form-data",
+      "Content-Type": undefined,
     },
   });
   return res.data;
@@ -220,7 +220,7 @@ export const saveDocuments = async (data) => {
   console.log("Uploading documents with data:", data);
   const res = await api.post("/superadmin/upload/all-docs", data, {
     headers: {
-      "Content-Type": "multipart/form-data",
+      "Content-Type": undefined,
     },
   });
   return res.data
@@ -311,7 +311,7 @@ export const bookEvent = async (data) => {
 export const bookStall = async (formData) => {
   const res = await api.post("/exhibitor/api/book-stall", formData, {
     headers: {
-      "Content-Type": "multipart/form-data",
+      "Content-Type": undefined,
     },
   });
   return res.data;
@@ -510,7 +510,7 @@ export const updateMessage = async (id, payload) => {
 export const updateEvent = async (id, formData) => {
   const res = await api.put(`/superadmin/api/update-event/${id}`, formData, {
     headers: {
-      "Content-Type": "multipart/form-data",
+      "Content-Type": undefined,
     },
   });
   return res.data;
@@ -519,7 +519,7 @@ export const updateEvent = async (id, formData) => {
 // IMAGE upload
 export const uploadImage = async (formData) => {
   const res = await api.post(`/api/upload-image`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
+    headers: { "Content-Type": undefined },
   });
   return res.data;
 };

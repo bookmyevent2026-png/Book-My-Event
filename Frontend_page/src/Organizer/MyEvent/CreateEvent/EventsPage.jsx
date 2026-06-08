@@ -675,8 +675,8 @@ const EventsPage = () => {
                   key={i + 1}
                   onClick={() => handlePageChange(i + 1)}
                   className={`w-10 h-10 rounded-xl font-bold transition-all shadow-sm ${currentPage === i + 1
-                      ? "bg-indigo-600 text-white"
-                      : "bg-white text-gray-600 border border-gray-200 hover:bg-indigo-50 hover:text-indigo-600"
+                    ? "bg-indigo-600 text-white"
+                    : "bg-white text-gray-600 border border-gray-200 hover:bg-indigo-50 hover:text-indigo-600"
                     }`}
                 >
                   {i + 1}
