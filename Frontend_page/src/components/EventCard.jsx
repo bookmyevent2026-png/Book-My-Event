@@ -149,10 +149,10 @@ export const EventCard = ({ event, isFeatured = false, isLiked, onToggleLike, on
   return (
     <div
       onClick={() => onShowDetail(event.id)}
-      className="group relative bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-xl overflow-hidden hover:border-slate-600 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/10 cursor-pointer"
+      className="group relative bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-xl overflow-hidden hover:border-slate-600 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/10 cursor-pointer h-full flex flex-col"
     >
       {/* Image Container */}
-      <div className="relative h-40 overflow-hidden bg-slate-900">
+      <div className="relative h-40 overflow-hidden bg-slate-900 shrink-0">
         <MediaRenderer
           src={event.image}
           type={event.banner_type}
@@ -190,75 +190,68 @@ export const EventCard = ({ event, isFeatured = false, isLiked, onToggleLike, on
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-3">
-        <div>
-          <h3 className="text-sm font-bold text-white line-clamp-2 hover:text-orange-400 transition-colors">
-            {event.title}
-          </h3>
-          <div className="flex items-center justify-between mt-2">
-            <div className="flex items-center gap-1">
-              <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-              <span className="text-xs font-semibold text-slate-300">
-                {event.rating}
-              </span>
+      <div className="p-4 flex flex-col flex-grow">
+        <div className="flex-grow space-y-3">
+          <div>
+            <h3 className="text-sm font-bold text-white line-clamp-2 hover:text-orange-400 transition-colors min-h-[40px]">
+              {event.title}
+            </h3>
+            <div className="flex items-center justify-between mt-2">
+              <div className="flex items-center gap-1">
+                <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                <span className="text-xs font-semibold text-slate-300">
+                  {event.rating}
+                </span>
+              </div>
+              <span className="text-xs text-slate-500">({event.reviews})</span>
             </div>
-            <span className="text-xs text-slate-500">({event.reviews})</span>
           </div>
-        </div>
 
-        <div className="space-y-1.5 text-slate-400 text-xs">
-          <div className="flex items-center gap-2">
-            <MapPin className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
-            <span className="truncate">{event.location}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
-            <span>
-              {new Date(event.date).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-              })}
-              {event.endDate && event.endDate !== event.date && (
-                <> - {new Date(event.endDate).toLocaleDateString("en-US", {
+          <div className="space-y-1.5 text-slate-400 text-xs">
+            <div className="flex items-center gap-2">
+              <MapPin className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
+              <span className="truncate">{event.location}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Calendar className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
+              <span>
+                {new Date(event.date).toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
-                })}</>
-              )}
-            </span>
+                })}
+                {event.endDate && event.endDate !== event.date && (
+                  <> - {new Date(event.endDate).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  })}</>
+                )}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Countdown or Closed Time */}
-        {new Date() <= new Date(event.bookingEnds) ? (
-          <div className="pt-3 border-t border-slate-700/50 flex flex-col gap-1.5">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Booking closes in</span>
-            <CountdownTimer targetDate={event.bookingEnds} />
-          </div>
-        ) : (
-          <div className="pt-3 border-t border-slate-700/50">
-            <div className="text-xs font-bold text-red-400 bg-red-500/10 px-3 py-1.5 rounded-lg w-full text-center">
-              Booking Closed{/* on  This is comment {new Date(event.bookingEnds).toLocaleString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-                hour: "numeric",
-                minute: "2-digit"
-              })}*/}
+        {/* Bottom Actions */}
+        <div className="mt-4 space-y-3">
+          {/* Countdown or Closed Time */}
+          {new Date() <= new Date(event.bookingEnds) && (
+            <div className="pt-3 border-t border-slate-700/50 flex flex-col gap-1.5">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Booking closes in</span>
+              <CountdownTimer targetDate={event.bookingEnds} />
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Action Button */}
-        <button
-          onClick={handleBookNow}
-          disabled={new Date() > new Date(event.bookingEnds)}
-          className={`w-full py-2 rounded-lg text-white text-xs font-bold transition-all transform hover:scale-105 active:scale-95 ${new Date() > new Date(event.bookingEnds)
-            ? "bg-slate-700 text-slate-500 cursor-not-allowed"
-            : "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg shadow-orange-500/20"
-            }`}
-        >
-          {new Date() > new Date(event.bookingEnds) ? "Booking Closed" : "Book Ticket"}
-        </button>
+          {/* Action Button */}
+          <button
+            onClick={handleBookNow}
+            disabled={new Date() > new Date(event.bookingEnds)}
+            className={`w-full py-2 rounded-lg text-white text-xs font-bold transition-all transform hover:scale-105 active:scale-95 ${new Date() > new Date(event.bookingEnds)
+              ? "bg-slate-700 text-slate-500 cursor-not-allowed"
+              : "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg shadow-orange-500/20"
+              }`}
+          >
+            {new Date() > new Date(event.bookingEnds) ? "Booking Closed" : "Book Ticket"}
+          </button>
+        </div>
       </div>
     </div>
   );

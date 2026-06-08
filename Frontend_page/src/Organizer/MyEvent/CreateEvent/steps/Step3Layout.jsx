@@ -190,12 +190,12 @@ const Step3LayoutStall = ({ formData, setFormData, showStep3Errors }) => {
       sizeRange: layout.sizeRange,
       visibility: layout.visibility,
       type: layout.stallType,
-      priceINR: layout.priceINR || "Free",
-      priceUSD: layout.priceUSD || "Free",
-      primeSeat: layout.primeSeat || false,
-      primePriceINR: layout.primePriceINR,
-      primePriceUSD: layout.primePriceUSD,
-      taxes: layout.taxes || [],
+      priceINR: layout.stallType === "Free" ? "Free" : (layout.priceINR || "Free"),
+      priceUSD: layout.stallType === "Free" ? "Free" : (layout.priceUSD || "Free"),
+      primeSeat: layout.stallType === "Free" ? false : (layout.primeSeat || false),
+      primePriceINR: layout.stallType === "Free" ? "" : layout.primePriceINR,
+      primePriceUSD: layout.stallType === "Free" ? "" : layout.primePriceUSD,
+      taxes: layout.stallType === "Free" ? [] : (layout.taxes || []),
     };
 
     // Validation: Same value not allowed (Duplicate Name) - ONLY for new stalls
@@ -316,12 +316,12 @@ const Step3LayoutStall = ({ formData, setFormData, showStep3Errors }) => {
       sizeRange: `${data.length || ""}/${data.width || ""}`,
       visibility: data.visibility,
       type: data.stallType,
-      priceINR: data.priceINR || "Free",
-      priceUSD: data.priceUSD || "Free",
-      primeSeat: data.primeSeat,
-      primePriceINR: data.primePriceINR,
-      primePriceUSD: data.primePriceUSD,
-      taxes: data.taxes || [],
+      priceINR: data.stallType === "Free" ? "Free" : (data.priceINR || "Free"),
+      priceUSD: data.stallType === "Free" ? "Free" : (data.priceUSD || "Free"),
+      primeSeat: data.stallType === "Free" ? false : data.primeSeat,
+      primePriceINR: data.stallType === "Free" ? "" : data.primePriceINR,
+      primePriceUSD: data.stallType === "Free" ? "" : data.primePriceUSD,
+      taxes: data.stallType === "Free" ? [] : (data.taxes || []),
     };
 
     const updatedStalls = [...stallList];

@@ -352,6 +352,7 @@ const CreateEvent = ({ onBack, editData, isView }) => {
     const event = formData.eventDetails || {};
     const booking = formData.booking || {};
     const documents = formData.documents || {};
+    const layout = formData.layout || {};
     const errors = [];
 
     if (!event.eventName) errors.push("Event Name");
@@ -375,6 +376,21 @@ const CreateEvent = ({ onBack, editData, isView }) => {
     }
     if (!documents.banner && !documents.bannerPreview) {
       errors.push("Event Banner");
+    }
+    
+    if (layout.floorType === "Stall" && (!layout.stalls || layout.stalls.length === 0)) {
+      errors.push("At least one Stall");
+    }
+    if (event.food && (!formData.foodProvision?.items || formData.foodProvision.items.length === 0)) {
+      errors.push("At least one Food Provision item");
+    }
+    if (!formData.terms || formData.terms.length === 0) {
+      errors.push("Terms & Conditions");
+    }
+    
+    const { vendors = [], sponsors = [], guests = [] } = formData.vendors || {};
+    if (vendors.length === 0 && sponsors.length === 0 && guests.length === 0) {
+      errors.push("At least one Vendor, Sponsor, or Guest");
     }
 
     return errors;

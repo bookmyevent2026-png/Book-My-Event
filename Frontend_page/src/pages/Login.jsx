@@ -315,15 +315,11 @@ export default function Login() {
                             : "border-slate-600/50"
                             } rounded-xl text-white`}
                         />
-                        {fieldErrors.password && (
-                          <p className="text-red-400 text-xs mt-1">
-                            {fieldErrors.password}
-                          </p>
-                        )}
+      
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors"
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors z-10"
                         >
                           {showPassword ? (
                             <EyeOff size={18} />
@@ -332,6 +328,11 @@ export default function Login() {
                           )}
                         </button>
                       </div>
+                      {fieldErrors.password && (
+                        <p className="text-red-400 text-xs mt-1">
+                          {fieldErrors.password}
+                        </p>
+                      )}
                       <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-400/0 to-blue-500/0 group-hover:from-cyan-400/5 group-hover:to-blue-500/5 pointer-events-none transition-all duration-300"></div>
                     </div>
 

@@ -4,12 +4,27 @@ import { Trash2, Edit, X } from "lucide-react";
 const Step7FoodProvision = ({ formData, setFormData }) => {
   const foodItems = formData.foodProvision?.items || [];
 
-  const [catererName, setCatererName] = useState("");
-  const [mealType, setMealType] = useState("Breakfast");
-  const [foodType, setFoodType] = useState("Veg");
-  const [priceINR, setPriceINR] = useState("");
-  const [priceUSD, setPriceUSD] = useState("");
-  const [menuDetails, setMenuDetails] = useState("");
+  const tempInput = formData.foodProvision?.tempInput || {
+    catererName: "",
+    mealType: "Breakfast",
+    foodType: "Veg",
+    priceINR: "",
+    priceUSD: "",
+    menuDetails: "",
+  };
+
+  const updateTempInput = (field, value) => {
+    setFormData({
+      ...formData,
+      foodProvision: {
+        ...formData.foodProvision,
+        tempInput: {
+          ...tempInput,
+          [field]: value,
+        },
+      },
+    });
+  };
 
   const [warning, setWarning] = useState({ show: false, message: "" });
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, index: null });
@@ -21,18 +36,18 @@ const Step7FoodProvision = ({ formData, setFormData }) => {
   };
 
   const addFoodItem = () => {
-    if (!catererName.trim()) return showModal("Caterer/Stall Name is required");
-    if (!mealType) return showModal("Meal Type is required");
-    if (!foodType) return showModal("Food Type is required");
-    if (!priceINR || priceINR === "0") return showModal("Price in INR is required");
+    if (!tempInput.catererName.trim()) return showModal("Caterer/Stall Name is required");
+    if (!tempInput.mealType) return showModal("Meal Type is required");
+    if (!tempInput.foodType) return showModal("Food Type is required");
+    if (!tempInput.priceINR || tempInput.priceINR === "0") return showModal("Price in INR is required");
 
     const newItem = {
-      catererName,
-      mealType,
-      foodType,
-      priceINR,
-      priceUSD: priceUSD || "0",
-      menuDetails,
+      catererName: tempInput.catererName,
+      mealType: tempInput.mealType,
+      foodType: tempInput.foodType,
+      priceINR: tempInput.priceINR,
+      priceUSD: tempInput.priceUSD || "0",
+      menuDetails: tempInput.menuDetails,
     };
 
     const updatedItems = [...foodItems, newItem];
@@ -42,15 +57,16 @@ const Step7FoodProvision = ({ formData, setFormData }) => {
       foodProvision: {
         ...formData.foodProvision,
         items: updatedItems,
+        tempInput: {
+          catererName: "",
+          mealType: "Breakfast",
+          foodType: "Veg",
+          priceINR: "",
+          priceUSD: "",
+          menuDetails: "",
+        }
       },
     });
-
-    setCatererName("");
-    setMealType("Breakfast");
-    setFoodType("Veg");
-    setPriceINR("");
-    setPriceUSD("");
-    setMenuDetails("");
   };
 
   const openEdit = (index) => {
@@ -119,8 +135,8 @@ const Step7FoodProvision = ({ formData, setFormData }) => {
                 <input
                   maxLength={50}
                   placeholder="e.g. Royal Caterers"
-                  value={catererName}
-                  onChange={(e) => setCatererName(e.target.value)}
+                  value={tempInput.catererName}
+                  onChange={(e) => updateTempInput("catererName", e.target.value)}
                   className={inputClasses}
                 />
               </div>
@@ -128,8 +144,8 @@ const Step7FoodProvision = ({ formData, setFormData }) => {
               <div>
                 <label className={labelClasses}>Meal Type <span className="text-red-500">*</span></label>
                 <select
-                  value={mealType}
-                  onChange={(e) => setMealType(e.target.value)}
+                  value={tempInput.mealType}
+                  onChange={(e) => updateTempInput("mealType", e.target.value)}
                   className={selectClasses}
                 >
                   <option value="Breakfast">Breakfast</option>
@@ -144,8 +160,8 @@ const Step7FoodProvision = ({ formData, setFormData }) => {
               <div>
                 <label className={labelClasses}>Food Type <span className="text-red-500">*</span></label>
                 <select
-                  value={foodType}
-                  onChange={(e) => setFoodType(e.target.value)}
+                  value={tempInput.foodType}
+                  onChange={(e) => updateTempInput("foodType", e.target.value)}
                   className={selectClasses}
                 >
                   <option value="Veg">Veg</option>
@@ -161,9 +177,9 @@ const Step7FoodProvision = ({ formData, setFormData }) => {
                   <label className="text-[12px] font-bold text-gray-500 ml-4">Price In INR <span className="text-red-500">*</span></label>
                   <input
                     placeholder="₹ 0.00"
-                    value={priceINR}
+                    value={tempInput.priceINR}
                     maxLength={10}
-                    onChange={(e) => setPriceINR(e.target.value.replace(/[^0-9.]/g, ""))}
+                    onChange={(e) => updateTempInput("priceINR", e.target.value.replace(/[^0-9.]/g, ""))}
                     className={inputClasses}
                   />
                 </div>
@@ -171,9 +187,9 @@ const Step7FoodProvision = ({ formData, setFormData }) => {
                   <label className="text-[12px] font-bold text-gray-500 ml-4">Price In USD</label>
                   <input
                     placeholder="$ 0.00"
-                    value={priceUSD}
+                    value={tempInput.priceUSD}
                     maxLength={10}
-                    onChange={(e) => setPriceUSD(e.target.value.replace(/[^0-9.]/g, ""))}
+                    onChange={(e) => updateTempInput("priceUSD", e.target.value.replace(/[^0-9.]/g, ""))}
                     className={inputClasses}
                   />
                 </div>
@@ -184,8 +200,8 @@ const Step7FoodProvision = ({ formData, setFormData }) => {
               <label className={labelClasses}>Menu Details / Included Items</label>
               <textarea
                 placeholder="e.g. Rice, Dal, Roti, Paneer Butter Masala, Sweet"
-                value={menuDetails}
-                onChange={(e) => setMenuDetails(e.target.value)}
+                value={tempInput.menuDetails}
+                onChange={(e) => updateTempInput("menuDetails", e.target.value)}
                 rows={3}
                 className={`${inputClasses} h-auto py-3 rounded-2xl resize-none`}
               />
