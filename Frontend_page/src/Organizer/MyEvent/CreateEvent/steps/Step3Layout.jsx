@@ -179,9 +179,11 @@ const Step3LayoutStall = ({ formData, setFormData, showStep3Errors }) => {
     if (!layout.visibility) return showModal("Stall Visibility is required");
     if (!layout.stallType) return showModal("Stall Type is required");
 
+    const isInternational = formData.eventDetails?.isInternationalInclude;
+
     if (layout.stallType === "Paid") {
       if (!layout.priceINR || layout.priceINR === "0") return showModal("Price in INR is required for Paid stalls");
-      if (!layout.priceUSD || layout.priceUSD === "0") return showModal("Price in USD is required for Paid stalls");
+      if (isInternational && (!layout.priceUSD || layout.priceUSD === "0")) return showModal("Price in USD is required for Paid stalls");
     }
 
     const newStall = {
@@ -191,10 +193,10 @@ const Step3LayoutStall = ({ formData, setFormData, showStep3Errors }) => {
       visibility: layout.visibility,
       type: layout.stallType,
       priceINR: layout.stallType === "Free" ? "Free" : (layout.priceINR || "Free"),
-      priceUSD: layout.stallType === "Free" ? "Free" : (layout.priceUSD || "Free"),
+      priceUSD: layout.stallType === "Free" ? "Free" : (isInternational ? (layout.priceUSD || "Free") : "N/A"),
       primeSeat: layout.stallType === "Free" ? false : (layout.primeSeat || false),
       primePriceINR: layout.stallType === "Free" ? "" : layout.primePriceINR,
-      primePriceUSD: layout.stallType === "Free" ? "" : layout.primePriceUSD,
+      primePriceUSD: layout.stallType === "Free" ? "" : (isInternational ? layout.primePriceUSD : ""),
       taxes: layout.stallType === "Free" ? [] : (layout.taxes || []),
     };
 
@@ -317,10 +319,10 @@ const Step3LayoutStall = ({ formData, setFormData, showStep3Errors }) => {
       visibility: data.visibility,
       type: data.stallType,
       priceINR: data.stallType === "Free" ? "Free" : (data.priceINR || "Free"),
-      priceUSD: data.stallType === "Free" ? "Free" : (data.priceUSD || "Free"),
+      priceUSD: data.stallType === "Free" ? "Free" : (formData.eventDetails?.isInternationalInclude ? (data.priceUSD || "Free") : "N/A"),
       primeSeat: data.stallType === "Free" ? false : data.primeSeat,
       primePriceINR: data.stallType === "Free" ? "" : data.primePriceINR,
-      primePriceUSD: data.stallType === "Free" ? "" : data.primePriceUSD,
+      primePriceUSD: data.stallType === "Free" ? "" : (formData.eventDetails?.isInternationalInclude ? data.primePriceUSD : ""),
       taxes: data.stallType === "Free" ? [] : (data.taxes || []),
     };
 
@@ -562,7 +564,7 @@ const Step3LayoutStall = ({ formData, setFormData, showStep3Errors }) => {
               {/* PRICE FIELDS FOR PAID STALLS */}
               {stallType === "Paid" && (
                 <div className="bg-gray-50 p-4 rounded-3xl border border-gray-100 space-y-4 animate-in slide-in-from-top-4 duration-300 sm:col-span-2">
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className={`grid ${formData.eventDetails?.isInternationalInclude ? "grid-cols-2" : "grid-cols-1"} gap-3`}>
                     <div className="space-y-2">
                       <label className="text-[12px] font-bold text-gray-500 ml-4">PRICE IN INR</label>
                       <input
@@ -581,22 +583,24 @@ const Step3LayoutStall = ({ formData, setFormData, showStep3Errors }) => {
                         className={inputClasses}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[12px] font-bold text-gray-500 ml-4">PRICE IN USD</label>
-                      <input
-                        name="priceUSD"
-                        placeholder="$ 0.00"
-                        value={formData.layout?.priceUSD || ""}
-                        maxLength={10}
-                        onChange={(e) => {
-                          let value = e.target.value.replace(/[^0-9.]/g, "");
-                          if (/^\d*\.?\d{0,2}$/.test(value)) {
-                            handleChange({ target: { name: "priceUSD", value } });
-                          }
-                        }}
-                        className={inputClasses}
-                      />
-                    </div>
+                    {formData.eventDetails?.isInternationalInclude && (
+                      <div className="space-y-2">
+                        <label className="text-[12px] font-bold text-gray-500 ml-4">PRICE IN USD</label>
+                        <input
+                          name="priceUSD"
+                          placeholder="$ 0.00"
+                          value={formData.layout?.priceUSD || ""}
+                          maxLength={10}
+                          onChange={(e) => {
+                            let value = e.target.value.replace(/[^0-9.]/g, "");
+                            if (/^\d*\.?\d{0,2}$/.test(value)) {
+                              handleChange({ target: { name: "priceUSD", value } });
+                            }
+                          }}
+                          className={inputClasses}
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-3 border-t border-gray-200 pt-3">
@@ -611,7 +615,7 @@ const Step3LayoutStall = ({ formData, setFormData, showStep3Errors }) => {
                       <span className="text-sm font-semibold text-gray-700">Mark as Prime Stall</span>
                     </label>
                     {formData.layout?.primeSeat && (
-                      <div className="grid grid-cols-2 gap-3 animate-in zoom-in-95 duration-200">
+                      <div className={`grid ${formData.eventDetails?.isInternationalInclude ? "grid-cols-2" : "grid-cols-1"} gap-3 animate-in zoom-in-95 duration-200`}>
                         <input
                           name="primePriceINR"
                           placeholder="+ ₹ Prime Add-on"
@@ -619,13 +623,15 @@ const Step3LayoutStall = ({ formData, setFormData, showStep3Errors }) => {
                           onChange={handleChange}
                           className={inputClasses}
                         />
-                        <input
-                          name="primePriceUSD"
-                          placeholder="+ $ Prime Add-on"
-                          value={formData.layout?.primePriceUSD || ""}
-                          onChange={handleChange}
-                          className={inputClasses}
-                        />
+                        {formData.eventDetails?.isInternationalInclude && (
+                          <input
+                            name="primePriceUSD"
+                            placeholder="+ $ Prime Add-on"
+                            value={formData.layout?.primePriceUSD || ""}
+                            onChange={handleChange}
+                            className={inputClasses}
+                          />
+                        )}
                       </div>
                     )}
                   </div>
@@ -808,13 +814,15 @@ const Step3LayoutStall = ({ formData, setFormData, showStep3Errors }) => {
                       <th className={tableHeaderClasses}>Visibility</th>
                       <th className={tableHeaderClasses}>Type</th>
                       <th className={tableHeaderClasses}>Price (INR)</th>
-                      <th className={tableHeaderClasses}>Price (USD)</th>
+                      {formData.eventDetails?.isInternationalInclude && (
+                        <th className={tableHeaderClasses}>Price (USD)</th>
+                      )}
                     </tr>
                   </thead>
                   <tbody>
                     {stallList.length === 0 ? (
                       <tr>
-                        <td colSpan="7" className="p-12 text-center text-gray-400 italic bg-gray-50/30">
+                        <td colSpan={formData.eventDetails?.isInternationalInclude ? "7" : "6"} className="p-12 text-center text-gray-400 italic bg-gray-50/30">
                           No stalls added yet. Start by filling the form on the left.
                         </td>
                       </tr>
@@ -846,7 +854,9 @@ const Step3LayoutStall = ({ formData, setFormData, showStep3Errors }) => {
                           </td>
                           <td className={tableCellClasses}>{stall.type}</td>
                           <td className={`${tableCellClasses} font-bold`}>{stall.priceINR}</td>
-                          <td className={`${tableCellClasses} font-bold`}>{stall.priceUSD}</td>
+                          {formData.eventDetails?.isInternationalInclude && (
+                            <td className={`${tableCellClasses} font-bold`}>{stall.priceUSD}</td>
+                          )}
                         </tr>
                       ))
                     )}
@@ -972,10 +982,12 @@ const Step3LayoutStall = ({ formData, setFormData, showStep3Errors }) => {
                     <label className="text-[10px] font-bold text-sky-500 uppercase">Price (INR)</label>
                     <p className="font-semibold text-gray-800">{viewData.data.priceINR}</p>
                   </div>
-                  <div className="bg-sky-50 p-4 rounded-xl border border-sky-100">
-                    <label className="text-[10px] font-bold text-sky-500 uppercase">Price (USD)</label>
-                    <p className="font-semibold text-gray-800">{viewData.data.priceUSD}</p>
-                  </div>
+                  {formData.eventDetails?.isInternationalInclude && (
+                    <div className="bg-sky-50 p-4 rounded-xl border border-sky-100">
+                      <label className="text-[10px] font-bold text-sky-500 uppercase">Price (USD)</label>
+                      <p className="font-semibold text-gray-800">{viewData.data.priceUSD}</p>
+                    </div>
+                  )}
                   <div className="col-span-2 bg-sky-50 p-4 rounded-xl border border-sky-100">
                     <label className="text-[10px] font-bold text-sky-500 uppercase">Visibility</label>
                     <p className="font-semibold text-gray-800">{viewData.data.visibility}</p>
@@ -1130,14 +1142,16 @@ const Step3LayoutStall = ({ formData, setFormData, showStep3Errors }) => {
                           onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, priceINR: e.target.value.replace(/[^0-9.]/g, "") } })}
                         />
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-xs font-black text-sky-600 uppercase ml-2">Price (USD)</label>
-                        <input
-                          className={inputClasses}
-                          value={editModal.data.priceUSD}
-                          onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, priceUSD: e.target.value.replace(/[^0-9.]/g, "") } })}
-                        />
-                      </div>
+                      {formData.eventDetails?.isInternationalInclude && (
+                        <div className="space-y-2">
+                          <label className="text-xs font-black text-sky-600 uppercase ml-2">Price (USD)</label>
+                          <input
+                            className={inputClasses}
+                            value={editModal.data.priceUSD}
+                            onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, priceUSD: e.target.value.replace(/[^0-9.]/g, "") } })}
+                          />
+                        </div>
+                      )}
                     </>
                   )}
                 </div>

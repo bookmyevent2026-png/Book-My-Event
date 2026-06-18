@@ -397,7 +397,7 @@ const HomeSearchWidget = ({ events }) => {
         </div>
 
         {/* Category Selector with Search Dropdown */}
-        <div ref={categoryRef} className="w-full md:w-52 flex flex-col justify-center border-b md:border-b-0 md:border-r border-gray-200 relative">
+        <div ref={categoryRef} className="w-full md:w-64 flex flex-col justify-center border-b md:border-b-0 md:border-r border-gray-200 relative">
           <div
             onClick={() => {
               setIsCategoryOpen(!isCategoryOpen);
@@ -455,7 +455,7 @@ const HomeSearchWidget = ({ events }) => {
         </div>
 
         {/* Location Selector with Search Dropdown */}
-        <div ref={locationRef} className="w-full md:w-52 flex flex-col justify-center relative">
+        <div ref={locationRef} className="w-full md:w-64 flex flex-col justify-center relative">
           <div
             onClick={() => {
               setIsLocationOpen(!isLocationOpen);
@@ -466,7 +466,7 @@ const HomeSearchWidget = ({ events }) => {
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
               <span className={location ? "text-slate-800" : "text-slate-400"}>
-                {location || "Location"}
+                {location ? (location.length > 20 ? location.substring(0, 20) + "..." : location) : "Location"}
               </span>
             </div>
             <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
@@ -588,7 +588,9 @@ const EventsSection = ({
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="flex items-center gap-1.5 px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-full text-xs transition-all cursor-pointer shadow-md select-none border border-yellow-500/20"
                 >
-                  <span className="tracking-wider uppercase">{selectedCity || "City"}</span>
+                  <span className="tracking-wider uppercase">
+                    {selectedCity ? (selectedCity.length > 16 ? selectedCity.substring(0, 16) + "..." : selectedCity) : "City"}
+                  </span>
                   {selectedCity && (
                     <span
                       onClick={(e) => {

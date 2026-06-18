@@ -7,7 +7,6 @@ verified_users = set()
 
 OTP_EXPIRATION_SECONDS = 300  # 5 minutes
 
-
 def generate_otp():
     return str(random.randint(100000, 999999))
 

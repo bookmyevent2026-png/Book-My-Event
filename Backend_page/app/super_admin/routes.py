@@ -2286,14 +2286,14 @@ def get_image_url(path):
     # If it contains "uploads/", strip everything before it to make it relative
     if "uploads/" in file_path:
         relative_part = file_path.split("uploads/")[-1]
-        return f"https://eventsapi.sportalytics.in/uploads/{relative_part.lstrip('/')}"
+        return f"{request.host_url}uploads/{relative_part.lstrip('/')}"
     
     # Fallback for paths that don't have uploads/
     # If it starts with http or data URI, return it unmodified
     if file_path.startswith(("http://", "https://", "data:")):
         return file_path
     
-    return f"https://eventsapi.sportalytics.in/{file_path.lstrip('/')}"
+    return f"{request.host_url}{file_path.lstrip('/')}"
 
 
 # =====================================================
@@ -2566,6 +2566,15 @@ def get_event_full_details(event_id):
         
         for f in files:
             f["url"] = get_image_url(f.get("file_path"))
+
+        # Identify banner and type for the details object
+        banner_file = next((f for f in files if f.get('file_type') == 'banner'), None)
+        if banner_file:
+            details['banner_url'] = banner_file.get('url')
+            details['banner_type'] = banner_file.get('file_type')
+        else:
+            details['banner_url'] = None
+            details['banner_type'] = None
 
         # 5. Terms
         cursor.execute("SELECT * FROM event_terms WHERE event_id = %s", (event_id,))
@@ -3044,7 +3053,7 @@ def update_message(message_id):
         conn.close()
 
 # ─── Update Event ────────────────────────────────────────────────────────────
-@super_admin_bp.route("/api/update-event/<int:event_id>", methods=["PUT"])
+@super_admin_bp.route("/api/update-event/<int:event_id>", methods=["PUT", "POST"])
 def update_event(event_id):
     conn = get_db_connection()
     cursor = conn.cursor()

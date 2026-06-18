@@ -183,6 +183,11 @@ def full_event(event_id):
         """, (event_id,))
         event = cursor.fetchone()
 
+        if not event:
+            cursor.close()
+            conn.close()
+            return jsonify({"status": "error", "message": "Event not found"}), 404
+
         cursor.execute("SELECT * FROM event_booking_details WHERE event_id=%s", (event_id,))
         booking = cursor.fetchone()
 
@@ -220,6 +225,7 @@ def full_event(event_id):
         # ✅ FIX TIME FIELDS
         # =========================
         def fix_time(data):
+            from datetime import timedelta, date, datetime
             if isinstance(data, dict):
                 for k, v in data.items():
                     if isinstance(v, timedelta):
@@ -227,6 +233,10 @@ def full_event(event_id):
                         hours = total_seconds // 3600
                         minutes = (total_seconds % 3600) // 60
                         data[k] = f"{hours:02}:{minutes:02}"
+                    elif isinstance(v, datetime):
+                        data[k] = v.strftime("%Y-%m-%d %H:%M:%S")
+                    elif isinstance(v, date):
+                        data[k] = v.strftime("%Y-%m-%d")
             return data
 
         # Apply fix
@@ -260,6 +270,10 @@ def full_event(event_id):
 
         for v in vendors:
             fix_time(v)
+
+        for item_list in [sponsors, guests, food_items, vehicle_details, vehicle_addons, amenities]:
+            for item in item_list:
+                fix_time(item)
 
         # Identify banner and type for the frontend
         banner_file = next((d for d in docs if d.get('file_type') == 'banner'), None)

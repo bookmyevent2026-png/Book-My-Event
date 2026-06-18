@@ -15,21 +15,21 @@ const convert24to12 = (time24h) => {
   if (!time24h) return "";
   const timeStr = String(time24h).trim();
   if (timeStr.match(/(AM|PM|am|pm)/i)) return timeStr;
-  
+
   const parts = timeStr.split(":");
   if (parts.length < 2) return timeStr;
-  
+
   let h = parseInt(parts[0], 10);
   let m = parseInt(parts[1], 10);
   if (isNaN(h) || isNaN(m)) return timeStr;
-  
+
   const period = h >= 12 ? "PM" : "AM";
   h = h % 12;
   h = h ? h : 12;
-  
+
   const hh = String(h).padStart(2, "0");
   const mm = String(m).padStart(2, "0");
-  
+
   return `${hh}:${mm} ${period}`;
 };
 
@@ -37,20 +37,20 @@ const convert12to24 = (time12h) => {
   if (!time12h) return "";
   const timeStr = String(time12h).trim();
   if (!timeStr.match(/(AM|PM|am|pm)/i)) return timeStr;
-  
+
   const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
   if (!match) return timeStr;
-  
+
   let h = parseInt(match[1], 10);
   let m = parseInt(match[2], 10);
   const period = match[3].toUpperCase();
-  
+
   if (period === "PM" && h !== 12) h += 12;
   if (period === "AM" && h === 12) h = 0;
-  
+
   const hh = String(h).padStart(2, "0");
   const mm = String(m).padStart(2, "0");
-  
+
   return `${hh}:${mm}:00`;
 };
 
@@ -377,7 +377,7 @@ const CreateEvent = ({ onBack, editData, isView }) => {
     if (!documents.banner && !documents.bannerPreview) {
       errors.push("Event Banner");
     }
-    
+
     if (layout.floorType === "Stall" && (!layout.stalls || layout.stalls.length === 0)) {
       errors.push("At least one Stall");
     }
@@ -387,7 +387,7 @@ const CreateEvent = ({ onBack, editData, isView }) => {
     if (!formData.terms || formData.terms.length === 0) {
       errors.push("Terms & Conditions");
     }
-    
+
     const { vendors = [], sponsors = [], guests = [] } = formData.vendors || {};
     if (vendors.length === 0 && sponsors.length === 0 && guests.length === 0) {
       errors.push("At least one Vendor, Sponsor, or Guest");

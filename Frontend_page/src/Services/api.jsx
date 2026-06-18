@@ -2,6 +2,8 @@
 import axios from "axios";
 import { Country, State, City } from "country-state-city";
 
+//const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+//const BASE_URL = isLocalhost ? "http://127.0.0.1:5000" : "https://eventsapi.sportalytics.in";
 const BASE_URL = "https://eventsapi.sportalytics.in/";
 //const BASE_URL = "http://127.0.0.1:5000";
 
@@ -377,6 +379,7 @@ export const updateEventStatus = async (id, status) => {
 
 export const getFullEventDetails = async (id) => {
   const res = await api.get(`/superuser/event-full-details/${id}`);
+  console.log("Full event details", res.data);
   return res.data;
 };
 
@@ -508,7 +511,7 @@ export const updateMessage = async (id, payload) => {
 
 // UPDATE Event
 export const updateEvent = async (id, formData) => {
-  const res = await api.put(`/superadmin/api/update-event/${id}`, formData, {
+  const res = await api.post(`/superadmin/api/update-event/${id}`, formData, {
     headers: {
       "Content-Type": undefined,
     },
@@ -526,7 +529,7 @@ export const uploadImage = async (formData) => {
 
 export const getEventFullDetails = async (id) => {
   const res = await api.get(`/superadmin/api/event-full-details/${id}`);
-  console.log("Document File",res.data);
+  console.log("Document File", res.data);
   return res.data;
 
 };

@@ -193,7 +193,10 @@ export const EventCard = ({ event, isFeatured = false, isLiked, onToggleLike, on
       <div className="p-4 flex flex-col flex-grow">
         <div className="flex-grow space-y-3">
           <div>
-            <h3 className="text-sm font-bold text-white line-clamp-2 hover:text-orange-400 transition-colors min-h-[40px]">
+            <h3 
+              className="text-sm font-bold text-white truncate hover:text-orange-400 transition-colors"
+              title={event.title}
+            >
               {event.title}
             </h3>
             <div className="flex items-center justify-between mt-2">

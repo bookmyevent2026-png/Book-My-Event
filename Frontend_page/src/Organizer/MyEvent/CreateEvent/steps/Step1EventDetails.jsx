@@ -115,19 +115,6 @@ const Step1EventDetails = ({ formData, setFormData, organizerId, showStep1Errors
           next.eventDetails.endDate = v;
         }
 
-        // Prefill booking start/end dates
-        const parts = v.split("-");
-        const formattedDate = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : "";
-        next.booking = {
-          ...(prev.booking || {}),
-          bookingStartDate: formattedDate,
-          _lastEventStart: v,
-        };
-        if (next.eventDetails.endDate) {
-          const endParts = next.eventDetails.endDate.split("-");
-          next.booking.bookingEndDate = endParts.length === 3 ? `${endParts[2]}/${endParts[1]}/${endParts[0]}` : "";
-          next.booking._lastEventEnd = next.eventDetails.endDate;
-        }
         return next;
       });
       return;
@@ -136,18 +123,11 @@ const Step1EventDetails = ({ formData, setFormData, organizerId, showStep1Errors
       const minForEnd = formData.eventDetails?.startDate || todayLocal;
       const v = value < minForEnd ? minForEnd : value;
       setFormData((prev) => {
-        const parts = v.split("-");
-        const formattedDate = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : "";
         return {
           ...prev,
           eventDetails: {
             ...prev.eventDetails,
             endDate: v,
-          },
-          booking: {
-            ...(prev.booking || {}),
-            bookingEndDate: formattedDate,
-            _lastEventEnd: v,
           }
         };
       });
@@ -659,7 +639,7 @@ const Step1EventDetails = ({ formData, setFormData, organizerId, showStep1Errors
             {/* Welcome Kit (RIGHT) */}
             <div className="space-y-3">
               <label className="block text-sm font-semibold text-gray-700 ml-1">
-                Welcome Kit
+                Include Welcome Kit
               </label>
               <div>
                 <label className="flex items-center p-3 rounded-xl bg-indigo-50/50 ring-1 ring-indigo-100 cursor-pointer hover:bg-indigo-50 transition-all">

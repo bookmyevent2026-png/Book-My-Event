@@ -1,6 +1,7 @@
 import qrcode
 import io
 import base64
+from datetime import datetime
 from flask import Blueprint, request, jsonify
 from app.database import get_db_connection
 from app.Services.otp_service import is_verified, clear_verified
@@ -51,9 +52,21 @@ def book_event():
         conn.commit()
         print(f"[SUCCESS] Booking record created with ID: {booking_id}")
 
+        # 🔥 Format Date to DD/MM/YYYY
+        raw_date = event.get('start_date')
+        formatted_date = str(raw_date)
+        if raw_date:
+            try:
+                if isinstance(raw_date, str):
+                    formatted_date = datetime.strptime(raw_date, "%Y-%m-%d").strftime("%d/%m/%Y")
+                else:
+                    formatted_date = raw_date.strftime("%d/%m/%Y")
+            except Exception:
+                pass
+
         # 🔥 GENERATE QR CONTENT
         qr_text = f"Event: {event.get('event_name')}\n"
-        qr_text += f"Date: {event.get('start_date')}\n"
+        qr_text += f"Date: {formatted_date}\n"
         qr_text += f"Food: {food_preference}\n"
         qr_text += f"Verify: https://events.sportalytics.in/validate-booking/{booking_id}"
 
@@ -73,9 +86,6 @@ def book_event():
         img.save(buffered, format="PNG")
         qr_base64 = base64.b64encode(buffered.getvalue()).decode()
 
-        # 🔥 CLEAR VERIFIED
-        clear_verified(email)
-
         # 🔥 SEND MAIL
         print(f"Attempting to send booking email to {email}...")
         try:
@@ -85,17 +95,23 @@ def book_event():
             print(f"⚠️ Email failed but booking was saved: {mail_err}")
             # We don't return error here because the booking was already saved
 
-        return jsonify({
+        response = jsonify({
             "message": "Booking successful",
             "booking_id": booking_id,
             "qr_code": qr_base64,
             "event_details": {
                 "name": event.get('event_name'),
                 "venue": event.get('venue'),
-                "date": str(event.get('start_date')),
+                "address": event.get('address'),
+                "date": formatted_date,
+                "time": str(event.get('start_time', 'N/A')),
                 "food": food_preference
             }
         })
+        
+        # 🔥 CLEAR VERIFIED ONLY UPON FULL SUCCESS
+        clear_verified(email)
+        return response
 
     except Exception as e:
         print(f"[ERROR] CRITICAL BOOKING ERROR: {e}")

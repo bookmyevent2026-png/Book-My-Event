@@ -742,11 +742,15 @@ export const Venuepage = () => {
                     </td>
 
 
-                    <td className="px-6 py-4 font-medium text-sky-900">{v.venue_code}</td>
+                    <td className="px-6 py-4 font-medium text-sky-900 whitespace-nowrap" title={v.venue_code}>{v.venue_code}</td>
 
-                    <td className="px-6 py-4 text-slate-700">{v.venue_name}</td>
+                    <td className="px-6 py-4 text-slate-700 whitespace-nowrap" title={v.venue_name}>
+                      {v.venue_name ? (v.venue_name.length > 15 ? v.venue_name.substring(0, 15) + "..." : v.venue_name) : ""}
+                    </td>
 
-                    <td className="px-6 py-4 text-slate-600">{v.address}</td>
+                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap" title={v.address}>
+                      {v.address ? (v.address.length > 15 ? v.address.substring(0, 15) + "..." : v.address) : ""}
+                    </td>
 
                     <td className="px-6 py-4">
                       <span
@@ -759,10 +763,10 @@ export const Venuepage = () => {
                       </span>
                     </td>
 
-                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap">{v.created_by || "N/A"}</td>
-                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap">{formatDate(v.created_on)}</td>
-                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap">{v.modified_by || "N/A"}</td>
-                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap">{formatDate(v.modified_on)}</td>
+                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap" title={v.created_by || "N/A"}>{v.created_by || "N/A"}</td>
+                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap" title={formatDate(v.created_on)}>{formatDate(v.created_on)}</td>
+                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap" title={v.modified_by || "N/A"}>{v.modified_by || "N/A"}</td>
+                    <td className="px-6 py-4 text-slate-600 whitespace-nowrap" title={formatDate(v.modified_on)}>{formatDate(v.modified_on)}</td>
 
                   </tr>
                 ))

@@ -866,19 +866,31 @@ export const SponsorshipPage = () => {
                             className="p-3 w-full md:w-1/3 rounded-xl border border-slate-200 focus:border-blue-500 outline-none text-slate-700 font-medium"
                           />
 
-                          <input
-                            type="file"
-                            id={`doc-file-${index}`}
-                            onChange={(e) => handleDocument(e, index)}
-                            className="hidden"
-                          />
-                          <label
-                            htmlFor={`doc-file-${index}`}
-                            className="w-full md:w-1/3 p-3 rounded-xl border border-slate-200 bg-white text-blue-600 font-bold cursor-pointer text-center hover:bg-blue-50 transition-all flex justify-between items-center"
-                          >
-                            <span className="text-sm truncate mr-2">{documents[index].document_file ? "File Uploaded" : "Choose File"}</span>
-                            <span className="bg-blue-100 px-3 py-1 rounded-full text-[10px] font-black uppercase text-blue-700">Browse</span>
-                          </label>
+                          <div className="w-full md:w-1/3 flex gap-2">
+                            <input
+                              type="file"
+                              id={`doc-file-${index}`}
+                              onChange={(e) => handleDocument(e, index)}
+                              className="hidden"
+                            />
+                            <label
+                              htmlFor={`doc-file-${index}`}
+                              className="flex-1 p-3 rounded-xl border border-slate-200 bg-white text-blue-600 font-bold cursor-pointer text-center hover:bg-blue-50 transition-all flex justify-between items-center"
+                            >
+                              <span className="text-sm truncate mr-2">{documents[index].document_file ? "File Uploaded" : "Choose File"}</span>
+                              <span className="bg-blue-100 px-3 py-1 rounded-full text-[10px] font-black uppercase text-blue-700">Browse</span>
+                            </label>
+                            {documents[index].document_file && (
+                              <button
+                                type="button"
+                                onClick={() => setFullPreview(documents[index].document_file)}
+                                className="p-3 rounded-xl border border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center shrink-0 shadow-sm"
+                                title="Preview Document"
+                              >
+                                <Eye size={20} />
+                              </button>
+                            )}
+                          </div>
 
                           {documents.length > 1 && (
                             <button
@@ -1103,19 +1115,28 @@ export const SponsorshipPage = () => {
           className="fixed inset-0 bg-black/90 backdrop-blur-md flex justify-center items-center z-[10000] p-4 cursor-zoom-out"
           onClick={() => setFullPreview(null)}
         >
-          <div className="relative max-w-4xl max-h-full">
-            <button
-              className="absolute -top-12 -right-12 p-3 text-white hover:bg-white/10 rounded-full transition-colors"
-              onClick={() => setFullPreview(null)}
-            >
-              <X size={32} />
-            </button>
-            <img
-              src={fullPreview}
-              alt="Preview"
-              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300"
-              onClick={(e) => e.stopPropagation()}
-            />
+          {/* Close button fixed to the viewport so it never gets cut off */}
+          <button
+            className="absolute top-6 right-6 p-3 text-white bg-black/50 hover:bg-black/80 rounded-full transition-colors z-[10001] shadow-lg"
+            onClick={() => setFullPreview(null)}
+          >
+            <X size={28} />
+          </button>
+
+          <div className="relative flex justify-center items-center w-full h-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
+            {fullPreview && (fullPreview.toLowerCase().endsWith('.pdf') || fullPreview.includes('application/pdf')) ? (
+              <iframe
+                src={fullPreview}
+                className="w-full h-[85vh] bg-white rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300 border-none"
+                title="PDF Preview"
+              />
+            ) : (
+              <img
+                src={fullPreview}
+                alt="Preview"
+                className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300"
+              />
+            )}
           </div>
         </div>
       )}

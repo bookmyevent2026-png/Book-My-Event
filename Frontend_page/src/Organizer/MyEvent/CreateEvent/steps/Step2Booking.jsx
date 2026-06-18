@@ -184,42 +184,7 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
     });
   }, [setFormData]);
 
-  useEffect(() => {
-    const eventStart = formData.eventDetails?.startDate; // YYYY-MM-DD
-    const eventEnd = formData.eventDetails?.endDate;     // YYYY-MM-DD
 
-    if (eventStart || eventEnd) {
-      setFormData((prev) => {
-        const bookingStart = prev.booking?.bookingStartDate;
-        const bookingEnd = prev.booking?.bookingEndDate;
-
-        const expectedStart = eventStart ? eventStart.split("-").reverse().join("/") : "";
-        const expectedEnd = eventEnd ? eventEnd.split("-").reverse().join("/") : "";
-
-        let updated = false;
-        const newBooking = { ...(prev.booking || {}) };
-
-        if (expectedStart && (!bookingStart || (prev.booking?._lastEventStart !== undefined && prev.booking?._lastEventStart !== eventStart))) {
-          newBooking.bookingStartDate = expectedStart;
-          newBooking._lastEventStart = eventStart;
-          updated = true;
-        }
-        if (expectedEnd && (!bookingEnd || (prev.booking?._lastEventEnd !== undefined && prev.booking?._lastEventEnd !== eventEnd))) {
-          newBooking.bookingEndDate = expectedEnd;
-          newBooking._lastEventEnd = eventEnd;
-          updated = true;
-        }
-
-        if (updated) {
-          return {
-            ...prev,
-            booking: newBooking
-          };
-        }
-        return prev;
-      });
-    }
-  }, [formData.eventDetails?.startDate, formData.eventDetails?.endDate, setFormData]);
 
   const taxOptions = [
     "Ticket - CGST",
@@ -428,9 +393,9 @@ const Step2Booking = ({ formData, setFormData, showStep2Errors }) => {
                       },
                     });
                   }}
-                  openToDate={eventStartDate || new Date()}
+                  openToDate={new Date()}
                   minDate={new Date()}
-                  maxDate={eventMaxDate || undefined}
+                  maxDate={eventStartDate || undefined}
                   dateFormat="dd/MM/yyyy"
                   placeholderText=" Booking Start Date"
                   className={`w-full bg-gray-50 border-0 ring-1 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm cursor-pointer ${bookingStartDateError ? "ring-red-500" : "ring-gray-200"

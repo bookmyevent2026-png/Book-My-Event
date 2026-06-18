@@ -333,7 +333,8 @@ const SuperUserEvents = () => {
 
   /* NAVIGATION */
   const goNext = () => {
-    if (currentStep < STEPS.length) {
+    const steps = GET_STEPS(fullData);
+    if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -742,10 +743,10 @@ const SuperUserEvents = () => {
                     </div>
                     <div className="min-w-0">
                       <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
-                        Ends At
+                        Starts At
                       </p>
                       <p className="font-medium text-gray-900 text-xs">
-                        {formatTime(e.end_time)}
+                        {formatTime(e.start_time)}
                       </p>
                     </div>
                   </div>
@@ -1131,21 +1132,19 @@ const SuperUserEvents = () => {
       {/* STATUS CONFIRMATION MODAL */}
       {statusConfirm.show && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[110] p-4 animate-fade-in">
-          <div className={`bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md border overflow-hidden relative ${
-            statusConfirm.status === "APPROVED"
+          <div className={`bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md border overflow-hidden relative ${statusConfirm.status === "APPROVED"
               ? "border-emerald-100"
               : statusConfirm.status === "REJECTED"
                 ? "border-rose-100"
                 : "border-amber-100"
-          }`}>
+            }`}>
             {/* Background Decoration */}
-            <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50 ${
-              statusConfirm.status === "APPROVED"
+            <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50 ${statusConfirm.status === "APPROVED"
                 ? "bg-emerald-50"
                 : statusConfirm.status === "REJECTED"
                   ? "bg-rose-50"
                   : "bg-amber-50"
-            }`}></div>
+              }`}></div>
 
             <div className="relative">
               {statusConfirm.status === "APPROVED" ? (
@@ -1186,13 +1185,12 @@ const SuperUserEvents = () => {
                 </button>
                 <button
                   onClick={executeStatusChange}
-                  className={`flex-1 py-4 text-white font-bold rounded-2xl hover:shadow-lg transition-all active:scale-95 ${
-                    statusConfirm.status === "APPROVED"
+                  className={`flex-1 py-4 text-white font-bold rounded-2xl hover:shadow-lg transition-all active:scale-95 ${statusConfirm.status === "APPROVED"
                       ? "bg-gradient-to-r from-emerald-500 to-teal-600 hover:shadow-emerald-200"
                       : statusConfirm.status === "REJECTED"
                         ? "bg-gradient-to-r from-red-500 to-rose-600 hover:shadow-red-200"
                         : "bg-gradient-to-r from-amber-500 to-orange-500 hover:shadow-amber-200"
-                  }`}
+                    }`}
                 >
                   {statusConfirm.status === "APPROVED"
                     ? "Approve"

@@ -26,6 +26,20 @@ import {
   bookEvent,
 } from "../Services/api";
 
+const formatTime12Hour = (timeStr) => {
+  if (!timeStr || timeStr === 'N/A' || timeStr === 'None') return timeStr;
+  if (timeStr.toLowerCase().includes('am') || timeStr.toLowerCase().includes('pm')) return timeStr;
+  try {
+    const [hours, minutes] = timeStr.split(':');
+    const h = parseInt(hours, 10);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const formattedHours = h % 12 || 12;
+    return `${formattedHours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+  } catch (e) {
+    return timeStr;
+  }
+};
+
 export const Userbooking = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -228,7 +242,13 @@ export const Userbooking = () => {
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Date</p>
                     <p className="text-slate-900 font-bold text-sm">{successData.event_details.date}</p>
                   </div>
-                  <div>
+                  {successData.event_details.time && successData.event_details.time !== 'N/A' && successData.event_details.time !== 'None' && (
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Time</p>
+                      <p className="text-slate-900 font-bold text-sm">{formatTime12Hour(successData.event_details.time)}</p>
+                    </div>
+                  )}
+                  <div className={successData.event_details.time && successData.event_details.time !== 'N/A' && successData.event_details.time !== 'None' ? "col-span-2" : ""}>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Guest</p>
                     <p className="text-slate-900 font-bold text-sm truncate">{form.name}</p>
                   </div>
